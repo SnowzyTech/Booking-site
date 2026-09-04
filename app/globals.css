@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Palette sampled directly from the Figma PNG exports in _mockups/ using sharp
+ * (raw pixel buffer -> dominant colour per region). These are measured values,
+ * not approximations.
+ */
+:root {
+  /* Brand */
+  --brand: #aa00ff;              /* nav + hero CTA, Confirm, price chip           */
+  --brand-deep: #7900b5;         /* selected time slot                            */
+  --brand-ink: #6c1e9a;          /* open FAQ question text                        */
+
+  /* Page washes */
+  --wash-hero: #f8ebff;          /* hero + booking wizard background              */
+  --wash-lavender: #fcf7ff;      /* HOW IT WORKS band                             */
+  --wash-cream: #fffbfb;         /* "Better Health Starts With the Right Plan"     */
+  --wash-admin: #f7f3f9;         /* admin dashboard background                    */
+  --nav-pill: #fdf4ff;           /* floating nav pill fill                        */
+
+  /* Surfaces */
+  --footer: #100019;
+  --placeholder: #d9d9d9;        /* image placeholder blocks                      */
+  --surface-muted: #f3f3f3;      /* FAQ question pills                            */
+  --slot-idle: #f7f7f7;          /* unselected time slot                          */
+  --day-selected: #2c2c2c;       /* selected calendar day                         */
+  --rail-active: #ebebeb;        /* admin icon-rail active tile                   */
+
+  /* Buttons */
+  --btn-soft: #fff4f4;           /* "Start Your Journey"                          */
+  --btn-soft-purple: #f7e6ff;    /* admin "Decline"                               */
+
+  /* Stepper */
+  --step-done: #6bdd00;
+  --step-current: #6f7f60;
+  --step-idle: #dfdfdf;
+  --step-chip: #ecaeff;          /* HOW IT WORKS numbered chip                    */
+
+  /* Status */
+  --badge-new: #ff0000;
+  --note-red: #ff3b30;
+
+  /* shadcn tokens, retargeted onto the brand */
+  --background: #ffffff;
+  --foreground: #1d1620;
+  --card: #ffffff;
+  --card-foreground: #1d1620;
+  --popover: #ffffff;
+  --popover-foreground: #1d1620;
+  --primary: var(--brand);
+  --primary-foreground: #ffffff;
+  --secondary: var(--surface-muted);
+  --secondary-foreground: #1d1620;
+  --muted: var(--surface-muted);
+  --muted-foreground: #6b6b6b;
+  --accent: var(--wash-hero);
+  --accent-foreground: var(--brand);
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+  --border: #e5e5e5;
+  --input: #e1e1e1;
+  --ring: var(--brand);
+  --radius: 0.75rem;
+}
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-ink: var(--brand-ink);
+
+  --color-wash-hero: var(--wash-hero);
+  --color-wash-lavender: var(--wash-lavender);
+  --color-wash-cream: var(--wash-cream);
+  --color-wash-admin: var(--wash-admin);
+  --color-nav-pill: var(--nav-pill);
+
+  --color-footer: var(--footer);
+  --color-placeholder: var(--placeholder);
+  --color-surface-muted: var(--surface-muted);
+  --color-slot-idle: var(--slot-idle);
+  --color-day-selected: var(--day-selected);
+  --color-rail-active: var(--rail-active);
+
+  --color-btn-soft: var(--btn-soft);
+  --color-btn-soft-purple: var(--btn-soft-purple);
+
+  --color-step-done: var(--step-done);
+  --color-step-current: var(--step-current);
+  --color-step-idle: var(--step-idle);
+  --color-step-chip: var(--step-chip);
+
+  --color-badge-new: var(--badge-new);
+  --color-note-red: var(--note-red);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-display);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Hide scrollbars on the horizontal day strip and time-slot column while
+   keeping them scrollable. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+/* Radix accordion open/close transitions. tailwindcss-animate ships the utility
+   names but the keyframes come from theme config, which Tailwind v4 drops. */
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+@theme {
+  --animate-accordion-down: accordion-down 0.22s ease-out;
+  --animate-accordion-up: accordion-up 0.22s ease-out;
+}
