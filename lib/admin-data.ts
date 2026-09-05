@@ -124,6 +124,7 @@ export async function getAdminBookings(): Promise<AdminData> {
       service: SHORT_SERVICE[row.serviceSlug] ?? row.serviceName,
       serviceSlug: row.serviceSlug,
       dateKey: format(wall(primary), "yyyy-MM-dd"),
+      createdAt: row.createdAt.toISOString(),
       kind,
       status,
       badge,
@@ -155,7 +156,8 @@ export async function getAdminBookings(): Promise<AdminData> {
     return { booking, primary };
   });
 
-  mapped.sort((a, b) => wall(a.primary).getTime() - wall(b.primary).getTime());
+  // Newest first so new orders appear at the top of the board.
+  mapped.sort((a, b) => b.booking.createdAt.localeCompare(a.booking.createdAt));
   const bookings = mapped.map((m) => m.booking);
 
   const pendingRows = rows.filter((r) => r.status === "PENDING");

@@ -35,6 +35,8 @@ export type Booking = {
   serviceSlug: string;
   /** Primary appointment day (yyyy-MM-dd) — drives month/day filtering + grouping. */
   dateKey: string;
+  /** ISO creation timestamp — newest orders sort to the top of the board. */
+  createdAt: string;
   kind: BookingKind;
   status: BookingStatus;
   badge: BookingBadge;
@@ -72,7 +74,10 @@ export const SERVICE_FILTERS: { value: string; label: string }[] = [
 
 /** Group a (already-filtered) list of bookings by day, chronologically. */
 export function groupBookingsByDay(bookings: Booking[]): DayGroup[] {
-  const sorted = [...bookings].sort((a, b) => a.dateKey.localeCompare(b.dateKey));
+  // Newest bookings first, so a freshly-placed order surfaces at the top.
+  const sorted = [...bookings].sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt)
+  );
   const order: string[] = [];
   const map = new Map<string, DayGroup>();
   for (const b of sorted) {

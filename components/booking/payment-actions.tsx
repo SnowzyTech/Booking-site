@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { useBooking } from "@/components/booking/booking-context";
 import { Button } from "@/components/ui/button";
-import { createScheduledBooking } from "@/app/book/actions";
+import { createScheduledBooking } from "@/lib/booking-actions";
 import { toSlotInstant } from "@/lib/availability";
 
 /*
@@ -43,7 +43,7 @@ export function PaymentActions() {
         </p>
         <p className="mt-1 text-[14px] leading-[1.5] text-[#111]">
           Linda&rsquo;s team will verify your payment and confirm your
-          appointment. A confirmation e-mail will follow shortly.
+          appointment and will reach out to you immediately.
         </p>
       </div>
     );

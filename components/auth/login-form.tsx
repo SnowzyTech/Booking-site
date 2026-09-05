@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { Lock, Mail } from "lucide-react";
 
-import { login } from "@/app/actions/auth";
+import { login } from "@/lib/auth-actions";
 import { Button } from "@/components/ui/button";
 
 export function LoginForm() {

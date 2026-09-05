@@ -76,7 +76,7 @@ rather than referencing a Service table.
 
 Backend build in progress:
 - **Done:** data model + migrations; public scheduled-booking flow writes to the
-  DB on "Sent Notification of Payment" (`app/book/actions.ts`); real slot
+  DB on "Sent Notification of Payment" (`lib/booking-actions.ts`); real slot
   availability; admin `/admin/appointments` reads live data via `lib/admin-data.ts`
   with the derived New badge (red pending / yellow confirmed-not-started / none);
   admin actions — Confirm / Decline / Re-Schedule / Complete & Continue and the

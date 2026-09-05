@@ -15,7 +15,7 @@ import {
   timeSlots,
   toSlotInstant,
 } from "@/lib/availability";
-import { getTakenSlots } from "@/app/book/actions";
+import { getTakenSlots } from "@/lib/booking-actions";
 
 /* Step 2 — date & time (MacBook Pro 14_ - 4.png). */
 export default function SchedulePage() {
@@ -54,26 +54,26 @@ export default function SchedulePage() {
   };
 
   return (
-    <div className="px-[186px] pb-32 pt-[74px]">
+    <div className="px-6 pb-32 pt-[74px]">
       <p className="text-center text-[13.5px] text-[#111]">
         {AVAILABILITY_NOTE}
       </p>
 
-      <div className="mt-[70px] flex flex-wrap items-start gap-y-10">
+      <div className="mt-[70px] flex flex-col items-center gap-y-10 lg:flex-row lg:items-start lg:justify-center">
         <Calendar
           month={month}
           onMonthChange={setMonth}
           selected={date}
           onSelect={setDate}
           isDayAvailable={isDayAvailable}
-          className="w-[520px] shrink-0"
+          className="w-full max-w-[520px] shrink-0"
         />
 
-        <div className="ml-[37px] shrink-0">
+        <div className="shrink-0 lg:ml-[37px]">
           <TimeSlots value={time} onChange={setTime} taken={takenLabels} />
         </div>
 
-        <div className="ml-[73px] w-[423px] shrink-0">
+        <div className="w-full max-w-[423px] shrink-0 lg:ml-[73px]">
           <h2 className="text-[17px] font-bold text-[#111]">
             {service?.name ?? "Select a service"}
           </h2>

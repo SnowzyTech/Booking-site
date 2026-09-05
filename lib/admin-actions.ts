@@ -109,6 +109,9 @@ export async function createAdminBooking(input: {
   if (!input.client.fullName.trim() || !input.client.email.trim()) {
     return { ok: false, error: "Name and e-mail are required." };
   }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.client.email.trim())) {
+    return { ok: false, error: "Please enter a valid e-mail address." };
+  }
 
   const parsed = input.slots
     .map((iso) => new Date(iso))

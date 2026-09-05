@@ -8,11 +8,16 @@ import { Input, Label, Textarea } from "@/components/ui/field";
 import { Media } from "@/components/ui/media";
 
 const FIELDS = [
-  { key: "fullName", label: "Full Name", placeholder: "ENTER YOUR FULL NAME" },
-  { key: "phone", label: "Phone Number" },
-  { key: "whatsapp", label: "Whatsapp Number" },
-  { key: "address", label: "Address" },
-  { key: "email", label: "E-Mail", type: "email" },
+  {
+    key: "fullName",
+    label: "Full Name",
+    placeholder: "ENTER YOUR FULL NAME",
+    required: true,
+  },
+  { key: "phone", label: "Phone Number", type: "tel", required: true },
+  { key: "whatsapp", label: "Whatsapp Number", type: "tel", required: true },
+  { key: "address", label: "Address", required: true },
+  { key: "email", label: "E-Mail", type: "email", required: true },
 ] as const;
 
 /* Step 3 — contact details (MacBook Pro 14_ - 3.png). */
@@ -20,11 +25,21 @@ export default function DetailsPage() {
   const router = useRouter();
   const { service, details, setDetails } = useBooking();
 
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email.trim());
+  // Every field is compulsory except the note; Confirm stays disabled until all
+  // are filled and the e-mail is valid.
+  const allRequiredFilled =
+    Boolean(details.fullName.trim()) &&
+    Boolean(details.phone.trim()) &&
+    Boolean(details.whatsapp.trim()) &&
+    Boolean(details.address.trim()) &&
+    emailValid;
+
   return (
-    <div className="px-[299px] pb-32 pt-[130px]">
-      <div className="flex flex-wrap items-start gap-x-[135px] gap-y-12">
+    <div className="px-6 pb-32 pt-[90px] lg:pt-[130px]">
+      <div className="mx-auto flex max-w-[1000px] flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-center lg:gap-x-[100px]">
         <form
-          className="w-[441px] shrink-0"
+          className="w-full max-w-[441px] shrink-0"
           onSubmit={(e) => {
             e.preventDefault();
             router.push("/book/payment");
@@ -36,6 +51,7 @@ export default function DetailsPage() {
               <Input
                 id={f.key}
                 type={"type" in f ? f.type : "text"}
+                required={f.required}
                 placeholder={"placeholder" in f ? f.placeholder : undefined}
                 value={details[f.key]}
                 onChange={(e) =>
@@ -48,7 +64,7 @@ export default function DetailsPage() {
 
           <div className="mt-8">
             <Label htmlFor="note" className="pl-2">
-              Brief note on your health concern (optional)\
+              Brief note on your health concern (optional)
             </Label>
             <Textarea
               id="note"
@@ -61,12 +77,18 @@ export default function DetailsPage() {
             />
           </div>
 
-          <Button type="submit" variant="solid" size="lg" className="mt-7 px-14">
+          <Button
+            type="submit"
+            variant="solid"
+            size="lg"
+            disabled={!allRequiredFilled}
+            className="mt-7 px-14"
+          >
             Confirm
           </Button>
         </form>
 
-        <div className="w-[422px] shrink-0">
+        <div className="w-full max-w-[422px] shrink-0">
           <h2 className="text-[17px] font-bold text-[#111]">
             {service?.name ?? "Select a service"}
           </h2>

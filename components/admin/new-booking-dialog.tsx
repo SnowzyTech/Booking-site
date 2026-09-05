@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getTakenSlots } from "@/app/book/actions";
+import { getTakenSlots } from "@/lib/booking-actions";
 import { createAdminBooking } from "@/lib/admin-actions";
 import { isDayAvailable, timeSlots, toSlotInstant } from "@/lib/availability";
 import { services } from "@/lib/services";
@@ -29,7 +29,6 @@ const FIELDS = [
   ["whatsapp", "Whatsapp Number"],
   ["email", "E-mail"],
   ["address", "Address"],
-  ["address2", "Address"],
 ] as const;
 
 type FieldKey = (typeof FIELDS)[number][0];
@@ -42,7 +41,6 @@ const emptyForm: Record<FieldKey, string> = {
   whatsapp: "",
   email: "",
   address: "",
-  address2: "",
 };
 
 /*
@@ -127,10 +125,7 @@ export function NewBookingDialog({
         phone: form.phone,
         whatsapp: form.whatsapp,
         email: form.email,
-        address: [form.address, form.address2]
-          .map((s) => s.trim())
-          .filter(Boolean)
-          .join(", "),
+        address: form.address.trim(),
       },
       slots: chosen.map((c) => toSlotInstant(c.date, c.time).toISOString()),
     });
@@ -144,8 +139,9 @@ export function NewBookingDialog({
     }
   }
 
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
   const canSubmit =
-    !pending && form.name.trim() && form.email.trim() && chosen.length > 0;
+    !pending && Boolean(form.name.trim()) && emailValid && chosen.length > 0;
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -169,6 +165,7 @@ export function NewBookingDialog({
                 <Label htmlFor={`nb-${key}`}>{label}</Label>
                 <Input
                   id={`nb-${key}`}
+                  type={key === "email" ? "email" : "text"}
                   className="mt-1.5"
                   value={form[key]}
                   onChange={(e) =>
@@ -255,6 +252,11 @@ export function NewBookingDialog({
               {multiDay && (
                 <p className="mt-3 text-[12px] text-[#8a8a8a]">
                   Pick a date and time, then tap + to add each session.
+                </p>
+              )}
+              {form.email.trim() && !emailValid && (
+                <p className="mt-3 text-[12px] text-[#a33]">
+                  Enter a valid e-mail address.
                 </p>
               )}
               {error && (

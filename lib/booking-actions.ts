@@ -53,6 +53,9 @@ export async function createScheduledBooking(input: {
   if (!input.details.fullName?.trim() || !input.details.email?.trim()) {
     return { ok: false, error: "Your name and e-mail are required." };
   }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.details.email.trim())) {
+    return { ok: false, error: "Please enter a valid e-mail address." };
+  }
 
   // A meal-plan programme fans out to WEEK 1/2/4/6 (same weekday & time);
   // a one-off is a single appointment at the chosen slot.

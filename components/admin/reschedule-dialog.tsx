@@ -8,7 +8,7 @@ import { X } from "lucide-react";
 import { TimeSlots } from "@/components/booking/time-slots";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { getTakenSlots } from "@/app/book/actions";
+import { getTakenSlots } from "@/lib/booking-actions";
 import { rescheduleAppointment } from "@/lib/admin-actions";
 import { isDayAvailable, timeSlots, toSlotInstant } from "@/lib/availability";
 
