@@ -12,18 +12,24 @@ import {
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { dayCounts } from "@/lib/bookings";
 import { cn } from "@/lib/utils";
 
-/* Horizontal day strip with per-day count badges (admin-daystrip.png). */
+/*
+ * Horizontal day strip. Days that have bookings are highlighted (brand-tinted
+ * cell + brand number + count badge) so the admin can see at a glance where the
+ * appointments are. Clicking a day filters the list to it; clicking the
+ * selected day again clears the filter. Counts are keyed by yyyy-MM-dd.
+ */
 export function DayStrip({
   month,
   selected,
   onSelect,
+  counts,
 }: {
   month: Date;
-  selected: Date;
-  onSelect: (d: Date) => void;
+  selected: Date | null;
+  onSelect: (d: Date | null) => void;
+  counts: Record<string, number>;
 }) {
   const scroller = React.useRef<HTMLDivElement>(null);
   const start = startOfMonth(month);
@@ -51,15 +57,17 @@ export function DayStrip({
         className="no-scrollbar flex min-w-0 flex-1 gap-1 overflow-x-auto"
       >
         {days.map((d) => {
-          const count = isSameMonthDay(d, month) ? dayCounts[d.getDate()] : undefined;
-          const active = isSameDay(d, selected);
+          const count = counts[format(d, "yyyy-MM-dd")];
+          const booked = (count ?? 0) > 0;
+          const active = selected ? isSameDay(d, selected) : false;
           const outside = !isSameMonthDay(d, month);
 
           return (
             <button
               key={d.toISOString()}
               type="button"
-              onClick={() => onSelect(d)}
+              aria-pressed={active}
+              onClick={() => onSelect(active ? null : d)}
               className={cn(
                 "flex w-[36px] shrink-0 flex-col items-center",
                 d.getDay() === 1 && "ml-3"
@@ -68,13 +76,19 @@ export function DayStrip({
               <span
                 className={cn(
                   "flex h-[52px] w-full flex-col items-center justify-center rounded-md leading-tight",
-                  active && "bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.06)]"
+                  active
+                    ? "bg-white ring-2 ring-brand"
+                    : booked && "bg-brand/10"
                 )}
               >
                 <span
                   className={cn(
                     "text-[14px] font-medium",
-                    outside ? "text-[#b6b6b6]" : "text-[#111]"
+                    outside
+                      ? "text-[#b6b6b6]"
+                      : booked
+                        ? "font-semibold text-brand"
+                        : "text-[#111]"
                   )}
                 >
                   {d.getDate()}
@@ -89,7 +103,7 @@ export function DayStrip({
                 </span>
               </span>
               <span className="mt-1 h-[18px]">
-                {count ? (
+                {booked ? (
                   <span className="grid h-[18px] w-[26px] place-items-center rounded bg-brand text-[10px] font-medium text-white">
                     {count}
                   </span>

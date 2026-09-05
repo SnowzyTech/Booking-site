@@ -1,10 +1,17 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Copy } from "lucide-react";
 
 import { ProgressDots } from "@/components/admin/progress-dots";
+import { RescheduleDialog } from "@/components/admin/reschedule-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  completeAndContinue,
+  confirmBooking,
+  declineBooking,
+} from "@/lib/admin-actions";
 import type { Booking } from "@/lib/bookings";
 import { cn } from "@/lib/utils";
 
@@ -18,9 +25,36 @@ import { cn } from "@/lib/utils";
  *   expanded  + pending    -> Decline + Confirm   (Frame 134 / 207)
  *   expanded  + confirmed  -> Complete & Continue (Frame 206 / 208)
  */
+type RowActions = {
+  pending: boolean;
+  confirm: () => void;
+  decline: () => void;
+  complete: () => void;
+  reschedule: (appointmentId?: string) => void;
+};
+
 export function BookingRow({ booking }: { booking: Booking }) {
   const [open, setOpen] = React.useState(false);
+  const [rescheduleId, setRescheduleId] = React.useState<string | null>(null);
+  const router = useRouter();
+  const [pending, startTransition] = React.useTransition();
   const hasTimeline = (booking.sessions?.length ?? 0) > 0;
+
+  const run = (fn: () => Promise<unknown>) =>
+    startTransition(async () => {
+      await fn();
+      router.refresh();
+    });
+
+  const actions: RowActions = {
+    pending,
+    confirm: () => run(() => confirmBooking(booking.id)),
+    decline: () => run(() => declineBooking(booking.id)),
+    complete: () => run(() => completeAndContinue(booking.id)),
+    reschedule: (id) => {
+      if (id) setRescheduleId(id);
+    },
+  };
 
   return (
     <div className="rounded-2xl bg-white px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
@@ -47,8 +81,15 @@ export function BookingRow({ booking }: { booking: Booking }) {
             <span className="text-[20px] font-medium text-[#111]">
               {booking.name}
             </span>
-            {booking.isNew && (
-              <span className="mt-1 rounded-[2px] bg-badge-new px-1 text-[7px] font-semibold leading-[1.5] text-white">
+            {booking.badge !== "none" && (
+              <span
+                className={cn(
+                  "mt-1 rounded-[2px] px-1 text-[7px] font-semibold leading-[1.5]",
+                  booking.badge === "new"
+                    ? "bg-badge-new text-white"
+                    : "bg-[#f5c518] text-[#3a2c00]"
+                )}
+              >
                 New
               </span>
             )}
@@ -86,14 +127,14 @@ export function BookingRow({ booking }: { booking: Booking }) {
 
         {!open && (
           <div className="flex w-[230px] shrink-0 justify-end">
-            <CollapsedAction booking={booking} />
+            <CollapsedAction booking={booking} actions={actions} />
           </div>
         )}
       </div>
 
       {open && (
         <>
-          {hasTimeline && <Timeline booking={booking} />}
+          {hasTimeline && <Timeline booking={booking} actions={actions} />}
 
           <div
             className={cn(
@@ -124,19 +165,43 @@ export function BookingRow({ booking }: { booking: Booking }) {
             <div className="flex items-center gap-3">
               {booking.status === "pending" ? (
                 <>
-                  <Button variant="softViolet" size="md" className="px-8">
+                  <Button
+                    variant="softViolet"
+                    size="md"
+                    className="px-8"
+                    disabled={actions.pending}
+                    onClick={actions.decline}
+                  >
                     Decline
                   </Button>
-                  <Button variant="solid" size="md" className="px-10">
+                  <Button
+                    variant="solid"
+                    size="md"
+                    className="px-10"
+                    disabled={actions.pending}
+                    onClick={actions.confirm}
+                  >
                     Confirm
                   </Button>
                 </>
               ) : booking.kind === "one-off" ? (
-                <Button variant="outline" size="md" className="w-[215px]">
+                <Button
+                  variant="outline"
+                  size="md"
+                  className="w-[215px]"
+                  disabled={actions.pending}
+                  onClick={() => actions.reschedule(booking.slot?.appointmentId)}
+                >
                   Re-Schedule
                 </Button>
               ) : (
-                <Button variant="solid" size="md" className="px-8">
+                <Button
+                  variant="solid"
+                  size="md"
+                  className="px-8"
+                  disabled={actions.pending}
+                  onClick={actions.complete}
+                >
                   Complete &amp; Continue
                 </Button>
               )}
@@ -144,14 +209,37 @@ export function BookingRow({ booking }: { booking: Booking }) {
           </div>
         </>
       )}
+
+      <RescheduleDialog
+        appointmentId={rescheduleId}
+        onOpenChange={(v) => {
+          if (!v) setRescheduleId(null);
+        }}
+        onDone={() => {
+          setRescheduleId(null);
+          router.refresh();
+        }}
+      />
     </div>
   );
 }
 
-function CollapsedAction({ booking }: { booking: Booking }) {
+function CollapsedAction({
+  booking,
+  actions,
+}: {
+  booking: Booking;
+  actions: RowActions;
+}) {
   if (booking.status === "pending") {
     return (
-      <Button variant="solid" size="md" className="w-[145px]">
+      <Button
+        variant="solid"
+        size="md"
+        className="w-[145px]"
+        disabled={actions.pending}
+        onClick={actions.confirm}
+      >
         Confirm
       </Button>
     );
@@ -165,7 +253,13 @@ function CollapsedAction({ booking }: { booking: Booking }) {
     );
   }
   return (
-    <Button variant="outline" size="md" className="w-[215px]">
+    <Button
+      variant="outline"
+      size="md"
+      className="w-[215px]"
+      disabled={actions.pending}
+      onClick={() => actions.reschedule(booking.slot?.appointmentId)}
+    >
       Re-Schedule
     </Button>
   );
@@ -198,14 +292,20 @@ function ContactHeader({ booking }: { booking: Booking }) {
   );
 }
 
-function Timeline({ booking }: { booking: Booking }) {
+function Timeline({
+  booking,
+  actions,
+}: {
+  booking: Booking;
+  actions: RowActions;
+}) {
   const corporate = booking.kind === "corporate";
 
   return (
     <div className="mt-6 border-t border-[#ececec] pt-6">
       <div className="flex gap-x-6">
         {booking.sessions!.map((s, i) => (
-          <React.Fragment key={s.label + i}>
+          <React.Fragment key={s.id}>
             <div className={cn("flex-1", i > 0 && "border-l border-[#ececec] pl-6")}>
               {!corporate && (
                 <p
@@ -255,6 +355,8 @@ function Timeline({ booking }: { booking: Booking }) {
                 <Button
                   variant="outline"
                   size="sm"
+                  disabled={actions.pending}
+                  onClick={() => actions.reschedule(s.id)}
                   className={cn(
                     "px-6",
                     !corporate && "mt-3",

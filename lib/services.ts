@@ -7,6 +7,9 @@
  *   "assisted"  -> 2 steps, ending at a WhatsApp hand-off to the EA (MacBook 8)
  */
 export type ServiceFlow = "scheduled" | "assisted";
+/** Booking shape: a single appointment, a multi-week programme, or a
+ *  multi-day corporate package. Drives how many appointments a booking creates. */
+export type ServiceKind = "one-off" | "programme" | "corporate";
 
 export type Service = {
   slug: string;
@@ -24,6 +27,9 @@ export type Service = {
    *  #D9D9D9 placeholder block the mockups show. */
   image?: string;
   flow: ServiceFlow;
+  kind: ServiceKind;
+  /** Programme deliverables, shown in the admin timeline (Frame 207). */
+  deliverables?: string[];
   /** Session template used by the admin dashboard timeline. */
   sessions?: { label: string; title: string; week?: string }[];
 };
@@ -46,6 +52,7 @@ export const services: Service[] = [
     cta: "Book a Consultation",
     ctaVariant: "pill",
     flow: "scheduled",
+    kind: "one-off",
   },
   {
     slug: "personalized-meal-plans",
@@ -66,6 +73,8 @@ export const services: Service[] = [
     cta: "Start Your Journey",
     ctaVariant: "dark",
     flow: "scheduled",
+    kind: "programme",
+    deliverables: ["Personalized Meal Plan", "Daily Blood Sugar Tracking Sheet"],
     sessions: [
       { label: "WEEK 1", week: "WEEK 1", title: "Initial Consultation" },
       { label: "WEEK 2", week: "WEEK 2", title: "Meal Plan Guide & Q&A Session" },
@@ -82,6 +91,7 @@ export const services: Service[] = [
     cta: "Start Your Journey",
     ctaVariant: "soft",
     flow: "assisted",
+    kind: "corporate",
     sessions: [
       { label: "Day 1", title: "Day 1" },
       { label: "Day 2", title: "Day 2" },
@@ -105,6 +115,7 @@ export const services: Service[] = [
     ctaVariant: "soft",
     image: "/images/service-events.jpg",
     flow: "assisted",
+    kind: "corporate",
   },
   {
     slug: "one-on-one-premium",
@@ -120,7 +131,10 @@ export const services: Service[] = [
     cta: "Start Your Journey",
     ctaVariant: "soft",
     image: "/images/service-premium.jpg",
-    flow: "scheduled",
+    // WhatsApp hand-off like Corporate/Events; managed from the (future)
+    // Clients page rather than the appointments dashboard.
+    flow: "assisted",
+    kind: "programme",
   },
 ];
 

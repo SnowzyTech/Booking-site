@@ -1,19 +1,13 @@
-import { addMinutes, format, getDay, startOfDay } from "date-fns";
+import { addMinutes, format, getDay, parse, startOfDay } from "date-fns";
 
 /*
  * Availability rules.
  *
- * NOTE — the designs contradict each other on which weekdays are bookable:
- *   - Booking step 2 (MacBook Pro 14_ - 4.png):  "every Tuesday and Friday"
- *   - Footer (Frame 70.png):                     "Tuesdays and Thursdays"
- *
- * The calendar in the step-2 mockup enables 2, 4, 9, 11, 16, 18, 23, 25, 30
- * September 2026 — which are Tuesdays and Thursdays. The rendered calendar is
- * the more reliable signal than its own caption, so Tue/Thu is implemented here
- * and the step-2 caption is reproduced verbatim as designed. Flagged for the
- * client to resolve.
+ * The mockups contradicted each other on bookable weekdays (step 2 caption said
+ * "Tuesday and Friday"; the footer said "Tuesdays and Thursdays"). The client
+ * resolved this: appointments are bookable on Tuesdays and Fridays.
  */
-export const AVAILABLE_WEEKDAYS = [2, 4]; // Tue, Thu
+export const AVAILABLE_WEEKDAYS = [2, 5]; // Tue, Fri
 
 export const AVAILABILITY_NOTE =
   "Appointments are available every Tuesday and Friday, from 9:00 AM to 5:00 PM. Please schedule your appointment within these available days and hours.";
@@ -30,5 +24,24 @@ export function timeSlots(day: Date = new Date()) {
   });
 }
 
-/** Slots shown as taken in the mockup (9:30 AM and 12:30 PM are dimmed). */
-export const BOOKED_SLOTS = ["9:30 AM", "12:30 PM"];
+/*
+ * A booked slot is identified by the exact instant it occupies. We encode the
+ * chosen calendar day + slot label ("11:00 AM") as a UTC wall-clock instant so
+ * slot identity is stable regardless of the server's timezone: 11:00 AM on the
+ * 1st is always `...T11:00:00.000Z`, whatever machine reads it back. The app is
+ * single-timezone (Nigeria), so we never convert — we just pin the wall clock.
+ */
+export function toSlotInstant(day: Date, timeLabel: string): Date {
+  const t = parse(timeLabel, "h:mm a", startOfDay(day));
+  return new Date(
+    Date.UTC(
+      day.getFullYear(),
+      day.getMonth(),
+      day.getDate(),
+      t.getHours(),
+      t.getMinutes(),
+      0,
+      0
+    )
+  );
+}

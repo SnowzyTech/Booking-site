@@ -2,17 +2,19 @@
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-import { BOOKED_SLOTS, timeSlots } from "@/lib/availability";
+import { timeSlots } from "@/lib/availability";
 import { cn } from "@/lib/utils";
 
 /* Scrollable slot column with up/down affordances, per MacBook Pro 14_ - 4.png.
-   Booked slots render dimmed and are not selectable. */
+   Booked slots (labels in `taken`) render dimmed and are not selectable. */
 export function TimeSlots({
   value,
   onChange,
+  taken = [],
 }: {
   value?: string;
   onChange: (t: string) => void;
+  taken?: string[];
 }) {
   const slots = timeSlots();
 
@@ -21,7 +23,7 @@ export function TimeSlots({
       <ChevronUp className="mx-auto size-5 shrink-0 text-[#111]" />
       <div className="no-scrollbar my-2 flex-1 space-y-2 overflow-y-auto">
         {slots.map((s) => {
-          const booked = BOOKED_SLOTS.includes(s.value);
+          const booked = taken.includes(s.value);
           const active = value === s.value;
           return (
             <button

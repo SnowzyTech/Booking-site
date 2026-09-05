@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { format } from "date-fns";
 import { Plus, X } from "lucide-react";
@@ -17,7 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { isDayAvailable } from "@/lib/availability";
+import { getTakenSlots } from "@/app/book/actions";
+import { createAdminBooking } from "@/lib/admin-actions";
+import { isDayAvailable, timeSlots, toSlotInstant } from "@/lib/availability";
 import { services } from "@/lib/services";
 
 const FIELDS = [
@@ -29,12 +32,25 @@ const FIELDS = [
   ["address2", "Address"],
 ] as const;
 
+type FieldKey = (typeof FIELDS)[number][0];
+
+// Premium 1:1 belongs on the (future) Clients page, not the appointments board.
+const BOOKABLE = services.filter((s) => s.slug !== "one-on-one-premium");
+const emptyForm: Record<FieldKey, string> = {
+  name: "",
+  phone: "",
+  whatsapp: "",
+  email: "",
+  address: "",
+  address2: "",
+};
+
 /*
  * Manual booking dialog behind the "+" FAB (Frame 199 / Frame 201).
  *
- * Frame 201 is the same dialog with a date-chip row: multi-day packages collect
- * several dates before confirming. The chip row appears automatically once the
- * chosen service has a multi-session template.
+ * Admin-added orders are already paid, so they are created CONFIRMED. Multi-day
+ * packages (programme / corporate) collect several dates via the chip row before
+ * confirming; a one-off collects a single date + time.
  */
 export function NewBookingDialog({
   open,
@@ -43,18 +59,93 @@ export function NewBookingDialog({
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
+  const router = useRouter();
   const [month, setMonth] = React.useState(() => new Date(2026, 8, 1));
   const [date, setDate] = React.useState<Date>();
   const [time, setTime] = React.useState<string>();
-  const [slug, setSlug] = React.useState(services[1].slug);
-  const [dates, setDates] = React.useState<{ date: Date; time?: string }[]>([]);
+  const [slug, setSlug] = React.useState("personalized-meal-plans");
+  const [dates, setDates] = React.useState<{ date: Date; time: string }[]>([]);
+  const [form, setForm] = React.useState<Record<FieldKey, string>>(emptyForm);
+  const [taken, setTaken] = React.useState<string[]>([]);
+  const [pending, setPending] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
-  const service = services.find((s) => s.slug === slug);
-  const multiDay = (service?.sessions?.length ?? 0) > 1;
+  const service = BOOKABLE.find((s) => s.slug === slug);
+  const multiDay = service?.kind !== "one-off";
+
+  // Reset the multi-date list when switching service shape.
+  React.useEffect(() => {
+    setDates([]);
+    setTime(undefined);
+  }, [slug]);
+
+  // Grey out slots already taken on the selected day.
+  React.useEffect(() => {
+    if (!date) {
+      setTaken([]);
+      return;
+    }
+    let active = true;
+    getTakenSlots(format(date, "yyyy-MM-dd")).then((iso) => {
+      if (!active) return;
+      const set = new Set(iso);
+      setTaken(
+        timeSlots(date)
+          .filter((s) => set.has(toSlotInstant(date, s.value).toISOString()))
+          .map((s) => s.value)
+      );
+    });
+    return () => {
+      active = false;
+    };
+  }, [date]);
 
   function addDate() {
-    if (date) setDates((d) => [...d, { date, time }]);
+    if (date && time) {
+      setDates((d) => [...d, { date, time }]);
+      setTime(undefined);
+    }
   }
+
+  function reset() {
+    setForm(emptyForm);
+    setDates([]);
+    setDate(undefined);
+    setTime(undefined);
+    setError(null);
+  }
+
+  const chosen = multiDay ? dates : date && time ? [{ date, time }] : [];
+
+  async function submit() {
+    setPending(true);
+    setError(null);
+    const res = await createAdminBooking({
+      serviceSlug: slug,
+      client: {
+        fullName: form.name,
+        phone: form.phone,
+        whatsapp: form.whatsapp,
+        email: form.email,
+        address: [form.address, form.address2]
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .join(", "),
+      },
+      slots: chosen.map((c) => toSlotInstant(c.date, c.time).toISOString()),
+    });
+    setPending(false);
+    if (res.ok) {
+      reset();
+      onOpenChange(false);
+      router.refresh();
+    } else {
+      setError(res.error);
+    }
+  }
+
+  const canSubmit =
+    !pending && form.name.trim() && form.email.trim() && chosen.length > 0;
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -76,7 +167,14 @@ export function NewBookingDialog({
             {FIELDS.map(([key, label]) => (
               <div key={key}>
                 <Label htmlFor={`nb-${key}`}>{label}</Label>
-                <Input id={`nb-${key}`} className="mt-1.5" />
+                <Input
+                  id={`nb-${key}`}
+                  className="mt-1.5"
+                  value={form[key]}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, [key]: e.target.value }))
+                  }
+                />
               </div>
             ))}
           </div>
@@ -88,8 +186,18 @@ export function NewBookingDialog({
               {dates.map((d, i) => (
                 <span
                   key={i}
-                  className="flex flex-col rounded-lg border border-brand/40 px-3 py-2 text-center"
+                  className="relative flex flex-col rounded-lg border border-brand/40 px-3 py-2 text-center"
                 >
+                  <button
+                    type="button"
+                    aria-label="Remove date"
+                    onClick={() =>
+                      setDates((arr) => arr.filter((_, j) => j !== i))
+                    }
+                    className="absolute -right-1.5 -top-1.5 grid size-4 place-items-center rounded-full bg-[#e6e6e6] text-[#6f6f6f]"
+                  >
+                    <X className="size-2.5" />
+                  </button>
                   <span className="text-[11px] font-medium text-[#111]">
                     {format(d.date, "EEE do MMM")}
                   </span>
@@ -100,7 +208,7 @@ export function NewBookingDialog({
                 type="button"
                 aria-label="Add another date"
                 onClick={addDate}
-                disabled={!date}
+                disabled={!date || !time}
                 className="grid size-[46px] place-items-center rounded-lg border border-[#d9d9d9] text-[#6f6f6f] disabled:opacity-40"
               >
                 <Plus className="size-5" />
@@ -115,7 +223,7 @@ export function NewBookingDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {services.map((s) => (
+                  {BOOKABLE.map((s) => (
                     <SelectItem key={s.slug} value={s.slug}>
                       {s.name}
                     </SelectItem>
@@ -132,8 +240,8 @@ export function NewBookingDialog({
                   isDayAvailable={isDayAvailable}
                   className="w-[330px] shrink-0 p-4"
                 />
-                <div className="scale-[0.86] origin-top">
-                  <TimeSlots value={time} onChange={setTime} />
+                <div className="origin-top scale-[0.86]">
+                  <TimeSlots value={time} onChange={setTime} taken={taken} />
                 </div>
               </div>
             </div>
@@ -144,8 +252,22 @@ export function NewBookingDialog({
                 alt={service?.name ?? ""}
                 className="aspect-[340/280] w-full rounded-lg"
               />
-              <Button variant="solid" size="lg" className="mt-auto px-12">
-                Confirm
+              {multiDay && (
+                <p className="mt-3 text-[12px] text-[#8a8a8a]">
+                  Pick a date and time, then tap + to add each session.
+                </p>
+              )}
+              {error && (
+                <p className="mt-3 text-[12px] text-[#a33]">{error}</p>
+              )}
+              <Button
+                variant="solid"
+                size="lg"
+                className="mt-auto px-12"
+                disabled={!canSubmit}
+                onClick={submit}
+              >
+                {pending ? "Saving…" : "Confirm"}
               </Button>
             </div>
           </div>
