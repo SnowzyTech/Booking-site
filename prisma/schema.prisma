@@ -1,40 +1,150 @@
+// Data model for the booking backend.
+//
+// Scope decision: the *catalogue* (services, FAQ, site copy) stays in code
+// (lib/services.ts, lib/faq.ts, lib/site.ts). Only the transactional data —
+// clients, their bookings, and the individual appointments/sessions — lives in
+// Postgres. A Booking therefore snapshots the service it was made against
+// (serviceSlug + serviceName) rather than pointing at a Service table.
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Neon's pooled URL can't run migrations reliably; point DIRECT_URL at the
+  // non-pooled connection string (host without "-pooler").
+  directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  role      Role     @default(USER)
-  bookings  Booking[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Booking {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  service   String
-  date      DateTime
-  status    BookingStatus @default(PENDING)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+// ---------------------------------------------------------------------------
+// Enums — mirror the string unions already used on the front end
+// (lib/services.ts ServiceFlow, lib/bookings.ts BookingKind/BookingStatus).
+// ---------------------------------------------------------------------------
 
 enum Role {
-  USER
   ADMIN
+  STAFF
+}
+
+/// "scheduled" -> calendar + bank transfer; "assisted" -> WhatsApp hand-off.
+enum ServiceFlow {
+  SCHEDULED
+  ASSISTED
+}
+
+enum BookingKind {
+  ONE_OFF
+  PROGRAMME
+  CORPORATE
 }
 
 enum BookingStatus {
   PENDING
   CONFIRMED
+  DECLINED
+  COMPLETED
   CANCELLED
+}
+
+/// Manual bank-transfer lifecycle: client transfers, taps "sent notification",
+/// then an admin verifies the receipt.
+enum PaymentStatus {
+  AWAITING
+  NOTIFIED
+  VERIFIED
+}
+
+enum AppointmentState {
+  UPCOMING
+  ACTIVE
+  DONE
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+/// Admin/staff accounts. Auth.js (NextAuth) tables will be added alongside this
+/// when the auth milestone lands; kept minimal for now.
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// A customer who submitted a booking. Not an authenticated account — this is
+/// the contact captured by the /book/details form (and the admin "new booking"
+/// dialog).
+model Client {
+  id        String    @id @default(cuid())
+  fullName  String
+  email     String
+  phone     String?
+  whatsapp  String?
+  address   String?
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([email])
+}
+
+/// One booking of one service by one client. Carries a snapshot of the service
+/// so catalogue edits never rewrite history.
+model Booking {
+  id       String @id @default(cuid())
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  serviceSlug String
+  serviceName String
+  kind        BookingKind
+  flow        ServiceFlow
+
+  status        BookingStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(AWAITING)
+
+  /// Optional health-concern note from the booking form.
+  note String?
+  /// Programme deliverables (e.g. "Personalized Meal Plan"). Templated from the
+  /// service but stored per-booking so they can be checked off later.
+  deliverables String[] @default([])
+
+  appointments Appointment[]
+
+  paymentNotifiedAt DateTime?
+  paymentVerifiedAt DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+  @@index([serviceSlug])
+  @@index([createdAt])
+}
+
+/// A single meeting. A one-off booking has exactly one; a programme/corporate
+/// booking has several (WEEK 1/2/4/6, Day 1-5). scheduledAt is null for the
+/// assisted flow until the EA arranges it over WhatsApp.
+model Appointment {
+  id        String  @id @default(cuid())
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  label       String? // "WEEK 1", "Day 1"
+  title       String? // "Initial Consultation"
+  scheduledAt DateTime?
+  state       AppointmentState @default(UPCOMING)
+  position    Int              @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bookingId])
+  @@index([scheduledAt])
 }

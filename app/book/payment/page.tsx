@@ -1,5 +1,5 @@
+import { PaymentActions } from "@/components/booking/payment-actions";
 import { WhatsAppChip } from "@/components/booking/whatsapp-block";
-import { Button } from "@/components/ui/button";
 import { bank } from "@/lib/site";
 
 /* Step 4 — bank transfer + confirmation (MacBook Pro 14_ - 5.png). */
@@ -45,9 +45,7 @@ export default function PaymentPage() {
           </div>
 
           <div className="mt-11">
-            <Button variant="solid" size="lg" className="px-9">
-              Sent Notification of Payment
-            </Button>
+            <PaymentActions />
           </div>
         </div>
 

@@ -26,7 +26,7 @@ export function Stepper() {
   const current = STEP_BY_PATH[pathname] ?? 1;
 
   return (
-    <div className="mx-auto flex w-full max-w-[1058px] items-center pt-[70px]">
+    <div className="mx-auto flex w-full max-w-[1058px] items-center px-6 pt-9">
       {[1, 2, 3, 4].map((n, i) => (
         <div key={n} className={cn("flex items-center", i > 0 && "flex-1")}>
           {i > 0 && (
