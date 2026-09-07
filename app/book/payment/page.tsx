@@ -5,15 +5,15 @@ import { bank } from "@/lib/site";
 /* Step 4 — bank transfer + confirmation (MacBook Pro 14_ - 5.png). */
 export default function PaymentPage() {
   return (
-    <div className="px-[222px] pb-32 pt-[80px]">
-      <h1 className="text-[36px] font-bold leading-[1.05] tracking-[-0.01em] text-brand">
+    <div className="px-6 pb-32 pt-14 md:px-12 lg:pt-[80px] xl:px-[222px]">
+      <h1 className="text-[26px] font-bold leading-[1.05] tracking-[-0.01em] text-brand sm:text-[30px] lg:text-[36px]">
         Payment &amp;
         <br />
         Appointment Confirmation
       </h1>
 
       <div className="mt-8 flex flex-wrap gap-y-10">
-        <div className="w-[477px] shrink-0">
+        <div className="w-full shrink-0 xl:w-[477px]">
           <p className="text-[14px] leading-[1.5] text-[#111]">
             After making payment to the account provided, send your payment
             receipt to our WhatsApp number to confirm your appointment.
@@ -49,7 +49,7 @@ export default function PaymentPage() {
           </div>
         </div>
 
-        <div className="ml-[137px] self-start border-l border-[#d9d9d9] pl-[107px]">
+        <div className="w-full self-start xl:ml-[137px] xl:w-auto xl:border-l xl:border-[#d9d9d9] xl:pl-[107px]">
           <dl className="space-y-7">
             <div>
               <dt className="text-[13px] text-[#4a4a4a]">Account Number</dt>

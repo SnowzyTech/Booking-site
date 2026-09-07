@@ -38,7 +38,7 @@ export function Services() {
                   </h3>
 
                   {(s.tag || s.price) && (
-                    <div className="mt-3 flex items-center justify-between gap-4">
+                    <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                       {s.tag ? (
                         <span className="rounded-full bg-[#efefef] px-3 py-1 text-[11px] text-[#4a4a4a]">
                           {s.tag}
@@ -47,7 +47,7 @@ export function Services() {
                         <span />
                       )}
                       {s.price && (
-                        <span className="flex items-center gap-3">
+                        <span className="flex min-w-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
                           {s.listPrice && (
                             <span className="text-[11px] text-[#9a9a9a] line-through">
                               {s.listPrice}

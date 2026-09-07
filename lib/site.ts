@@ -17,6 +17,15 @@ export const contact = {
   address: "16, 21 Road, by Faith Academy, Gowon Estate,Egbeda, Lagos, Nigeria.",
 };
 
+export const socialLinks = {
+  instagram: "https://www.instagram.com/lindachikaodi?igsi=NmJ5Ym0yMXJ0Y3g=",
+  facebook: "https://www.facebook.com/share/17tQcvryUY/",
+  tiktok: "https://www.tiktok.com/@lindachikaodiaustin?_r=1&_t=ZS-994SL5AUXPm",
+  linkedin:
+    "https://www.linkedin.com/in/linda-chikaodi-austin-873b15126?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+  x: "https://x.com/lindachikaodi",
+};
+
 export const bank = {
   accountNumber: "1311973427",
   accountName: "NUCLE LIMITED",

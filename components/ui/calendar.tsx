@@ -67,26 +67,26 @@ export function Calendar({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-border bg-white/70 p-6 shadow-[0_1px_2px_rgba(0,0,0,0.03)]",
+        "rounded-2xl border border-border bg-white/70 p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] sm:p-6",
         className
       )}
     >
-      <div className="mb-5 flex items-center justify-between gap-2">
+      <div className="mb-5 flex items-center justify-between gap-1 sm:gap-2">
         <button
           type="button"
           aria-label="Previous month"
           onClick={() => onMonthChange(subMonths(month, 1))}
-          className="grid size-8 place-items-center rounded-md hover:bg-surface-muted"
+          className="grid size-8 shrink-0 place-items-center rounded-md hover:bg-surface-muted"
         >
           <ChevronLeft className="size-5" strokeWidth={2.5} />
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <Select
             value={String(month.getMonth())}
             onValueChange={(v) => onMonthChange(setMonth(month, Number(v)))}
           >
-            <SelectTrigger className="h-11 w-[120px] rounded-xl text-lg font-medium">
+            <SelectTrigger className="h-10 w-[92px] rounded-xl text-base font-medium sm:h-11 sm:w-[120px] sm:text-lg">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -102,7 +102,7 @@ export function Calendar({
             value={String(month.getFullYear())}
             onValueChange={(v) => onMonthChange(setYear(month, Number(v)))}
           >
-            <SelectTrigger className="h-11 w-[120px] rounded-xl text-lg font-medium">
+            <SelectTrigger className="h-10 w-[92px] rounded-xl text-base font-medium sm:h-11 sm:w-[120px] sm:text-lg">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -119,7 +119,7 @@ export function Calendar({
           type="button"
           aria-label="Next month"
           onClick={() => onMonthChange(addMonths(month, 1))}
-          className="grid size-8 place-items-center rounded-md hover:bg-surface-muted"
+          className="grid size-8 shrink-0 place-items-center rounded-md hover:bg-surface-muted"
         >
           <ChevronRight className="size-5" strokeWidth={2.5} />
         </button>
@@ -129,7 +129,7 @@ export function Calendar({
         {WEEKDAYS.map((d) => (
           <div
             key={d}
-            className="grid h-10 place-items-center text-sm text-muted-foreground"
+            className="grid h-9 place-items-center text-xs text-muted-foreground sm:h-10 sm:text-sm"
           >
             {d}
           </div>
@@ -148,7 +148,7 @@ export function Calendar({
                 disabled={!enabled}
                 onClick={() => enabled && onSelect?.(day)}
                 className={cn(
-                  "grid size-11 place-items-center rounded-lg text-lg transition-colors",
+                  "grid aspect-square w-full max-w-11 place-items-center rounded-lg text-base transition-colors sm:text-lg",
                   isSelected
                     ? "bg-day-selected font-medium text-white"
                     : enabled

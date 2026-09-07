@@ -9,8 +9,8 @@ import { WhatsAppChip } from "@/components/booking/whatsapp-block";
  */
 export default function AssistedPage() {
   return (
-    <div className="px-[220px] pb-32 pt-[155px]">
-      <h1 className="text-[36px] font-bold leading-[1.05] tracking-[-0.01em] text-brand">
+    <div className="px-6 pb-32 pt-20 md:px-12 lg:pt-[155px] xl:px-[220px]">
+      <h1 className="text-[26px] font-bold leading-[1.05] tracking-[-0.01em] text-brand sm:text-[30px] lg:text-[36px]">
         Payment &amp;
         <br />
         Appointment Confirmation

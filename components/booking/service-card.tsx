@@ -25,12 +25,12 @@ export function ServiceCard({ service }: { service: Service }) {
         className="aspect-[474/213] w-full rounded-xl"
       />
 
-      <h2 className="mt-[70px] text-[26px] font-bold leading-[1.15] tracking-[-0.01em] text-[#111]">
+      <h2 className="mt-8 text-[22px] font-bold leading-[1.15] tracking-[-0.01em] text-[#111] sm:text-[26px] xl:mt-[70px]">
         {service.name}
       </h2>
 
       {(service.tag || service.price) && (
-        <div className="mt-3 flex items-center justify-between gap-4">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           {service.tag ? (
             <span className="rounded-full bg-[#efefef] px-3 py-1 text-[11px] text-[#4a4a4a]">
               {service.tag}
@@ -39,7 +39,7 @@ export function ServiceCard({ service }: { service: Service }) {
             <span />
           )}
           {service.price && (
-            <span className="flex items-center gap-3">
+            <span className="flex min-w-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
               {service.listPrice && (
                 <span className="rounded-full bg-[#efefef] px-2.5 py-1 text-[11px] text-[#9a9a9a] line-through">
                   {service.listPrice}

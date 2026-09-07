@@ -6,8 +6,8 @@ import { services } from "@/lib/services";
    occupying the final cell (MacBook Pro 14_ - 2.png). */
 export default function ChooseServicePage() {
   return (
-    <div className="px-[144px] pb-32 pt-[130px]">
-      <div className="grid grid-cols-1 gap-x-[114px] gap-y-[95px] lg:grid-cols-2">
+    <div className="px-6 pb-32 pt-16 md:px-12 lg:pt-[130px] xl:px-[144px]">
+      <div className="grid grid-cols-1 gap-x-12 gap-y-16 lg:grid-cols-2 xl:gap-x-[114px] xl:gap-y-[95px]">
         {services.map((s) => (
           <ServiceCard key={s.slug} service={s} />
         ))}

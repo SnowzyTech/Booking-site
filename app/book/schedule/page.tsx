@@ -54,12 +54,12 @@ export default function SchedulePage() {
   };
 
   return (
-    <div className="px-6 pb-32 pt-[74px]">
+    <div className="px-6 pb-32 pt-12 lg:pt-[74px]">
       <p className="text-center text-[13.5px] text-[#111]">
         {AVAILABILITY_NOTE}
       </p>
 
-      <div className="mt-[70px] flex flex-col items-center gap-y-10 lg:flex-row lg:items-start lg:justify-center">
+      <div className="mt-10 flex flex-col items-center gap-y-10 lg:mt-[70px] xl:flex-row xl:items-start xl:justify-center">
         <Calendar
           month={month}
           onMonthChange={setMonth}
@@ -69,11 +69,11 @@ export default function SchedulePage() {
           className="w-full max-w-[520px] shrink-0"
         />
 
-        <div className="shrink-0 lg:ml-[37px]">
+        <div className="shrink-0 xl:ml-[37px]">
           <TimeSlots value={time} onChange={setTime} taken={takenLabels} />
         </div>
 
-        <div className="w-full max-w-[423px] shrink-0 lg:ml-[73px]">
+        <div className="w-full max-w-[423px] shrink-0 xl:ml-[73px]">
           <h2 className="text-[17px] font-bold text-[#111]">
             {service?.name ?? "Select a service"}
           </h2>
