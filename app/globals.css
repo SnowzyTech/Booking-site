@@ -65,6 +65,18 @@
   --input: #e1e1e1;
   --ring: var(--brand);
   --radius: 0.75rem;
+
+  /* Motion.
+     One house curve (--ease-out-quart) does almost all the work: a decisive
+     arrival with no overshoot. Durations are deliberately short — the brief is
+     a clinical nutritionist's site, so motion confirms and guides, it does not
+     perform. --rise is the single travel distance every entrance uses; keeping
+     one direction (upward) is what makes the page read as composed. */
+  --dur-fast: 150ms;    /* hover, press, focus ring          */
+  --dur-base: 260ms;    /* selected / disabled / open        */
+  --dur-reveal: 520ms;  /* scroll entrance                   */
+  --dur-slow: 700ms;    /* hero load sequence                */
+  --rise: 12px;         /* the one entrance travel distance  */
 }
 
 @theme inline {
@@ -144,6 +156,77 @@
   }
 }
 
+/*
+ * Motion system.
+ *
+ * Scroll entrances are driven entirely from these two data attributes, which
+ * `components/motion/reveal.tsx` flips from "out" to "in" on first intersection
+ * and then stops observing — nothing re-animates when you scroll back up.
+ *
+ *   [data-reveal]          the element itself rises
+ *   [data-reveal-stagger]  its direct children rise in sequence
+ *
+ * The stagger caps at four steps on purpose: past that the last item of a long
+ * list feels abandoned rather than choreographed.
+ */
+[data-reveal],
+[data-reveal-stagger] > * {
+  opacity: 0;
+  transform: translateY(var(--rise));
+  transition:
+    opacity var(--dur-reveal) var(--ease-quart),
+    transform var(--dur-reveal) var(--ease-quart);
+}
+[data-reveal="in"],
+[data-reveal-stagger="in"] > * {
+  opacity: 1;
+  transform: none;
+}
+
+[data-reveal-stagger] > *:nth-child(2) { transition-delay: 70ms; }
+[data-reveal-stagger] > *:nth-child(3) { transition-delay: 140ms; }
+[data-reveal-stagger] > *:nth-child(4) { transition-delay: 210ms; }
+[data-reveal-stagger] > *:nth-child(n + 5) { transition-delay: 280ms; }
+
+/* Safety valve 1 — without JS the observer never fires, so everything below the
+   fold would stay at opacity 0 forever. */
+@media (scripting: none) {
+  [data-reveal],
+  [data-reveal-stagger] > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Safety valve 2 — reduced motion gets the finished state immediately. The
+   blanket rule also covers the accordion, the nav sheet and the admin rail. */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal-stagger] > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* The six nav links are in-page anchors. Without this they jump, and the
+   floating header sits over the heading they land on. */
+html {
+  scroll-behavior: smooth;
+}
+:is(#home, #about, #services, #how-it-works, #faq, #contacts) {
+  scroll-margin-top: 96px;
+}
+
 /* Hide scrollbars on the horizontal day strip and time-slot column while
    keeping them scrollable. */
 @utility no-scrollbar {
@@ -165,4 +248,10 @@
 @theme {
   --animate-accordion-down: accordion-down 0.22s ease-out;
   --animate-accordion-up: accordion-up 0.22s ease-out;
+
+  /* House curves. Declared here rather than in :root because `--ease-*` is
+     Tailwind's own easing namespace — this both emits the custom property and
+     generates the `ease-quart` / `ease-soft` utilities. */
+  --ease-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
 }

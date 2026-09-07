@@ -9,6 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { faq } from "@/lib/faq";
+import { Reveal } from "@/components/motion/reveal";
 import { cn } from "@/lib/utils";
 
 /*
@@ -20,37 +21,44 @@ export function Faq() {
   return (
     <section id="faq" className="bg-white py-[70px]">
       <div className="mx-auto max-w-[1100px] px-6">
-        <h2 className="bg-gradient-to-r from-[#7b0fb5] to-[#c264ea] bg-clip-text text-[44px] font-bold tracking-[-0.02em] text-transparent">
-          Frequently Asked Questions
-        </h2>
-
-        <Accordion
-          type="multiple"
-          defaultValue={["general", "appointments", "corporate-events"]}
-          className="mt-10"
+        <Reveal
+          as="h2"
+          className="bg-gradient-to-r from-[#7b0fb5] to-[#c264ea] bg-clip-text text-[44px] font-bold tracking-[-0.02em] text-transparent"
         >
-          {faq.map((cat, i) => (
-            <AccordionItem
-              key={cat.id}
-              value={cat.id}
-              className={cn(i > 0 && "border-t border-[#c9c9c9]")}
-            >
-              <AccordionTrigger className="py-7 text-[27px] font-semibold tracking-[0.01em] text-[#4a3a52]">
-                {cat.title}
-              </AccordionTrigger>
-              <AccordionContent className="pb-9">
-                {cat.questions.length === 0 ? (
-                  <p className="text-[13px] italic text-muted-foreground">
-                    Questions for this section were collapsed in the design and
-                    have not been supplied yet.
-                  </p>
-                ) : (
-                  <QuestionGrid id={cat.id} questions={cat.questions} />
-                )}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+          Frequently Asked Questions
+        </Reveal>
+
+        {/* The category list is tall and three of five open by default, so it
+            arrives as one block rather than a stagger. */}
+        <Reveal delay={80}>
+          <Accordion
+            type="multiple"
+            defaultValue={["general", "appointments", "corporate-events"]}
+            className="mt-10"
+          >
+            {faq.map((cat, i) => (
+              <AccordionItem
+                key={cat.id}
+                value={cat.id}
+                className={cn(i > 0 && "border-t border-[#c9c9c9]")}
+              >
+                <AccordionTrigger className="py-7 text-[27px] font-semibold tracking-[0.01em] text-[#4a3a52]">
+                  {cat.title}
+                </AccordionTrigger>
+                <AccordionContent className="pb-9">
+                  {cat.questions.length === 0 ? (
+                    <p className="text-[13px] italic text-muted-foreground">
+                      Questions for this section were collapsed in the design and
+                      have not been supplied yet.
+                    </p>
+                  ) : (
+                    <QuestionGrid id={cat.id} questions={cat.questions} />
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </Reveal>
       </div>
     </section>
   );

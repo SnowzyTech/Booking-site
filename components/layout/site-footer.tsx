@@ -8,6 +8,7 @@ import {
   XMark,
 } from "@/components/icons/social";
 
+import { Reveal } from "@/components/motion/reveal";
 import { businessHours, contact, footerColumns, socialLinks } from "@/lib/site";
 
 /* WhatsApp has no profile URL of its own — it reuses the wa.me deep link the
@@ -29,7 +30,7 @@ export function SiteFooter() {
   return (
     <footer id="contacts" className="bg-footer text-white">
       <div className="mx-auto max-w-[1400px] px-6 pb-6 pt-11 md:px-10 xl:px-[100px]">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-[1.5fr_1fr_1.3fr_1.6fr_1fr]">
+        <Reveal className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-[1.5fr_1fr_1.3fr_1.6fr_1fr]">
           <div className="flex items-start gap-3">
             <span className="relative size-9 shrink-0 overflow-hidden rounded-full">
               <Image
@@ -95,7 +96,7 @@ export function SiteFooter() {
               {businessHours.note}
             </p>
           </div>
-        </div>
+        </Reveal>
 
         <div className="mt-12 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-[12.5px] text-[#8d8593] lg:mt-16">
           <span>Linda Chikaodi Austin 2026</span>

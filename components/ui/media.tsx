@@ -13,12 +13,15 @@ export function Media({
   src,
   alt,
   className,
+  imageClassName,
   sizes = "(max-width: 1024px) 100vw, 50vw",
   priority,
 }: {
   src?: string;
   alt: string;
   className?: string;
+  /** Styles the inner <Image> — for hover/reveal effects inside the mask. */
+  imageClassName?: string;
   sizes?: string;
   priority?: boolean;
 }) {
@@ -39,7 +42,7 @@ export function Media({
         fill
         sizes={sizes}
         priority={priority}
-        className="object-cover"
+        className={cn("object-cover", imageClassName)}
       />
     </div>
   );

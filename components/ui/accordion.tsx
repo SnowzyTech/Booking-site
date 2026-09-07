@@ -51,10 +51,17 @@ function AccordionContent({
 }: React.ComponentProps<typeof AccordionPrimitive.Content>) {
   return (
     <AccordionPrimitive.Content
-      className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+      className="group/content overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
       {...props}
     >
-      <div className={cn(className)}>{children}</div>
+      <div
+        className={cn(
+          "opacity-0 transition-opacity duration-[var(--dur-base)] ease-quart group-data-[state=open]/content:opacity-100",
+          className
+        )}
+      >
+        {children}
+      </div>
     </AccordionPrimitive.Content>
   );
 }

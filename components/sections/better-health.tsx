@@ -1,7 +1,9 @@
+import { Reveal } from "@/components/motion/reveal";
+
 export function BetterHealth() {
   return (
     <section className="bg-wash-cream py-[86px]">
-      <div className="mx-auto max-w-[900px] px-6 text-center">
+      <Reveal className="mx-auto max-w-[900px] px-6 text-center">
         <h2 className="text-[27px] font-semibold tracking-[-0.01em]">
           <span className="text-[#4a1063]">Better Health Starts With the </span>
           <span className="text-brand-ink">Right Plan</span>
@@ -12,7 +14,7 @@ export function BetterHealth() {
           healthier, the right approach starts with understanding your
           individual needs.
         </p>
-      </div>
+      </Reveal>
     </section>
   );
 }

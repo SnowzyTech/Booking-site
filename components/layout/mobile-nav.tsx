@@ -31,8 +31,8 @@ export function MobileNav() {
       </DialogPrimitive.Trigger>
 
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <DialogPrimitive.Content className="fixed inset-y-0 right-0 z-50 flex w-[86vw] max-w-[340px] flex-col bg-white p-6 shadow-xl data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right">
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:duration-200 data-[state=open]:duration-300" />
+        <DialogPrimitive.Content className="fixed inset-y-0 right-0 z-50 flex w-[86vw] max-w-[340px] flex-col bg-white p-6 shadow-xl ease-quart data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right data-[state=closed]:duration-200 data-[state=open]:duration-300">
           <DialogPrimitive.Title className="sr-only">
             Site navigation
           </DialogPrimitive.Title>
@@ -62,12 +62,15 @@ export function MobileNav() {
             </DialogPrimitive.Close>
           </div>
 
+          {/* The panel mounts on open, so these are mount animations rather
+              than the scroll-reveal system. */}
           <nav className="mt-8 flex flex-col">
-            {nav.map((item) => (
+            {nav.map((item, i) => (
               <DialogPrimitive.Close asChild key={item.label}>
                 <Link
                   href={item.href}
-                  className="border-b border-border/70 py-4 text-[15px] text-[#4a4a4a] transition-colors hover:text-brand"
+                  style={{ animationDelay: `${80 + i * 40}ms` }}
+                  className="animate-in border-b border-border/70 py-4 text-[15px] text-[#4a4a4a] transition-colors duration-300 ease-quart fade-in-0 fill-mode-both slide-in-from-right-3 hover:text-brand"
                 >
                   {item.label}
                 </Link>

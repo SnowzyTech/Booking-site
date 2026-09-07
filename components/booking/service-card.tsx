@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -11,18 +12,25 @@ import { cn } from "@/lib/utils";
 export function ServiceCard({ service }: { service: Service }) {
   const router = useRouter();
   const { setService } = useBooking();
+  const [pending, startTransition] = React.useTransition();
 
   function choose() {
     setService(service);
-    router.push(service.flow === "scheduled" ? "/book/schedule" : "/book/assisted");
+    // Without the transition the button sits inert until the next route paints.
+    startTransition(() => {
+      router.push(
+        service.flow === "scheduled" ? "/book/schedule" : "/book/assisted"
+      );
+    });
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="group flex flex-col">
       <Media
         src={service.image}
         alt={service.name}
         className="aspect-[474/213] w-full rounded-xl"
+        imageClassName="transition-transform duration-500 ease-soft group-hover:scale-[1.03]"
       />
 
       <h2 className="mt-8 text-[22px] font-bold leading-[1.15] tracking-[-0.01em] text-[#111] sm:text-[26px] xl:mt-[70px]">
@@ -90,6 +98,7 @@ export function ServiceCard({ service }: { service: Service }) {
         variant={service.ctaVariant}
         size="sm"
         onClick={choose}
+        disabled={pending}
         className="mt-7 self-start"
       >
         {service.cta}

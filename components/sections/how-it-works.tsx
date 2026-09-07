@@ -1,3 +1,4 @@
+import { Reveal } from "@/components/motion/reveal";
 import { howItWorks } from "@/lib/site";
 
 export function HowItWorks() {
@@ -8,10 +9,13 @@ export function HowItWorks() {
           HOW IT WORKS
         </h2>
 
-        <div className="mt-14 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <Reveal
+          stagger
+          className="group mt-14 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4"
+        >
           {howItWorks.map((s) => (
             <div key={s.step} className="flex flex-col items-center text-center">
-              <span className="grid size-6 place-items-center rounded-full bg-step-chip text-[11px] font-medium text-[#1d1620]">
+              <span className="grid size-6 scale-90 place-items-center rounded-full bg-step-chip text-[11px] font-medium text-[#1d1620] transition-transform duration-[var(--dur-base)] ease-quart group-data-[reveal-stagger=in]:scale-100">
                 {s.step}
               </span>
               <h3 className="mt-4 max-w-[190px] text-[17px] font-bold leading-tight text-[#1d1620]">
@@ -24,7 +28,7 @@ export function HowItWorks() {
               </div>
             </div>
           ))}
-        </div>
+        </Reveal>
 
         <p className="mt-14 text-center text-[13px] text-[#3d3d3d]">
           <span className="font-medium text-note-red">Note:</span> Your

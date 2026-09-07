@@ -22,6 +22,7 @@ export default function SchedulePage() {
   const router = useRouter();
   const { service, date, setDate, time, setTime } = useBooking();
   const [month, setMonth] = React.useState(() => new Date(2026, 8, 1));
+  const [navigating, startNavigation] = React.useTransition();
   const [takenLabels, setTakenLabels] = React.useState<string[]>([]);
 
   // Load already-booked slots for the selected day and grey them out.
@@ -84,7 +85,7 @@ export default function SchedulePage() {
           />
 
           {date && time && (
-            <p className="mt-6 text-[18px] leading-[1.35] text-[#111]">
+            <p className="mt-6 animate-in text-[18px] leading-[1.35] text-[#111] duration-[var(--dur-base)] ease-quart fade-in-0 fill-mode-both slide-in-from-bottom-1">
               You&rsquo;ve booked your appointment for{" "}
               {ordinal(date.getDate())} of {format(date, "MMMM, yyyy")}, {time}
             </p>
@@ -93,8 +94,8 @@ export default function SchedulePage() {
           <Button
             variant="solid"
             size="lg"
-            disabled={!date || !time}
-            onClick={() => router.push("/book/details")}
+            disabled={!date || !time || navigating}
+            onClick={() => startNavigation(() => router.push("/book/details"))}
             className="mt-6 px-12"
           >
             Confirm

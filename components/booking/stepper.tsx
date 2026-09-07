@@ -40,9 +40,9 @@ export function Stepper() {
           )}
           <span
             className={cn(
-              "grid size-9 shrink-0 place-items-center rounded-full text-[13px] transition-colors sm:size-[46px] sm:text-[15px]",
+              "grid size-9 shrink-0 place-items-center rounded-full text-[13px] transition-[background-color,color,scale] duration-[var(--dur-base)] ease-quart sm:size-[46px] sm:text-[15px]",
               n < current && "bg-step-done text-white",
-              n === current && "bg-step-current text-white",
+              n === current && "scale-105 bg-step-current text-white",
               n > current && "bg-step-idle text-[#a5a5a5]"
             )}
           >

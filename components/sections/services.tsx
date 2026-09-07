@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { Media } from "@/components/ui/media";
 import { services } from "@/lib/services";
@@ -19,7 +20,7 @@ export function Services() {
           {services.map((s, i) => {
             const imageRight = i % 2 === 1;
             return (
-              <div
+              <Reveal
                 key={s.slug}
                 className="grid grid-cols-1 items-start gap-x-[72px] gap-y-8 lg:grid-cols-2"
               >
@@ -103,7 +104,7 @@ export function Services() {
                     <Link href={`/book?service=${s.slug}`}>{s.cta}</Link>
                   </Button>
                 </div>
-              </div>
+              </Reveal>
             );
           })}
         </div>

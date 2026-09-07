@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { useRouter } from "next/navigation";
 
 import { useBooking } from "@/components/booking/booking-context";
@@ -24,6 +25,7 @@ const FIELDS = [
 export default function DetailsPage() {
   const router = useRouter();
   const { service, details, setDetails } = useBooking();
+  const [navigating, startNavigation] = React.useTransition();
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email.trim());
   // Every field is compulsory except the note; Confirm stays disabled until all
@@ -42,7 +44,7 @@ export default function DetailsPage() {
           className="w-full max-w-[441px] shrink-0"
           onSubmit={(e) => {
             e.preventDefault();
-            router.push("/book/payment");
+            startNavigation(() => router.push("/book/payment"));
           }}
         >
           {FIELDS.map((f) => (
@@ -81,7 +83,7 @@ export default function DetailsPage() {
             type="submit"
             variant="solid"
             size="lg"
-            disabled={!allRequiredFilled}
+            disabled={!allRequiredFilled || navigating}
             className="mt-7 px-14"
           >
             Confirm

@@ -76,7 +76,7 @@ export function Calendar({
           type="button"
           aria-label="Previous month"
           onClick={() => onMonthChange(subMonths(month, 1))}
-          className="grid size-8 shrink-0 place-items-center rounded-md hover:bg-surface-muted"
+          className="grid size-8 shrink-0 place-items-center rounded-md transition-colors duration-[var(--dur-fast)] hover:bg-surface-muted"
         >
           <ChevronLeft className="size-5" strokeWidth={2.5} />
         </button>
@@ -125,7 +125,12 @@ export function Calendar({
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-y-1">
+      {/* Keyed on the month so switching months crossfades the grid rather
+          than swapping it in a single frame. */}
+      <div
+        key={`${month.getFullYear()}-${month.getMonth()}`}
+        className="grid animate-in grid-cols-7 gap-y-1 duration-200 ease-quart fade-in-0"
+      >
         {WEEKDAYS.map((d) => (
           <div
             key={d}
@@ -148,9 +153,9 @@ export function Calendar({
                 disabled={!enabled}
                 onClick={() => enabled && onSelect?.(day)}
                 className={cn(
-                  "grid aspect-square w-full max-w-11 place-items-center rounded-lg text-base transition-colors sm:text-lg",
+                  "grid aspect-square w-full max-w-11 place-items-center rounded-lg text-base transition-[background-color,color,scale] duration-[var(--dur-fast)] ease-quart sm:text-lg",
                   isSelected
-                    ? "bg-day-selected font-medium text-white"
+                    ? "scale-105 bg-day-selected font-medium text-white"
                     : enabled
                       ? "font-medium text-foreground hover:bg-surface-muted"
                       : "cursor-default text-[#d4d4d4]"

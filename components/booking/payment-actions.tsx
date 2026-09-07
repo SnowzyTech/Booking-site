@@ -2,6 +2,8 @@
 
 import * as React from "react";
 
+import { Loader2 } from "lucide-react";
+
 import { useBooking } from "@/components/booking/booking-context";
 import { Button } from "@/components/ui/button";
 import { createScheduledBooking } from "@/lib/booking-actions";
@@ -37,7 +39,7 @@ export function PaymentActions() {
 
   if (done) {
     return (
-      <div className="max-w-[420px] rounded-lg bg-white/70 px-6 py-5">
+      <div className="max-w-[420px] animate-in rounded-lg bg-white/70 px-6 py-5 duration-500 ease-soft fade-in-0 fill-mode-both slide-in-from-bottom-2">
         <p className="text-[15px] font-bold text-[#111]">
           Thank you — we&rsquo;ve received your notification.
         </p>
@@ -51,21 +53,30 @@ export function PaymentActions() {
 
   return (
     <div>
+      {/* The label keeps its width while pending — swapping the text outright
+          made the button jump mid-request. */}
       <Button
         variant="solid"
         size="lg"
-        className="px-9"
+        className="px-5 sm:px-9"
         disabled={!ready || pending}
         onClick={submit}
       >
-        {pending ? "Sending…" : "Sent Notification of Payment"}
+        {pending && (
+          <Loader2 className="-ml-1 mr-2 size-4 shrink-0 animate-spin" />
+        )}
+        Sent Notification of Payment
       </Button>
       {!ready && (
-        <p className="mt-2 text-[12px] text-[#a33]">
+        <p className="mt-2 animate-in text-[12px] text-[#a33] duration-[var(--dur-base)] fade-in-0 fill-mode-both">
           Please complete the earlier booking steps first.
         </p>
       )}
-      {error && <p className="mt-2 text-[12px] text-[#a33]">{error}</p>}
+      {error && (
+        <p className="mt-2 animate-in text-[12px] text-[#a33] duration-[var(--dur-base)] fade-in-0 fill-mode-both">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

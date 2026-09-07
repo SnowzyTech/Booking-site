@@ -17,14 +17,14 @@ function SelectTrigger({
   return (
     <SelectPrimitive.Trigger
       className={cn(
-        "flex items-center justify-between gap-2 rounded-lg border border-border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30 disabled:opacity-50",
+        "group flex items-center justify-between gap-2 rounded-lg border border-border bg-white px-3 text-sm outline-none transition-[border-color,box-shadow] duration-[var(--dur-fast)] ease-quart focus:ring-2 focus:ring-ring/30 disabled:opacity-50",
         className
       )}
       {...props}
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <ChevronDown className="size-4 shrink-0 opacity-70" />
+        <ChevronDown className="size-4 shrink-0 opacity-70 transition-transform duration-200 group-data-[state=open]:rotate-180" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   );
@@ -41,7 +41,7 @@ function SelectContent({
       <SelectPrimitive.Content
         position={position}
         className={cn(
-          "z-50 min-w-[8rem] overflow-hidden rounded-lg border border-border bg-white shadow-lg",
+          "z-50 min-w-[8rem] overflow-hidden rounded-lg border border-border bg-white shadow-lg data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-1 data-[side=top]:slide-in-from-bottom-1 data-[state=closed]:duration-150 data-[state=open]:duration-200",
           position === "popper" && "translate-y-1",
           className
         )}
@@ -63,7 +63,7 @@ function SelectItem({
   return (
     <SelectPrimitive.Item
       className={cn(
-        "relative flex cursor-pointer select-none items-center rounded-md py-1.5 pl-7 pr-2 text-sm outline-none focus:bg-surface-muted data-[disabled]:opacity-50",
+        "relative flex cursor-pointer select-none items-center rounded-md py-1.5 pl-7 pr-2 text-sm outline-none transition-colors duration-[var(--dur-fast)] focus:bg-surface-muted data-[disabled]:opacity-50",
         className
       )}
       {...props}

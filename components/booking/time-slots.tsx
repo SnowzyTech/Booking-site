@@ -32,9 +32,9 @@ export function TimeSlots({
               disabled={booked}
               onClick={() => onChange(s.value)}
               className={cn(
-                "h-[38px] w-full rounded-md text-[13px] transition-colors",
+                "h-[38px] w-full rounded-md text-[13px] transition-[background-color,color,scale] duration-[var(--dur-fast)] ease-quart",
                 active
-                  ? "bg-brand-deep font-medium text-white"
+                  ? "scale-[1.03] bg-brand-deep font-medium text-white"
                   : booked
                     ? "cursor-default bg-slot-idle text-[#cfcfcf]"
                     : "bg-slot-idle text-[#111] hover:bg-[#efe6f5]"
