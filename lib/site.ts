@@ -34,7 +34,7 @@ export const bank = {
 
 export const businessHours = {
   hours: "9am-5pm",
-  note: "Please note: Our business hours are Monday to Friday, but appointments can only be booked for Tuesdays and Thursdays.",
+  note: "Please note: Our business hours are Monday to Friday, but appointments can only be booked for Tuesdays and Fridays.",
 };
 
 /* Footer link. `href` is an external product/programme page opened in a new
