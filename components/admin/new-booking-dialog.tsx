@@ -33,7 +33,7 @@ const FIELDS = [
 
 type FieldKey = (typeof FIELDS)[number][0];
 
-// Premium 1:1 belongs on the (future) Clients page, not the appointments board.
+// Premium 1:1 belongs on the Clients page, not the appointments board.
 const BOOKABLE = services.filter((s) => s.slug !== "one-on-one-premium");
 const emptyForm: Record<FieldKey, string> = {
   name: "",

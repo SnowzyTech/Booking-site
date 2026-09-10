@@ -63,7 +63,28 @@ async function main() {
     },
   });
 
-  console.log("seeded 3 bookings");
+  // 4) One-on-One Premium roster for /admin/clients. Assisted flow, no slots —
+  //    the single appointment records the day the monthly plan started.
+  const premium = [
+    ["Obinna Chukwu", "obinna", utc(2026, 7, 14, 0)],
+    ["Amara Nwosu", "amara", utc(2026, 8, 1, 0)],
+    ["Tunde Bakare", "tunde", utc(2026, 8, 4, 0)],
+    ["Chiamaka Eze", "chiamaka", utc(2026, 8, 8, 0)],
+    ["Segun Adeyemi", "segun", utc(2026, 8, 15, 0)],
+    ["Ngozi Okafor", "ngozi", utc(2026, 8, 22, 0)],
+  ];
+  for (const [fullName, handle, startsAt] of premium) {
+    await prisma.booking.create({
+      data: {
+        client: { create: { fullName, email: `${handle}.seed-admin@example.com`, whatsapp: "+234 801 234 5678", phone: "+234 701 345 6789", address: "14 Allen Avenue, Ikeja, Lagos" } },
+        serviceSlug: "one-on-one-premium", serviceName: "One on One Premium work with me",
+        kind: "PROGRAMME", flow: "ASSISTED", status: "CONFIRMED", paymentStatus: "VERIFIED",
+        appointments: { create: [{ position: 0, label: "Start", scheduledAt: startsAt }] },
+      },
+    });
+  }
+
+  console.log(`seeded 3 bookings + ${premium.length} premium clients`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); }).finally(() => prisma.$disconnect());

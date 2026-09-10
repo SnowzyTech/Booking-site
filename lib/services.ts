@@ -131,8 +131,8 @@ export const services: Service[] = [
     cta: "Start Your Journey",
     ctaVariant: "soft",
     image: "/images/service-premium.jpg",
-    // WhatsApp hand-off like Corporate/Events; managed from the (future)
-    // Clients page rather than the appointments dashboard.
+    // WhatsApp hand-off like Corporate/Events; managed from the Clients page
+    // rather than the appointments dashboard.
     flow: "assisted",
     kind: "programme",
   },
@@ -140,3 +140,7 @@ export const services: Service[] = [
 
 export const getService = (slug: string) =>
   services.find((s) => s.slug === slug);
+
+/** The one service that is managed from /admin/clients rather than the
+ *  appointments board: it is billed monthly and arranged over WhatsApp. */
+export const PREMIUM_SLUG = "one-on-one-premium";

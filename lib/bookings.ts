@@ -55,6 +55,27 @@ export type Booking = {
   slot?: { appointmentId: string; date: string; time: string; short: string };
 };
 
+/*
+ * One-on-One Premium engagement, as the Clients page renders it
+ * (_mockups/2x/update/MacBook Pro 14_ - 9.png + Frame 210). Premium is sold by
+ * the month and arranged over WhatsApp, so a client carries a start date but no
+ * appointment slots — which is why the Clients screen shows a name and an
+ * "Opt out" action and nothing else.
+ */
+export type PremiumClient = {
+  /** Booking id — what "Opt out" acts on. */
+  id: string;
+  name: string;
+  initial: string;
+  email: string;
+  /** Month the engagement started (yyyy-MM). Billing is monthly, so a client
+   *  stays listed from this month onward until they opt out. */
+  startKey: string;
+  /** Start date, already formatted for the row's tooltip. */
+  startedOn: string;
+};
+export type ClientsData = { clients: PremiumClient[] };
+
 export type DayGroup = { day: string; monthLabel: string; items: Booking[] };
 export type PendingSummary = { count: number; through: string | null };
 export type AdminData = {
@@ -63,7 +84,7 @@ export type AdminData = {
 };
 
 /** Service dropdown options. `all` shows everything; the rest match serviceSlug.
- *  One-on-One Premium is excluded — it lives on the (future) Clients page. */
+ *  One-on-One Premium is excluded — it lives on the Clients page. */
 export const SERVICE_FILTERS: { value: string; label: string }[] = [
   { value: "all", label: "All Services" },
   { value: "personalized-meal-plans", label: "Meal Plan" },

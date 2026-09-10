@@ -45,3 +45,14 @@ export function toSlotInstant(day: Date, timeLabel: string): Date {
     )
   );
 }
+
+/*
+ * The same UTC-wall-clock encoding for a whole day rather than a slot. Premium
+ * 1:1 engagements are arranged over WhatsApp, so the Clients dialog collects a
+ * start *date* with no time attached (_mockups/2x/update/Frame 209.png).
+ */
+export function toDayInstant(day: Date): Date {
+  return new Date(
+    Date.UTC(day.getFullYear(), day.getMonth(), day.getDate(), 0, 0, 0, 0)
+  );
+}

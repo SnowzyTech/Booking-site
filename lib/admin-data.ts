@@ -1,7 +1,15 @@
 import { format } from "date-fns";
 
 import { prisma } from "@/lib/prisma";
-import type { AdminData, Booking, BookingKind, Session } from "@/lib/bookings";
+import { PREMIUM_SLUG } from "@/lib/services";
+import type {
+  AdminData,
+  Booking,
+  BookingKind,
+  ClientsData,
+  PremiumClient,
+  Session,
+} from "@/lib/bookings";
 
 /*
  * Reads bookings from the database and maps them into the `Booking` shape the
@@ -52,7 +60,12 @@ function hash(s: string): number {
 
 export async function getAdminBookings(): Promise<AdminData> {
   const rows = await prisma.booking.findMany({
-    where: { status: { in: ["PENDING", "CONFIRMED"] } },
+    // Premium 1:1 is a monthly engagement with no slot board — it is listed on
+    // /admin/clients instead, so it never appears here.
+    where: {
+      status: { in: ["PENDING", "CONFIRMED"] },
+      serviceSlug: { not: PREMIUM_SLUG },
+    },
     include: { client: true, appointments: { orderBy: { position: "asc" } } },
   });
 
@@ -172,4 +185,40 @@ export async function getAdminBookings(): Promise<AdminData> {
   };
 
   return { bookings, pendingSummary };
+}
+
+/*
+ * Clients page (_mockups/2x/update/MacBook Pro 14_ - 9.png).
+ *
+ * Lists live One-on-One Premium engagements. Because premium is billed monthly
+ * and has no session board, a client is listed from the month their engagement
+ * starts and stays listed in every later month; opting out cancels the booking,
+ * which drops it from the list entirely.
+ */
+export async function getPremiumClients(): Promise<ClientsData> {
+  const rows = await prisma.booking.findMany({
+    where: {
+      serviceSlug: PREMIUM_SLUG,
+      status: { in: ["PENDING", "CONFIRMED"] },
+    },
+    include: {
+      client: true,
+      appointments: { orderBy: { position: "asc" }, take: 1 },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const clients: PremiumClient[] = rows.map((row) => {
+    const start = wall(row.appointments[0]?.scheduledAt ?? row.createdAt);
+    return {
+      id: row.id,
+      name: row.client.fullName,
+      initial: (row.client.fullName.trim()[0] ?? "?").toUpperCase(),
+      email: row.client.email,
+      startKey: format(start, "yyyy-MM"),
+      startedOn: format(start, "d MMMM yyyy"),
+    };
+  });
+
+  return { clients };
 }

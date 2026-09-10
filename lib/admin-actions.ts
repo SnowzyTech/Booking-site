@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { getService, type ServiceKind } from "@/lib/services";
+import { toDayInstant } from "@/lib/availability";
+import { PREMIUM_SLUG, getService, type ServiceKind } from "@/lib/services";
 
 const KIND_MAP: Record<ServiceKind, "ONE_OFF" | "PROGRAMME" | "CORPORATE"> = {
   "one-off": "ONE_OFF",
@@ -16,9 +17,8 @@ const KIND_MAP: Record<ServiceKind, "ONE_OFF" | "PROGRAMME" | "CORPORATE"> = {
  * Admin server actions for the appointments board.
  *
  * SECURITY: Server Actions are reachable by direct POST, so every one of these
- * must confirm the caller is an admin. Auth.js isn't wired yet (planned before
- * deploy), so assertAdmin() is a single stub to fill in then — do NOT ship
- * without it.
+ * must confirm the caller is an admin — the route guard in proxy.ts does not
+ * cover them. assertAdmin() re-checks the Auth.js session on every call.
  */
 async function assertAdmin(): Promise<void> {
   const session = await auth();
@@ -103,7 +103,7 @@ export async function createAdminBooking(input: {
 
   const service = getService(input.serviceSlug);
   if (!service) return { ok: false, error: "Unknown service." };
-  if (service.slug === "one-on-one-premium") {
+  if (service.slug === PREMIUM_SLUG) {
     return { ok: false, error: "Premium 1:1 is managed from the Clients page." };
   }
   if (!input.client.fullName.trim() || !input.client.email.trim()) {
@@ -221,5 +221,112 @@ export async function rescheduleAppointment(
     }
     console.error("rescheduleAppointment failed", e);
     return { ok: false, error: "Could not reschedule this appointment." };
+  }
+}
+
+/*
+ * Clients page (Frame 209 / MacBook Pro 14_ - 9).
+ *
+ * A One-on-One Premium engagement is arranged over WhatsApp and billed monthly,
+ * so the dialog collects contact details plus a start date only — no time slot,
+ * no payment step. It is created CONFIRMED / VERIFIED like any other
+ * admin-entered order.
+ */
+export async function createPremiumClient(input: {
+  client: {
+    fullName: string;
+    phone: string;
+    whatsapp: string;
+    email: string;
+    address: string;
+  };
+  /** Start date as yyyy-MM-dd (the calendar day the admin picked). */
+  startDate: string;
+}): Promise<ActionResult> {
+  await assertAdmin();
+
+  const service = getService(PREMIUM_SLUG);
+  if (!service) return { ok: false, error: "Unknown service." };
+  if (!input.client.fullName.trim() || !input.client.email.trim()) {
+    return { ok: false, error: "Name and e-mail are required." };
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.client.email.trim())) {
+    return { ok: false, error: "Please enter a valid e-mail address." };
+  }
+
+  const [y, m, d] = input.startDate.split("-").map(Number);
+  if (!y || !m || !d) {
+    return { ok: false, error: "Pick a start date." };
+  }
+  const startsAt = toDayInstant(new Date(y, m - 1, d));
+
+  try {
+    const contact = {
+      fullName: input.client.fullName.trim(),
+      email: input.client.email.trim(),
+      phone: input.client.phone.trim() || null,
+      whatsapp: input.client.whatsapp.trim() || null,
+      address: input.client.address.trim() || null,
+    };
+    await prisma.$transaction(async (tx) => {
+      const existing = await tx.client.findFirst({
+        where: { email: contact.email },
+        select: { id: true },
+      });
+      const client = existing
+        ? await tx.client.update({ where: { id: existing.id }, data: contact })
+        : await tx.client.create({ data: contact });
+
+      const live = await tx.booking.findFirst({
+        where: {
+          clientId: client.id,
+          serviceSlug: PREMIUM_SLUG,
+          status: { in: ["PENDING", "CONFIRMED"] },
+        },
+        select: { id: true },
+      });
+      if (live) throw new Error("ALREADY_PREMIUM");
+
+      await tx.booking.create({
+        data: {
+          clientId: client.id,
+          serviceSlug: service.slug,
+          serviceName: service.name,
+          kind: KIND_MAP[service.kind],
+          flow: "ASSISTED",
+          status: "CONFIRMED",
+          paymentStatus: "VERIFIED",
+          paymentVerifiedAt: new Date(),
+          appointments: {
+            create: [{ position: 0, label: "Start", scheduledAt: startsAt }],
+          },
+        },
+      });
+    });
+    revalidatePath("/admin/clients");
+    return { ok: true };
+  } catch (e) {
+    if (e instanceof Error && e.message === "ALREADY_PREMIUM") {
+      return { ok: false, error: "That client already has a live premium plan." };
+    }
+    console.error("createPremiumClient failed", e);
+    return { ok: false, error: "Could not add this client." };
+  }
+}
+
+/** End a premium engagement. The booking is cancelled rather than deleted, so
+ *  the client's history survives; it drops off the Clients list either way. */
+export async function optOutClient(bookingId: string): Promise<ActionResult> {
+  await assertAdmin();
+  try {
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: { status: "CANCELLED" },
+    });
+    revalidatePath("/admin/clients");
+    return { ok: true };
+  } catch (e) {
+    console.error("optOutClient failed", e);
+    return { ok: false, error: "Could not opt this client out." };
   }
 }

@@ -35,9 +35,12 @@ Marketing + booking site for **Linda Chikaodi Austin**, a clinical nutritionist
   - `scheduled`: `/book` → `/book/schedule` (date/time) → `/book/details` (contact) →
     `/book/payment` (bank transfer + WhatsApp receipt).
   - `assisted` (Corporate, Events): `/book` → `/book/assisted` (WhatsApp hand-off).
-- **`app/admin`** — dashboard under `/admin/*`: `/admin/appointments` (real
-  screen), `/admin/clients` + `/admin/settings` (placeholders), `/admin/login`.
-  The guarded pages live in the `(dashboard)` route group; login sits outside it.
+- **`app/admin`** — dashboard under `/admin/*`: `/admin/appointments` and
+  `/admin/clients` (real screens), `/admin/settings` (placeholder),
+  `/admin/login`. The guarded pages live in the `(dashboard)` route group;
+  login sits outside it. `/admin/clients` is the One-on-One Premium roster —
+  premium is billed monthly and arranged over WhatsApp, so it never appears on
+  the appointments board.
 
 ## Content vs. data (important boundary)
 
@@ -81,17 +84,26 @@ Backend build in progress:
   with the derived New badge (red pending / yellow confirmed-not-started / none);
   admin actions — Confirm / Decline / Re-Schedule / Complete & Continue and the
   "new booking" create dialog (`lib/admin-actions.ts`); working month / day /
-  service filters; **Auth.js admin login** guarding the admin routes + actions.
+  service filters; **Auth.js admin login** guarding the admin routes + actions;
+  **`/admin/clients`** — the premium roster with its month stepper, "Opt out",
+  and the add-client dialog (`getPremiumClients`, `createPremiumClient`,
+  `optOutClient`).
 - The planned backend scope is complete. Remaining before deploy: change the
   default `ADMIN_PASSWORD`, point `DIRECT_URL` at Neon's non-pooled host, and set
   the same env vars in the deploy environment.
 
-`scripts/seed-admin.mjs` seeds sample bookings for local testing
-(`node scripts/seed-admin.mjs`, `--clean` to remove).
+`scripts/seed-admin.mjs` seeds sample bookings and premium clients for local
+testing (`node --env-file=.env scripts/seed-admin.mjs`, `--clean` to remove).
 
 ## Known content gaps (flagged in code)
 
 - Availability weekday conflict in the mockups — Tue/Thu implemented, caption kept
   verbatim (`lib/availability.ts`).
+- Settings still has no design — `_mockups/2x/update/` covers Clients only, so
+  `/admin/settings` remains the placeholder.
+- The Clients frames repeat one client name and initial across every row, and
+  the add-client frame repeats "Address" in its sixth cell; both are Figma
+  duplication, so the row derives its initial from the name and the field list
+  stays at five (same call as `admin-modal-fields.png`).
 - Most FAQ answers are `null` and render a "copy pending" state (`lib/faq.ts`).
 - Fonts/images are stand-ins (Plus Jakarta Sans; `#D9D9D9` placeholder blocks).
