@@ -15,11 +15,11 @@ export const AVAILABILITY_NOTE =
 export const isDayAvailable = (d: Date) =>
   AVAILABLE_WEEKDAYS.includes(getDay(d));
 
-/** 9:00 AM - 5:00 PM in 30-minute increments. */
+/** 9:00 AM - 5:00 PM in 1-hour increments. */
 export function timeSlots(day: Date = new Date()) {
   const base = startOfDay(day);
-  return Array.from({ length: 17 }, (_, i) => {
-    const t = addMinutes(base, 9 * 60 + i * 30);
+  return Array.from({ length: 9 }, (_, i) => {
+    const t = addMinutes(base, 9 * 60 + i * 60);
     return { value: format(t, "h:mm a"), date: t };
   });
 }

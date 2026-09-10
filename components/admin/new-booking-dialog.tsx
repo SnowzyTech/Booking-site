@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getTakenSlots } from "@/lib/booking-actions";
+import { getTakenDays, getTakenSlots } from "@/lib/booking-actions";
 import { createAdminBooking } from "@/lib/admin-actions";
 import { isDayAvailable, timeSlots, toSlotInstant } from "@/lib/availability";
 import { services } from "@/lib/services";
@@ -65,17 +65,34 @@ export function NewBookingDialog({
   const [dates, setDates] = React.useState<{ date: Date; time: string }[]>([]);
   const [form, setForm] = React.useState<Record<FieldKey, string>>(emptyForm);
   const [taken, setTaken] = React.useState<string[]>([]);
+  const [bookedDays, setBookedDays] = React.useState<string[]>([]);
   const [pending, setPending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   const service = BOOKABLE.find((s) => s.slug === slug);
-  const multiDay = service?.kind !== "one-off";
+  // Only the open-ended packages (Corporate Wellness, Events Training — both
+  // kind "corporate") collect several dates via the "+" chip row. A programme
+  // (Meal Plans) takes a single start date and auto-schedules its fixed weekly
+  // sessions server-side; a one-off (Consultation) is a single date too.
+  const multiDate = service?.kind === "corporate";
+  const isProgramme = service?.kind === "programme";
 
   // Reset the multi-date list when switching service shape.
   React.useEffect(() => {
     setDates([]);
     setTime(undefined);
   }, [slug]);
+
+  // Flag days in the visible month that already carry a booking.
+  React.useEffect(() => {
+    let active = true;
+    getTakenDays(format(month, "yyyy-MM")).then((days) => {
+      if (active) setBookedDays(days);
+    });
+    return () => {
+      active = false;
+    };
+  }, [month]);
 
   // Grey out slots already taken on the selected day.
   React.useEffect(() => {
@@ -113,11 +130,37 @@ export function NewBookingDialog({
     setError(null);
   }
 
-  const chosen = multiDay ? dates : date && time ? [{ date, time }] : [];
+  // The in-progress calendar selection counts as a chosen date on its own — the
+  // "+" chip row is only for piling on *extra* dates. Once "+" is tapped the time
+  // clears, so the committed chip is never double-counted here.
+  const current = date && time ? [{ date, time }] : [];
+  const chosen = multiDate ? [...dates, ...current] : current;
+
+  // Booked days = what the DB already holds this month, plus the dates the admin
+  // has just added in this session, so both are flagged on the calendar.
+  const bookedDaysSet = new Set([
+    ...bookedDays,
+    ...dates.map((d) => format(d.date, "yyyy-MM-dd")),
+  ]);
+  // Times to block on the selected day: DB-taken slots plus any this session has
+  // already added on that same day, so the admin can't pick a slot twice.
+  const dayKey = date ? format(date, "yyyy-MM-dd") : null;
+  const takenForDay = Array.from(
+    new Set([
+      ...taken,
+      ...dates
+        .filter((d) => format(d.date, "yyyy-MM-dd") === dayKey)
+        .map((d) => d.time),
+    ])
+  );
 
   async function submit() {
     setPending(true);
     setError(null);
+    // Collapse any duplicate slots so the same date/time is never sent twice.
+    const slots = Array.from(
+      new Set(chosen.map((c) => toSlotInstant(c.date, c.time).toISOString()))
+    );
     const res = await createAdminBooking({
       serviceSlug: slug,
       client: {
@@ -127,7 +170,7 @@ export function NewBookingDialog({
         email: form.email,
         address: form.address.trim(),
       },
-      slots: chosen.map((c) => toSlotInstant(c.date, c.time).toISOString()),
+      slots,
     });
     setPending(false);
     if (res.ok) {
@@ -143,11 +186,17 @@ export function NewBookingDialog({
   const canSubmit =
     !pending && Boolean(form.name.trim()) && emailValid && chosen.length > 0;
 
+  // Spell out what is still keeping Confirm disabled, so it never looks broken.
+  const missing: string[] = [];
+  if (!form.name.trim()) missing.push("the client's name");
+  if (!emailValid) missing.push("a valid e-mail");
+  if (chosen.length === 0) missing.push("a date and time");
+
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/30" />
-        <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 max-h-[92vh] w-[900px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-white p-10 shadow-xl">
+        <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 max-h-[92vh] w-[95vw] max-w-[900px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-white p-6 shadow-xl sm:p-10">
           <DialogPrimitive.Title className="sr-only">
             New booking
           </DialogPrimitive.Title>
@@ -159,7 +208,7 @@ export function NewBookingDialog({
             <X className="size-5" />
           </DialogPrimitive.Close>
 
-          <div className="grid grid-cols-2 gap-x-8 gap-y-5">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
             {FIELDS.map(([key, label]) => (
               <div key={key}>
                 <Label htmlFor={`nb-${key}`}>{label}</Label>
@@ -178,7 +227,7 @@ export function NewBookingDialog({
 
           <hr className="my-8 border-[#d9d9d9]" />
 
-          {multiDay && (
+          {multiDate && (
             <div className="mb-6 flex flex-wrap items-center gap-3">
               {dates.map((d, i) => (
                 <span
@@ -213,8 +262,8 @@ export function NewBookingDialog({
             </div>
           )}
 
-          <div className="flex gap-8">
-            <div className="flex-1">
+          <div className="flex flex-col gap-8 lg:flex-row">
+            <div className="min-w-0 flex-1">
               <Select value={slug} onValueChange={setSlug}>
                 <SelectTrigger className="h-14 w-full rounded-xl text-[17px]">
                   <SelectValue />
@@ -228,30 +277,42 @@ export function NewBookingDialog({
                 </SelectContent>
               </Select>
 
-              <div className="mt-4 flex gap-4">
+              <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
                 <Calendar
                   month={month}
                   onMonthChange={setMonth}
                   selected={date}
                   onSelect={setDate}
                   isDayAvailable={isDayAvailable}
-                  className="w-[330px] shrink-0 p-4"
+                  bookedDays={bookedDaysSet}
+                  className="w-full p-4 sm:w-[330px] sm:shrink-0"
                 />
-                <div className="origin-top scale-[0.86]">
-                  <TimeSlots value={time} onChange={setTime} taken={taken} />
+                <div className="origin-top scale-[0.86] sm:origin-top-left">
+                  <TimeSlots
+                    value={time}
+                    onChange={setTime}
+                    taken={takenForDay}
+                  />
                 </div>
               </div>
             </div>
 
-            <div className="flex w-[300px] shrink-0 flex-col">
+            <div className="flex w-full flex-col lg:w-[300px] lg:shrink-0">
               <Media
                 src={service?.image}
                 alt={service?.name ?? ""}
                 className="aspect-[340/280] w-full rounded-lg"
               />
-              {multiDay && (
+              {multiDate && (
                 <p className="mt-3 text-[12px] text-[#8a8a8a]">
-                  Pick a date and time, then tap + to add each session.
+                  Your selected date and time is included. Tap + to add more
+                  dates.
+                </p>
+              )}
+              {isProgramme && (
+                <p className="mt-3 text-[12px] text-[#8a8a8a]">
+                  The weekly sessions schedule automatically from this start
+                  date.
                 </p>
               )}
               {form.email.trim() && !emailValid && (
@@ -262,10 +323,15 @@ export function NewBookingDialog({
               {error && (
                 <p className="mt-3 text-[12px] text-[#a33]">{error}</p>
               )}
+              {!pending && missing.length > 0 && (
+                <p className="mt-3 text-[12px] text-[#8a8a8a]">
+                  To confirm, add {missing.join(", ")}.
+                </p>
+              )}
               <Button
                 variant="solid"
                 size="lg"
-                className="mt-auto px-12"
+                className="mt-4 px-12"
                 disabled={!canSubmit}
                 onClick={submit}
               >

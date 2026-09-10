@@ -192,8 +192,10 @@ export async function getAdminBookings(): Promise<AdminData> {
  *
  * Lists live One-on-One Premium engagements. Because premium is billed monthly
  * and has no session board, a client is listed from the month their engagement
- * starts and stays listed in every later month; opting out cancels the booking,
- * which drops it from the list entirely.
+ * starts and stays listed in every later month. Opting out records an endsAt
+ * (rather than cancelling), so the client drops off from that month onward while
+ * earlier months keep showing them; the caller filters by month. Fully
+ * cancelled/declined bookings are excluded by the status filter.
  */
 export async function getPremiumClients(): Promise<ClientsData> {
   const rows = await prisma.booking.findMany({
@@ -215,7 +217,13 @@ export async function getPremiumClients(): Promise<ClientsData> {
       name: row.client.fullName,
       initial: (row.client.fullName.trim()[0] ?? "?").toUpperCase(),
       email: row.client.email,
+      phone: row.client.phone,
+      whatsapp: row.client.whatsapp,
+      address: row.client.address,
+      note: row.note,
+      serviceName: row.serviceName,
       startKey: format(start, "yyyy-MM"),
+      endKey: row.endsAt ? format(wall(row.endsAt), "yyyy-MM") : null,
       startedOn: format(start, "d MMMM yyyy"),
     };
   });

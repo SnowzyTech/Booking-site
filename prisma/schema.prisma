@@ -117,6 +117,11 @@ model Booking {
 
   appointments Appointment[]
 
+  /// First month a One-on-One Premium engagement is no longer listed. Set by
+  /// "Opt out" to unsubscribe a client from the viewed month onward, keeping
+  /// earlier months' history intact. Stored as a day-instant like scheduledAt.
+  endsAt DateTime?
+
   paymentNotifiedAt DateTime?
   paymentVerifiedAt DateTime?
   createdAt         DateTime  @default(now())

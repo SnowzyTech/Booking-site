@@ -8,7 +8,7 @@ import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Input, Label } from "@/components/ui/field";
+import { Input, Label, Textarea } from "@/components/ui/field";
 import { Media } from "@/components/ui/media";
 import { createPremiumClient } from "@/lib/admin-actions";
 import { isDayAvailable } from "@/lib/availability";
@@ -56,11 +56,14 @@ export function NewClientDialog({
   const [month, setMonth] = React.useState(() => new Date(2026, 8, 1));
   const [date, setDate] = React.useState<Date>();
   const [form, setForm] = React.useState<Record<FieldKey, string>>(emptyForm);
+  // Notes is optional and kept out of the required contact grid above.
+  const [notes, setNotes] = React.useState("");
   const [pending, setPending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   function reset() {
     setForm(emptyForm);
+    setNotes("");
     setDate(undefined);
     setError(null);
   }
@@ -77,6 +80,7 @@ export function NewClientDialog({
         email: form.email,
         address: form.address.trim(),
       },
+      notes: notes.trim(),
       startDate: format(date, "yyyy-MM-dd"),
     });
     setPending(false);
@@ -90,13 +94,19 @@ export function NewClientDialog({
   }
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
-  const canSubmit = !pending && Boolean(form.name.trim()) && emailValid && !!date;
+  // Every contact field except Notes is required; Notes is optional.
+  const requiredFilled =
+    Boolean(form.name.trim()) &&
+    Boolean(form.phone.trim()) &&
+    Boolean(form.whatsapp.trim()) &&
+    Boolean(form.address.trim());
+  const canSubmit = !pending && requiredFilled && emailValid && !!date;
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/30" />
-        <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 max-h-[92vh] w-[900px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-white p-10 shadow-xl">
+        <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 max-h-[92vh] w-[95vw] max-w-[900px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-white p-6 shadow-xl sm:p-10">
           <DialogPrimitive.Title className="sr-only">
             New premium client
           </DialogPrimitive.Title>
@@ -108,7 +118,7 @@ export function NewClientDialog({
             <X className="size-5" />
           </DialogPrimitive.Close>
 
-          <div className="grid grid-cols-2 gap-x-8 gap-y-5">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
             {FIELDS.map(([key, label]) => (
               <div key={key}>
                 <Label htmlFor={`nc-${key}`}>{label}</Label>
@@ -125,19 +135,33 @@ export function NewClientDialog({
             ))}
           </div>
 
+          <div className="mt-5">
+            <Label htmlFor="nc-notes">Notes (optional)</Label>
+            <Textarea
+              id="nc-notes"
+              rows={3}
+              className="mt-1.5"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+            <p className="mt-2 text-[12px] text-[#8a8a8a]">
+              All fields except Notes are required.
+            </p>
+          </div>
+
           <hr className="my-8 border-[#d9d9d9]" />
 
-          <div className="flex justify-between gap-10">
+          <div className="flex flex-col gap-8 lg:flex-row lg:justify-between lg:gap-10">
             <Calendar
               month={month}
               onMonthChange={setMonth}
               selected={date}
               onSelect={setDate}
               isDayAvailable={isDayAvailable}
-              className="w-[330px] shrink-0 p-4"
+              className="w-full p-4 sm:w-[330px] sm:shrink-0"
             />
 
-            <div className="flex w-[360px] shrink-0 flex-col">
+            <div className="flex w-full flex-col lg:w-[360px] lg:shrink-0">
               <Media
                 src={service?.image}
                 alt={service?.name ?? ""}

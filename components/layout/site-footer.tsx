@@ -53,8 +53,19 @@ export function SiteFooter() {
               <h3 className="text-[12px] font-bold">{col.title}</h3>
               <ul className="mt-4 space-y-3">
                 {col.links.map((l) => (
-                  <li key={l} className="text-[12.5px] text-[#cfc9d2]">
-                    {l}
+                  <li key={l.label} className="text-[12.5px] text-[#cfc9d2]">
+                    {l.href ? (
+                      <a
+                        href={l.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="transition-opacity hover:text-white hover:opacity-70"
+                      >
+                        {l.label}
+                      </a>
+                    ) : (
+                      l.label
+                    )}
                   </li>
                 ))}
               </ul>

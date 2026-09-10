@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { timeSlots } from "@/lib/availability";
 import { getService, type ServiceKind } from "@/lib/services";
 
 /*
@@ -163,4 +164,66 @@ export async function getTakenSlots(dayStr: string): Promise<string[]> {
   return appts
     .map((a) => a.scheduledAt?.toISOString())
     .filter((iso): iso is string => Boolean(iso));
+}
+
+/** Day keys (yyyy-MM-dd) in a given month (yyyy-MM) that already have at least
+ *  one booked appointment. Used by the admin dialog to flag days with activity. */
+export async function getTakenDays(monthStr: string): Promise<string[]> {
+  const [y, m] = monthStr.split("-").map(Number);
+  if (!y || !m) return [];
+
+  const gte = new Date(Date.UTC(y, m - 1, 1, 0, 0, 0, 0));
+  const lt = new Date(Date.UTC(y, m, 1, 0, 0, 0, 0));
+
+  const appts = await prisma.appointment.findMany({
+    where: {
+      scheduledAt: { gte, lt },
+      booking: { status: { notIn: ["DECLINED", "CANCELLED"] } },
+    },
+    select: { scheduledAt: true },
+  });
+
+  const days = new Set<string>();
+  for (const a of appts) {
+    if (a.scheduledAt) days.add(a.scheduledAt.toISOString().slice(0, 10));
+  }
+  return [...days];
+}
+
+/** Day keys (yyyy-MM-dd) in a given month whose *every* hourly slot is booked,
+ *  so the public calendar can disable them. A day with only some slots taken
+ *  stays selectable — its free times are still offered. Slot instants are pinned
+ *  as UTC wall-clock (see toSlotInstant), so a slot's clock hour is its UTC hour. */
+export async function getFullyBookedDays(monthStr: string): Promise<string[]> {
+  const [y, m] = monthStr.split("-").map(Number);
+  if (!y || !m) return [];
+
+  const gte = new Date(Date.UTC(y, m - 1, 1, 0, 0, 0, 0));
+  const lt = new Date(Date.UTC(y, m, 1, 0, 0, 0, 0));
+
+  const appts = await prisma.appointment.findMany({
+    where: {
+      scheduledAt: { gte, lt },
+      booking: { status: { notIn: ["DECLINED", "CANCELLED"] } },
+    },
+    select: { scheduledAt: true },
+  });
+
+  // The clock hours a day must cover to count as full (9…17 for the hourly grid).
+  const requiredHours = timeSlots().map((s) => s.date.getHours());
+
+  const hoursByDay = new Map<string, Set<number>>();
+  for (const a of appts) {
+    if (!a.scheduledAt) continue;
+    const key = a.scheduledAt.toISOString().slice(0, 10);
+    let set = hoursByDay.get(key);
+    if (!set) hoursByDay.set(key, (set = new Set()));
+    set.add(a.scheduledAt.getUTCHours());
+  }
+
+  const full: string[] = [];
+  for (const [key, hours] of hoursByDay) {
+    if (requiredHours.every((h) => hours.has(h))) full.push(key);
+  }
+  return full;
 }

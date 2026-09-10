@@ -43,6 +43,7 @@ export function Calendar({
   selected,
   onSelect,
   isDayAvailable,
+  bookedDays,
   yearRange = 3,
   className,
 }: {
@@ -51,6 +52,8 @@ export function Calendar({
   selected?: Date;
   onSelect?: (d: Date) => void;
   isDayAvailable?: (d: Date) => boolean;
+  /** Day keys (yyyy-MM-dd) that already have a booking; flagged with a dot. */
+  bookedDays?: Set<string>;
   yearRange?: number;
   className?: string;
 }) {
@@ -145,6 +148,8 @@ export function Calendar({
           const available = isDayAvailable ? isDayAvailable(day) : true;
           const isSelected = selected ? isSameDay(day, selected) : false;
           const enabled = available && !outside;
+          const isBooked =
+            enabled && !!bookedDays?.has(format(day, "yyyy-MM-dd"));
 
           return (
             <div key={day.toISOString()} className="grid place-items-center">
@@ -152,8 +157,9 @@ export function Calendar({
                 type="button"
                 disabled={!enabled}
                 onClick={() => enabled && onSelect?.(day)}
+                title={isBooked ? "Has a booking on this day" : undefined}
                 className={cn(
-                  "grid aspect-square w-full max-w-11 place-items-center rounded-lg text-base transition-[background-color,color,scale] duration-[var(--dur-fast)] ease-quart sm:text-lg",
+                  "relative grid aspect-square w-full max-w-11 place-items-center rounded-lg text-base transition-[background-color,color,scale] duration-[var(--dur-fast)] ease-quart sm:text-lg",
                   isSelected
                     ? "scale-105 bg-day-selected font-medium text-white"
                     : enabled
@@ -162,6 +168,14 @@ export function Calendar({
                 )}
               >
                 {day.getDate()}
+                {isBooked && (
+                  <span
+                    className={cn(
+                      "absolute bottom-[5px] size-1 rounded-full",
+                      isSelected ? "bg-white" : "bg-brand"
+                    )}
+                  />
+                )}
               </button>
             </div>
           );

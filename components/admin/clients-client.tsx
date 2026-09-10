@@ -25,7 +25,11 @@ export function ClientsClient({ clients }: ClientsData) {
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
   const monthKey = format(month, "yyyy-MM");
-  const visible = clients.filter((c) => c.startKey <= monthKey);
+  // Listed from the start month onward, until (but not including) the month they
+  // opted out of. A null endKey means the engagement is still running.
+  const visible = clients.filter(
+    (c) => c.startKey <= monthKey && (c.endKey == null || monthKey < c.endKey)
+  );
 
   const changeMonth = (delta: number) =>
     setMonth((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1));
@@ -80,7 +84,7 @@ export function ClientsClient({ clients }: ClientsData) {
       ) : (
         <div className="mt-4 space-y-2.5">
           {visible.map((c) => (
-            <ClientRow key={c.id} client={c} />
+            <ClientRow key={c.id} client={c} monthKey={monthKey} />
           ))}
         </div>
       )}

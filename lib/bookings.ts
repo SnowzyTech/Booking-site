@@ -68,9 +68,18 @@ export type PremiumClient = {
   name: string;
   initial: string;
   email: string;
+  phone: string | null;
+  whatsapp: string | null;
+  address: string | null;
+  /** Free-text engagement note, if any. */
+  note: string | null;
+  serviceName: string;
   /** Month the engagement started (yyyy-MM). Billing is monthly, so a client
    *  stays listed from this month onward until they opt out. */
   startKey: string;
+  /** First month the client is no longer listed (yyyy-MM), or null while active.
+   *  Set by "Opt out" to unsubscribe them from the viewed month onward. */
+  endKey: string | null;
   /** Start date, already formatted for the row's tooltip. */
   startedOn: string;
 };

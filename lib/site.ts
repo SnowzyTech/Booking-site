@@ -37,17 +37,26 @@ export const businessHours = {
   note: "Please note: Our business hours are Monday to Friday, but appointments can only be booked for Tuesdays and Thursdays.",
 };
 
-export const footerColumns = [
+/* Footer link. `href` is an external product/programme page opened in a new
+   tab; entries without one render as plain text until a URL is supplied. */
+export type FooterLink = { label: string; href?: string };
+
+export const footerColumns: { title: string; links: FooterLink[] }[] = [
   {
     title: "Products",
-    links: ["Fonio Mill", "El-Mana Spice", "Neuro-Vive Balm", "Klinka Prosxact"],
+    links: [
+      { label: "Fonio Mill" },
+      { label: "El-Mana Spice", href: "https://globeherb.com/c/elmana-spice/" },
+      { label: "Neuro-Vive Balm", href: "https://vitaafri.com/c/neuro-balm-1/" },
+      { label: "Klinka Prosxact" },
+    ],
   },
   {
     title: "Programmes",
     links: [
-      "Crush Your Sugar Academy",
-      "The Recovery Room",
-      "Founder Parley Podcast",
+      { label: "Crush Your Sugar Academy", href: "https://crushyoursugar.com/" },
+      { label: "The Recovery Room", href: "https://mynucle.com/c/recovery-r/" },
+      { label: "Founder Parley Podcast" },
     ],
   },
 ];

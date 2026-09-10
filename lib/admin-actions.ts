@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { addWeeks } from "date-fns";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -113,7 +114,7 @@ export async function createAdminBooking(input: {
     return { ok: false, error: "Please enter a valid e-mail address." };
   }
 
-  const parsed = input.slots
+  let parsed = input.slots
     .map((iso) => new Date(iso))
     .filter((d) => !Number.isNaN(d.getTime()));
   if (parsed.length === 0) {
@@ -122,6 +123,19 @@ export async function createAdminBooking(input: {
   parsed.sort((a, b) => a.getTime() - b.getTime());
 
   const tpl = service.sessions ?? [];
+
+  // A programme (Meal Plans) is booked with a single start date; its fixed
+  // weekly sessions are derived from the template here so the admin never enters
+  // them by hand. "WEEK n" maps to n-1 whole weeks after the start — and adding
+  // whole weeks keeps the same weekday, so every session stays on an available
+  // day at the same time as the start.
+  if (service.kind === "programme" && tpl.length > 1 && parsed.length === 1) {
+    const start = parsed[0];
+    parsed = tpl.map((s) => {
+      const week = parseInt((s.label ?? "").replace(/\D/g, ""), 10) || 1;
+      return addWeeks(start, week - 1);
+    });
+  }
   const appointments = parsed.map((scheduledAt, i) => ({
     scheduledAt,
     position: i,
@@ -240,6 +254,8 @@ export async function createPremiumClient(input: {
     email: string;
     address: string;
   };
+  /** Optional free-text note about the engagement. */
+  notes?: string;
   /** Start date as yyyy-MM-dd (the calendar day the admin picked). */
   startDate: string;
 }): Promise<ActionResult> {
@@ -247,10 +263,18 @@ export async function createPremiumClient(input: {
 
   const service = getService(PREMIUM_SLUG);
   if (!service) return { ok: false, error: "Unknown service." };
-  if (!input.client.fullName.trim() || !input.client.email.trim()) {
-    return { ok: false, error: "Name and e-mail are required." };
+  // Every contact field except the note is required for a premium client.
+  const c = input.client;
+  if (
+    !c.fullName.trim() ||
+    !c.phone.trim() ||
+    !c.whatsapp.trim() ||
+    !c.email.trim() ||
+    !c.address.trim()
+  ) {
+    return { ok: false, error: "All fields except Notes are required." };
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.client.email.trim())) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email.trim())) {
     return { ok: false, error: "Please enter a valid e-mail address." };
   }
 
@@ -277,11 +301,14 @@ export async function createPremiumClient(input: {
         ? await tx.client.update({ where: { id: existing.id }, data: contact })
         : await tx.client.create({ data: contact });
 
+      // A previously opted-out engagement carries an endsAt, so it no longer
+      // blocks re-subscribing — only a live, still-running plan does.
       const live = await tx.booking.findFirst({
         where: {
           clientId: client.id,
           serviceSlug: PREMIUM_SLUG,
           status: { in: ["PENDING", "CONFIRMED"] },
+          endsAt: null,
         },
         select: { id: true },
       });
@@ -297,6 +324,7 @@ export async function createPremiumClient(input: {
           status: "CONFIRMED",
           paymentStatus: "VERIFIED",
           paymentVerifiedAt: new Date(),
+          note: input.notes?.trim() || null,
           appointments: {
             create: [{ position: 0, label: "Start", scheduledAt: startsAt }],
           },
@@ -314,14 +342,22 @@ export async function createPremiumClient(input: {
   }
 }
 
-/** End a premium engagement. The booking is cancelled rather than deleted, so
- *  the client's history survives; it drops off the Clients list either way. */
-export async function optOutClient(bookingId: string): Promise<ActionResult> {
+/** Unsubscribe a premium client from the viewed month onward. Rather than
+ *  cancelling the booking outright, this records endsAt at the first day of that
+ *  month: the roster filter (monthKey < endKey) then hides the client from that
+ *  month and every later one, while earlier months keep showing them. `monthKey`
+ *  is the yyyy-MM the admin was viewing when they tapped Opt out. */
+export async function optOutClient(
+  bookingId: string,
+  monthKey: string
+): Promise<ActionResult> {
   await assertAdmin();
+  const [y, m] = monthKey.split("-").map(Number);
+  if (!y || !m) return { ok: false, error: "Could not opt this client out." };
   try {
     await prisma.booking.update({
       where: { id: bookingId },
-      data: { status: "CANCELLED" },
+      data: { endsAt: toDayInstant(new Date(y, m - 1, 1)) },
     });
     revalidatePath("/admin/clients");
     return { ok: true };
