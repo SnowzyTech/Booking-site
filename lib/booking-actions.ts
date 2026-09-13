@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { timeSlots } from "@/lib/availability";
+import { notifyNewBooking } from "@/lib/email";
 import { getService, type ServiceKind } from "@/lib/services";
 
 /*
@@ -75,6 +76,8 @@ export async function createScheduledBooking(input: {
 
   const slots = plan.map((p) => p.scheduledAt);
 
+  let bookingId: string;
+
   try {
     const booking = await prisma.$transaction(async (tx) => {
       // Slot locking: no two live bookings may share an instant.
@@ -129,7 +132,7 @@ export async function createScheduledBooking(input: {
       });
     });
 
-    return { ok: true, bookingId: booking.id };
+    bookingId = booking.id;
   } catch (e) {
     if (e instanceof Error && e.message === "SLOT_TAKEN") {
       return {
@@ -143,6 +146,26 @@ export async function createScheduledBooking(input: {
       error: "Something went wrong creating your booking. Please try again.",
     };
   }
+
+  /* Past this line the booking is committed, so nothing below may turn it into
+     an error the customer sees — notifyNewBooking already swallows its own
+     failures (lib/email.ts) and the catch here is the belt to that braces. It
+     is awaited rather than floated so a serverless invocation isn't torn down
+     with the request still in flight. */
+  await notifyNewBooking({
+    bookingId,
+    serviceName: service.name,
+    price: service.price,
+    appointments: plan.map((p) => p.scheduledAt),
+    fullName: input.details.fullName.trim(),
+    email: input.details.email.trim(),
+    phone: input.details.phone.trim() || null,
+    whatsapp: input.details.whatsapp.trim() || null,
+    address: input.details.address.trim() || null,
+    note: input.details.note.trim() || null,
+  }).catch((e) => console.error("notifyNewBooking failed", e));
+
+  return { ok: true, bookingId };
 }
 
 /** ISO instants already taken on a given day (yyyy-MM-dd), for greying out slots. */

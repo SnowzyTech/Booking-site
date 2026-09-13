@@ -58,7 +58,7 @@ export const footerColumns: { title: string; links: FooterLink[] }[] = [
       { label: "Fonio Mill" },
       { label: "El-Mana Spice", href: "https://globeherb.com/c/elmana-spice/" },
       { label: "Neuro-Vive Balm", href: "https://vitaafri.com/c/neuro-balm-1/" },
-      { label: "Klinka Prosxact" },
+      { label: "Niver-mor" },
     ],
   },
   {

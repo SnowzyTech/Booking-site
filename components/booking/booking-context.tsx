@@ -13,6 +13,10 @@ export type Details = {
   note: string;
 };
 
+/* Where the session happens, chosen alongside the date and time. Mirrors the
+   BookingMode enum in prisma/schema.prisma. */
+export type BookingMode = "virtual" | "physical";
+
 type Ctx = {
   service?: Service;
   setService: (s: Service) => void;
@@ -20,6 +24,8 @@ type Ctx = {
   setDate: (d: Date) => void;
   time?: string;
   setTime: (t: string) => void;
+  mode: BookingMode;
+  setMode: (m: BookingMode) => void;
   details: Details;
   setDetails: React.Dispatch<React.SetStateAction<Details>>;
 };
@@ -39,11 +45,24 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   const [service, setService] = React.useState<Service>();
   const [date, setDate] = React.useState<Date>();
   const [time, setTime] = React.useState<string>();
+  // Virtual by default — see the BookingMode comment in schema.prisma.
+  const [mode, setMode] = React.useState<BookingMode>("virtual");
   const [details, setDetails] = React.useState<Details>(emptyDetails);
 
   const value = React.useMemo(
-    () => ({ service, setService, date, setDate, time, setTime, details, setDetails }),
-    [service, date, time, details]
+    () => ({
+      service,
+      setService,
+      date,
+      setDate,
+      time,
+      setTime,
+      mode,
+      setMode,
+      details,
+      setDetails,
+    }),
+    [service, date, time, mode, details]
   );
 
   return (

@@ -68,6 +68,19 @@ rather than referencing a Service table.
   host (drop `-pooler`).
 - Payments are **manual bank transfer**: client transfers, taps "sent notification"
   (`PaymentStatus.NOTIFIED`), an admin verifies (`VERIFIED`). No payment gateway.
+  `/book/payment` offers two choices (`components/booking/payment-actions.tsx`):
+  **Manually Pay** opens a modal with the account details, and confirming there
+  is what persists the booking; **Pay with Paystack** is a placeholder — no
+  gateway is wired up, so it only explains that card payment isn't live yet.
+- E-mail: `lib/email.ts`, posted straight to **Resend**'s REST API (no SDK —
+  one `fetch`, so no extra dependency). `createScheduledBooking` calls
+  `notifyNewBooking` *after* the transaction commits, which sends two messages:
+  the "new booking" alert to `BOOKING_NOTIFICATION_EMAIL` and a receipt to the
+  customer. Sending is best-effort and never fails a committed booking. Env:
+  `RESEND_API_KEY`, `EMAIL_FROM` (a Resend-verified sender),
+  `BOOKING_NOTIFICATION_EMAIL` — leave them blank and sends are skipped with a
+  console warning, which is how local dev runs. Confirm / Decline in the admin
+  dashboard still send nothing.
 - Admin auth: **Auth.js (NextAuth v5)**, single shared admin, credentials from env.
   Config in `auth.ts`; optimistic gate in `proxy.ts`; secure gate via
   `requireAdmin()` (`lib/dal.ts`) in the admin layout/pages and `assertAdmin()`

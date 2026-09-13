@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Copy } from "lucide-react";
+import { Copy, MapPin, Video } from "lucide-react";
 
 import { ProgressDots } from "@/components/admin/progress-dots";
 import { RescheduleDialog } from "@/components/admin/reschedule-dialog";
@@ -142,25 +142,43 @@ export function BookingRow({ booking }: { booking: Booking }) {
               hasTimeline ? "mt-8" : "mt-6 border-t border-[#ececec] pt-6"
             )}
           >
-            {/* A one-off shows its single slot here; a programme shows dots. */}
-            {booking.slot ? (
-              <span className="flex items-center gap-3">
-                <span className="inline-flex items-center gap-2 rounded bg-[#efefef] px-2 py-1 text-[12px] text-[#111]">
-                  {booking.slot.date}
-                  <span className="text-brand">{booking.slot.time}</span>
-                </span>
-                <span className="text-[19px] font-bold text-[#111]">
-                  {booking.slot.short}
-                </span>
+            {/* A one-off shows its single slot here; a programme shows dots.
+                The mode chip rides alongside either — it decides whether this
+                booking needs a meeting link or a seat at the office. */}
+            <span className="flex items-center gap-3">
+              {booking.slot ? (
+                <>
+                  <span className="inline-flex items-center gap-2 rounded bg-[#efefef] px-2 py-1 text-[12px] text-[#111]">
+                    {booking.slot.date}
+                    <span className="text-brand">{booking.slot.time}</span>
+                  </span>
+                  <span className="text-[19px] font-bold text-[#111]">
+                    {booking.slot.short}
+                  </span>
+                </>
+              ) : booking.progress ? (
+                <ProgressDots
+                  total={booking.progress.total}
+                  done={booking.progress.done}
+                />
+              ) : null}
+
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold",
+                  booking.mode === "physical"
+                    ? "bg-[#f7ecff] text-brand-ink"
+                    : "bg-[#eafaf0] text-[#1d6b3f]"
+                )}
+              >
+                {booking.mode === "physical" ? (
+                  <MapPin className="size-3.5" strokeWidth={2} />
+                ) : (
+                  <Video className="size-3.5" strokeWidth={2} />
+                )}
+                {booking.mode === "physical" ? "In person" : "Virtual"}
               </span>
-            ) : booking.progress ? (
-              <ProgressDots
-                total={booking.progress.total}
-                done={booking.progress.done}
-              />
-            ) : (
-              <span />
-            )}
+            </span>
 
             <div className="flex items-center gap-3">
               {booking.status === "pending" ? (

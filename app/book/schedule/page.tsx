@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 
 import { useBooking } from "@/components/booking/booking-context";
+import { ModePicker } from "@/components/booking/mode-picker";
 import { ServiceFromQuery } from "@/components/booking/service-from-query";
 import { TimeSlots } from "@/components/booking/time-slots";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ import { cn } from "@/lib/utils";
    <ServiceFromQuery>. */
 export default function SchedulePage() {
   const router = useRouter();
-  const { service, date, setDate, time, setTime } = useBooking();
+  const { service, date, setDate, time, setTime, mode } = useBooking();
   const [month, setMonth] = React.useState(() => new Date(2026, 8, 1));
   const [navigating, startNavigation] = React.useTransition();
   const [takenLabels, setTakenLabels] = React.useState<string[]>([]);
@@ -157,10 +158,13 @@ export default function SchedulePage() {
             className="mt-4 aspect-[423/152] w-full rounded-lg"
           />
 
+          <ModePicker className="mt-6" />
+
           {date && time && (
             <p className="mt-6 animate-in text-[18px] leading-[1.35] text-[#111] duration-[var(--dur-base)] ease-quart fade-in-0 fill-mode-both slide-in-from-bottom-1">
-              You&rsquo;ve booked your appointment for{" "}
-              {ordinal(date.getDate())} of {format(date, "MMMM, yyyy")}, {time}
+              You&rsquo;ve booked your {mode === "physical" ? "in-person" : "virtual"}{" "}
+              appointment for {ordinal(date.getDate())} of{" "}
+              {format(date, "MMMM, yyyy")}, {time}
             </p>
           )}
 
