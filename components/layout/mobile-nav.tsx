@@ -48,7 +48,7 @@ export function MobileNav() {
                   className="object-cover"
                 />
               </span>
-              <span className="text-[13px] font-medium leading-[1.3] text-foreground">
+              <span className="text-[14px] font-semibold leading-[1.3] text-foreground">
                 Linda Chikaodi
                 <br />
                 Austin
@@ -72,7 +72,7 @@ export function MobileNav() {
                 <a
                   href={item.href}
                   style={{ animationDelay: `${80 + i * 40}ms` }}
-                  className="animate-in border-b border-border/70 py-4 text-[15px] text-[#4a4a4a] transition-colors duration-300 ease-quart fade-in-0 fill-mode-both slide-in-from-right-3 hover:text-brand"
+                  className="animate-in border-b border-border/70 py-4 text-[16.5px] font-medium text-[#1d1620] transition-colors duration-300 ease-quart fade-in-0 fill-mode-both slide-in-from-right-3 hover:text-brand"
                 >
                   {item.label}
                 </a>

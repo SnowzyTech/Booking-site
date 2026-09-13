@@ -21,7 +21,7 @@ export function SiteFooter() {
                 className="object-cover"
               />
             </span>
-            <span className="text-[13px] font-medium leading-tight">
+            <span className="text-[14px] font-semibold leading-tight">
               Linda Chikaodi
               <br />
               Austin
@@ -30,10 +30,10 @@ export function SiteFooter() {
 
           {footerColumns.map((col) => (
             <div key={col.title}>
-              <h3 className="text-[12px] font-bold">{col.title}</h3>
+              <h3 className="text-[14px] font-extrabold">{col.title}</h3>
               <ul className="mt-4 space-y-3">
                 {col.links.map((l) => (
-                  <li key={l.label} className="text-[12.5px] text-[#cfc9d2]">
+                  <li key={l.label} className="text-[14px] text-[#e4dfe8]">
                     {l.href ? (
                       <a
                         href={l.href}
@@ -53,8 +53,8 @@ export function SiteFooter() {
           ))}
 
           <div>
-            <h3 className="text-[12px] font-bold">Contacts</h3>
-            <ul className="mt-4 space-y-3 break-words text-[12.5px] text-[#cfc9d2]">
+            <h3 className="text-[14px] font-extrabold">Contacts</h3>
+            <ul className="mt-4 space-y-3 break-words text-[14px] text-[#e4dfe8]">
               <li>Email: {contact.email}</li>
               <li>Phone: {contact.phone}</li>
               <li>Address: {contact.address}</li>
@@ -79,17 +79,17 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <h3 className="text-[12px] font-bold">Business Hours</h3>
-            <p className="mt-4 text-[12.5px] text-[#cfc9d2]">
+            <h3 className="text-[14px] font-extrabold">Business Hours</h3>
+            <p className="mt-4 text-[14px] text-[#e4dfe8]">
               {businessHours.hours}
             </p>
-            <p className="mt-3 max-w-[260px] text-[9.5px] leading-[1.5] text-[#cfc9d2] lg:max-w-[150px]">
+            <p className="mt-3 max-w-[260px] text-[11.5px] leading-[1.55] text-[#cfc9d2] lg:max-w-[170px]">
               {businessHours.note}
             </p>
           </div>
         </Reveal>
 
-        <div className="mt-12 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-[12.5px] text-[#8d8593] lg:mt-16">
+        <div className="mt-12 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-[13.5px] text-[#a99fb0] lg:mt-16">
           <span>Linda Chikaodi Austin 2026</span>
           <span>Terms of Service</span>
         </div>

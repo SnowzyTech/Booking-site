@@ -38,6 +38,8 @@ export type Booking = {
   /** ISO creation timestamp — newest orders sort to the top of the board. */
   createdAt: string;
   kind: BookingKind;
+  /** Virtual call or in-person — chosen by the client on the schedule step. */
+  mode: "virtual" | "physical";
   status: BookingStatus;
   badge: BookingBadge;
   nextLabel: string;

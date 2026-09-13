@@ -22,11 +22,11 @@ export function Contact() {
     <section id="contacts" className="bg-wash-lavender py-[70px]">
       <div className="mx-auto max-w-[1100px] px-6">
         <Reveal className="text-center">
-          <h2 className="text-[27px] font-semibold tracking-[-0.01em]">
+          <h2 className="text-[30px] font-bold tracking-[-0.01em]">
             <span className="text-[#4a1063]">{contactCopy.headingLead}</span>
             <span className="text-brand-ink">{contactCopy.headingAccent}</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-[760px] text-[14.5px] leading-[1.7] text-[#3d3d3d]">
+          <p className="mx-auto mt-4 max-w-[760px] text-[16.5px] leading-[1.7] text-[#1d1620]">
             {contactCopy.intro}
           </p>
         </Reveal>
@@ -38,10 +38,10 @@ export function Contact() {
             delay={80}
             className="rounded-2xl border border-[#f0e4f7] bg-white p-6 shadow-[0_2px_16px_rgba(80,40,100,0.05)] sm:p-8"
           >
-            <h3 className="text-[19px] font-bold text-[#111]">
+            <h3 className="text-[21px] font-extrabold text-[#111]">
               {contactCopy.teaserTitle}
             </h3>
-            <p className="mt-3 text-[13.5px] leading-[1.65] text-[#3d3d3d]">
+            <p className="mt-3 text-[15.5px] leading-[1.65] text-[#1d1620]">
               {contactCopy.teaserBody}
             </p>
 
@@ -59,7 +59,7 @@ export function Contact() {
               </Button>
             </div>
 
-            <p className="mt-5 text-[12px] leading-[1.6] text-[#6b6b6b]">
+            <p className="mt-5 text-[13.5px] leading-[1.6] text-[#4a4a4a]">
               Prefer to get straight to a date?{" "}
               <Link
                 href="/book"

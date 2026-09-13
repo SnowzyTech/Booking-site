@@ -11,10 +11,11 @@ import { nav } from "@/lib/site";
  *   page gutter 105px · pill 372 -> 1415 · nav item gap 85px
  *   pill height 56px · CTA sits inside the pill's right edge with a 7px inset
  *
- * The measured geometry only holds from 1400px up — the 85px item gap needs
- * ~1385px of pill before the logo. From xl to 1400 the gap tightens to 32px;
- * below xl the gutters shrink, the links collapse into <MobileNav> and the pill
- * keeps just the CTA (sm+) and the hamburger.
+ * The 85px gap only fits from ~1460px up: measured, the row needs 1240px and a
+ * 1400px page leaves 1190px between the gutters. So the gap steps 32 -> 70 ->
+ * 85px across xl / 1400 / 1460 rather than jumping straight to the export
+ * value. Below xl the gutters shrink, the links collapse into <MobileNav> and
+ * the pill keeps just the CTA (sm+) and the hamburger.
  */
 export function SiteHeader() {
   return (
@@ -30,7 +31,7 @@ export function SiteHeader() {
               className="object-cover"
             />
           </span>
-          <span className="text-[13px] font-medium leading-[1.3] text-foreground xl:text-[14px]">
+          <span className="text-[14px] font-semibold leading-[1.3] text-foreground xl:text-[15px]">
             Linda Chikaodi
             <br />
             Austin
@@ -43,12 +44,12 @@ export function SiteHeader() {
               the hash dropped. A document navigation honours it. On the landing
               page itself the browser still treats them as same-document and
               smooth-scrolls without a reload. */}
-          <nav className="hidden items-center gap-8 xl:flex min-[1400px]:gap-[85px]">
+          <nav className="hidden items-center gap-8 xl:flex min-[1400px]:gap-[70px] min-[1460px]:gap-[85px]">
             {nav.map((item) => (
               <a
                 key={item.label}
                 href={item.href}
-                className="whitespace-nowrap text-[13px] text-[#4a4a4a] transition-colors hover:text-brand"
+                className="whitespace-nowrap text-[14px] font-medium text-[#2e2e2e] transition-colors hover:text-brand"
               >
                 {item.label}
               </a>
@@ -57,7 +58,7 @@ export function SiteHeader() {
           <Button
             asChild
             variant="pill"
-            className="hidden h-[38px] px-5 text-[12px] sm:inline-flex xl:ml-[28px] xl:h-[44px] xl:px-6"
+            className="hidden h-[40px] px-5 text-[13px] sm:inline-flex xl:ml-[28px] xl:h-[44px] xl:px-6"
           >
             <Link href="/book">Explore Services</Link>
           </Button>

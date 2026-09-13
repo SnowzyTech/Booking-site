@@ -34,8 +34,8 @@ Marketing + booking site for **Linda Chikaodi Austin**, a clinical nutritionist
   message form; the landing band carries the same details and links to it.
 - **`app/book`** — booking wizard with a 4-dot stepper. Two branches keyed off each
   service's `flow`:
-  - `scheduled`: `/book` → `/book/schedule` (date/time) → `/book/details` (contact) →
-    `/book/payment` (bank transfer + WhatsApp receipt).
+  - `scheduled`: `/book` → `/book/schedule` (date/time + virtual/in-person) →
+    `/book/details` (contact) → `/book/payment` (bank transfer + WhatsApp receipt).
   - `assisted` (Corporate, Events): `/book` → `/book/assisted` (WhatsApp hand-off).
   - `/book` (the picker, step 1) is reached only from the hero's "Explore
     Services" — a specific service's own CTA (landing page Services section,
@@ -61,7 +61,7 @@ rather than referencing a Service table.
 
 - Schema: `prisma/schema.prisma`. Models: `User` (admin/staff), `Client`,
   `Booking`, `Appointment` + enums (`Role`, `ServiceFlow`, `BookingKind`,
-  `BookingStatus`, `PaymentStatus`, `AppointmentState`).
+  `BookingStatus`, `PaymentStatus`, `AppointmentState`, `BookingMode`).
 - Prisma client singleton: `lib/prisma.ts` (import `prisma` from `@/lib/prisma`).
 - Connection: `DATABASE_URL` (pooled) + `DIRECT_URL` (migrations) in `.env`
   (gitignored). For reliable migrations, point `DIRECT_URL` at Neon's **non-pooled**
@@ -72,6 +72,12 @@ rather than referencing a Service table.
   **Manually Pay** opens a modal with the account details, and confirming there
   is what persists the booking; **Pay with Paystack** is a placeholder — no
   gateway is wired up, so it only explains that card payment isn't live yet.
+- Virtual vs in-person: chosen on the schedule step (`components/booking/
+  mode-picker.tsx`), carried in the booking context, stored as
+  `Booking.mode` (`BookingMode`, default `VIRTUAL`) and shown as a chip on the
+  admin board. It deliberately does **not** gate Confirm — falling through to
+  virtual by inaction is recoverable, whereas defaulting to physical would send
+  someone across Lagos for a meeting nobody prepared for.
 - E-mail: `lib/email.ts`, posted straight to **Resend**'s REST API (no SDK —
   one `fetch`, so no extra dependency). `createScheduledBooking` calls
   `notifyNewBooking` *after* the transaction commits, which sends two messages:

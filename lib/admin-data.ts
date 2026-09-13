@@ -139,6 +139,7 @@ export async function getAdminBookings(): Promise<AdminData> {
       dateKey: format(wall(primary), "yyyy-MM-dd"),
       createdAt: row.createdAt.toISOString(),
       kind,
+      mode: row.mode === "PHYSICAL" ? "physical" : "virtual",
       status,
       badge,
       nextLabel,

@@ -41,6 +41,9 @@ export async function createScheduledBooking(input: {
   serviceSlug: string;
   /** The chosen slot as an ISO instant (see toSlotInstant in lib/availability). */
   startISO: string;
+  /** Virtual call or in-person, picked on the schedule step. Anything other
+   *  than "physical" is treated as virtual — the safe default. */
+  mode: "virtual" | "physical";
   details: BookingDetails;
 }): Promise<CreateBookingResult> {
   const service = getService(input.serviceSlug);
@@ -116,6 +119,7 @@ export async function createScheduledBooking(input: {
           flow: "SCHEDULED",
           status: "PENDING",
           paymentStatus: "NOTIFIED",
+          mode: input.mode === "physical" ? "PHYSICAL" : "VIRTUAL",
           paymentNotifiedAt: new Date(),
           note: input.details.note.trim() || null,
           deliverables: service.deliverables ?? [],
@@ -157,6 +161,7 @@ export async function createScheduledBooking(input: {
     serviceName: service.name,
     price: service.price,
     appointments: plan.map((p) => p.scheduledAt),
+    mode: input.mode === "physical" ? "physical" : "virtual",
     fullName: input.details.fullName.trim(),
     email: input.details.email.trim(),
     phone: input.details.phone.trim() || null,

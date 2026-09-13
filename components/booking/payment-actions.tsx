@@ -23,7 +23,7 @@ import { bank } from "@/lib/site";
  * button did. Paystack is a separate flow and is not wired up yet.
  */
 export function PaymentActions() {
-  const { service, date, time, details } = useBooking();
+  const { service, date, time, mode, details } = useBooking();
   const [open, setOpen] = React.useState(false);
   const [pending, setPending] = React.useState(false);
   const [done, setDone] = React.useState(false);
@@ -41,6 +41,7 @@ export function PaymentActions() {
     const res = await createScheduledBooking({
       serviceSlug: service.slug,
       startISO: toSlotInstant(date, time).toISOString(),
+      mode,
       details,
     });
     setPending(false);

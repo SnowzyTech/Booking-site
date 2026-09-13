@@ -17,7 +17,13 @@
  *                               — must be on a domain verified in Resend.
  */
 
+import { contact } from "@/lib/site";
+
 const ENDPOINT = "https://api.resend.com/emails";
+
+/** Where an in-person session happens — the same address the footer lists.
+ *  Its trailing full stop is dropped so it can sit mid-sentence. */
+const OFFICE = contact.address.replace(/\.\s*$/, "");
 
 type Mail = {
   to: string;
@@ -80,6 +86,7 @@ export type BookingEmailInput = {
   price?: string;
   /** Appointment instants, earliest first. A programme has several. */
   appointments: Date[];
+  mode: "virtual" | "physical";
   fullName: string;
   email: string;
   phone?: string | null;
@@ -150,6 +157,7 @@ export async function notifyNewBooking(input: BookingEmailInput) {
   const { owner } = config();
 
   const dates = input.appointments.map(when);
+  const physical = input.mode === "physical";
   const shared: [string, string][] = [
     ["Service", input.serviceName],
     ...(input.price ? ([["Amount", input.price]] as [string, string][]) : []),
@@ -157,6 +165,7 @@ export async function notifyNewBooking(input: BookingEmailInput) {
       dates.length > 1 ? "Sessions" : "Appointment",
       dates.join(" · ") || "Not set",
     ],
+    ["Format", physical ? "In person (at the office)" : "Virtual (video call)"],
   ];
 
   const tasks: Promise<boolean>[] = [];
@@ -179,7 +188,9 @@ export async function notifyNewBooking(input: BookingEmailInput) {
             ["Note", input.note || "—"],
             ["Booking ID", input.bookingId],
           ],
-          "The customer says the transfer has been sent. Confirm it against the bank, then Confirm the booking in the admin dashboard."
+          physical
+            ? "The customer says the transfer has been sent, and is coming to the office in person. Confirm it against the bank, then Confirm the booking in the admin dashboard."
+            : "The customer says the transfer has been sent. Confirm it against the bank, then Confirm the booking in the admin dashboard — and send them the meeting link."
         ),
       })
     );
@@ -196,7 +207,11 @@ export async function notifyNewBooking(input: BookingEmailInput) {
       html: layout(
         `Thank you, ${input.fullName.split(" ")[0]}`,
         shared,
-        "We are verifying your payment now. You will get another e-mail as soon as your appointment is confirmed. If anything looks wrong, just reply to this message."
+        `We are verifying your payment now. You will get another e-mail as soon as your appointment is confirmed${
+          physical
+            ? `, with directions to the office at ${escape(OFFICE)}`
+            : ", along with your meeting link"
+        }. If anything looks wrong, just reply to this message.`
       ),
     })
   );
