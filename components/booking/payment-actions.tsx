@@ -7,7 +7,7 @@ import { Building2, CreditCard, Loader2, X } from "lucide-react";
 
 import { useBooking } from "@/components/booking/booking-context";
 import { Button } from "@/components/ui/button";
-import { createScheduledBooking } from "@/lib/booking-actions";
+import { createScheduledBooking, startPaystackCheckout } from "@/lib/booking-actions";
 import { toSlotInstant } from "@/lib/availability";
 import { bank } from "@/lib/site";
 
@@ -28,7 +28,8 @@ export function PaymentActions() {
   const [pending, setPending] = React.useState(false);
   const [done, setDone] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [cardNote, setCardNote] = React.useState(false);
+  const [cardPending, setCardPending] = React.useState(false);
+  const [cardError, setCardError] = React.useState<string | null>(null);
 
   const ready = Boolean(
     service && date && time && details.fullName && details.email
@@ -50,6 +51,28 @@ export function PaymentActions() {
       setDone(true);
     } else {
       setError(res.error);
+    }
+  }
+
+  /* Card: initialize a Paystack transaction on the server, then hand the browser
+     off to Paystack's hosted page. The booking is written only after the payment
+     is confirmed (webhook + the /book/payment/callback return page), so nothing
+     is persisted here. We keep the button pending through the navigation. */
+  async function payWithCard() {
+    if (!service || !date || !time) return;
+    setCardPending(true);
+    setCardError(null);
+    const res = await startPaystackCheckout({
+      serviceSlug: service.slug,
+      startISO: toSlotInstant(date, time).toISOString(),
+      mode,
+      details,
+    });
+    if (res.ok) {
+      window.location.href = res.authorizationUrl;
+    } else {
+      setCardPending(false);
+      setCardError(res.error);
     }
   }
 
@@ -78,9 +101,14 @@ export function PaymentActions() {
           variant="pill"
           size="lg"
           className="font-bold sm:px-8"
-          onClick={() => setCardNote(true)}
+          disabled={!ready || cardPending}
+          onClick={payWithCard}
         >
-          <CreditCard className="mr-2.5 size-[18px]" strokeWidth={2} />
+          {cardPending ? (
+            <Loader2 className="mr-2.5 size-[18px] animate-spin" />
+          ) : (
+            <CreditCard className="mr-2.5 size-[18px]" strokeWidth={2} />
+          )}
           Pay with Paystack
         </Button>
 
@@ -88,21 +116,16 @@ export function PaymentActions() {
           variant="soft"
           size="lg"
           className="font-bold sm:px-8"
-          onClick={() => {
-            setCardNote(false);
-            setOpen(true);
-          }}
+          onClick={() => setOpen(true)}
         >
           <Building2 className="mr-2.5 size-[18px]" strokeWidth={2} />
           Manually Pay
         </Button>
       </div>
 
-      {cardNote && (
-        <p className="mt-3 max-w-[420px] animate-in text-[12.5px] leading-[1.6] text-[#6b6b6b] duration-[var(--dur-base)] ease-quart fade-in-0 fill-mode-both">
-          Card payment is still being set up. For now, please choose{" "}
-          <span className="font-semibold text-[#111]">Manually Pay</span> to
-          transfer to the account and confirm.
+      {cardError && (
+        <p className="mt-3 max-w-[420px] animate-in text-[12.5px] leading-[1.6] text-[#a33] duration-[var(--dur-base)] ease-quart fade-in-0 fill-mode-both">
+          {cardError}
         </p>
       )}
 

@@ -21,6 +21,7 @@ const STEP_BY_PATH: Record<string, number> = {
   "/book/schedule": 2,
   "/book/details": 3,
   "/book/payment": 4,
+  "/book/payment/callback": 4,
   "/book/assisted": 2,
 };
 

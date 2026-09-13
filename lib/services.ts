@@ -54,6 +54,7 @@ export const services: Service[] = [
     ],
     cta: "Book a Consultation",
     ctaVariant: "pill",
+    image: "/images/service-consultation.jpg",
     flow: "scheduled",
     kind: "one-off",
   },
@@ -75,6 +76,7 @@ export const services: Service[] = [
     ],
     cta: "Start Your Journey",
     ctaVariant: "pill",
+    image: "/images/service-meal-plan.jpg",
     flow: "scheduled",
     kind: "programme",
     deliverables: ["Personalized Meal Plan", "Daily Blood Sugar Tracking Sheet"],
@@ -147,3 +149,24 @@ export const getService = (slug: string) =>
 /** The one service that is managed from /admin/clients rather than the
  *  appointments board: it is billed monthly and arranged over WhatsApp. */
 export const PREMIUM_SLUG = "one-on-one-premium";
+
+/**
+ * A catalogue `price` string (e.g. "N65,000", "#265,500/month") as an integer
+ * number of *kobo* — the unit Paystack charges in (₦1 = 100 kobo; integer money
+ * avoids floating-point rounding). The prices are hand-written display strings,
+ * so we read only the leading amount: everything up to the first "/" (dropping a
+ * "/month" or "/1hr30min" suffix), with the currency mark and thousands
+ * separators stripped. Returns null when there is no usable amount, so a caller
+ * can refuse to start a payment rather than charge ₦0.
+ *
+ * Only the two `flow: "scheduled"` services reach this — Paystack checkout lives
+ * on /book/payment; the assisted services are arranged over WhatsApp.
+ */
+export function priceToKobo(price?: string): number | null {
+  if (!price) return null;
+  const digits = price.split("/")[0].replace(/[^\d]/g, "");
+  if (!digits) return null;
+  const naira = parseInt(digits, 10);
+  if (!Number.isFinite(naira) || naira <= 0) return null;
+  return naira * 100;
+}

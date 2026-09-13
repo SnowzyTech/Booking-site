@@ -87,6 +87,9 @@ export type BookingEmailInput = {
   /** Appointment instants, earliest first. A programme has several. */
   appointments: Date[];
   mode: "virtual" | "physical";
+  /** True when the payment is already settled (card via Paystack), so the copy
+   *  drops the "we're verifying / check the bank" language a transfer needs. */
+  paid?: boolean;
   fullName: string;
   email: string;
   phone?: string | null;
@@ -158,6 +161,7 @@ export async function notifyNewBooking(input: BookingEmailInput) {
 
   const dates = input.appointments.map(when);
   const physical = input.mode === "physical";
+  const paid = input.paid === true;
   const shared: [string, string][] = [
     ["Service", input.serviceName],
     ...(input.price ? ([["Amount", input.price]] as [string, string][]) : []),
@@ -177,7 +181,9 @@ export async function notifyNewBooking(input: BookingEmailInput) {
         replyTo: input.email,
         subject: `New booking — ${input.serviceName} (${input.fullName})`,
         html: layout(
-          "A new booking is awaiting payment verification",
+          paid
+            ? "A new paid booking is awaiting confirmation"
+            : "A new booking is awaiting payment verification",
           [
             ...shared,
             ["Name", input.fullName],
@@ -188,9 +194,13 @@ export async function notifyNewBooking(input: BookingEmailInput) {
             ["Note", input.note || "—"],
             ["Booking ID", input.bookingId],
           ],
-          physical
-            ? "The customer says the transfer has been sent, and is coming to the office in person. Confirm it against the bank, then Confirm the booking in the admin dashboard."
-            : "The customer says the transfer has been sent. Confirm it against the bank, then Confirm the booking in the admin dashboard — and send them the meeting link."
+          paid
+            ? physical
+              ? "The customer has paid by card (verified by Paystack) and is coming to the office in person. Confirm the booking in the admin dashboard."
+              : "The customer has paid by card (verified by Paystack). Confirm the booking in the admin dashboard — and send them the meeting link."
+            : physical
+              ? "The customer says the transfer has been sent, and is coming to the office in person. Confirm it against the bank, then Confirm the booking in the admin dashboard."
+              : "The customer says the transfer has been sent. Confirm it against the bank, then Confirm the booking in the admin dashboard — and send them the meeting link."
         ),
       })
     );
@@ -207,7 +217,11 @@ export async function notifyNewBooking(input: BookingEmailInput) {
       html: layout(
         `Thank you, ${input.fullName.split(" ")[0]}`,
         shared,
-        `We are verifying your payment now. You will get another e-mail as soon as your appointment is confirmed${
+        `${
+          paid
+            ? "Your payment has been received."
+            : "We are verifying your payment now."
+        } You will get another e-mail as soon as your appointment is confirmed${
           physical
             ? `, with directions to the office at ${escape(OFFICE)}`
             : ", along with your meeting link"

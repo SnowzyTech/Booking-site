@@ -137,8 +137,18 @@ model Booking {
 
   paymentNotifiedAt DateTime?
   paymentVerifiedAt DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+
+  /// Payment-gateway transaction reference (Paystack). Unique so one gateway
+  /// payment can only ever finalize one booking — the backstop that makes the
+  /// webhook and the return page idempotent when both fire. Null for manual
+  /// bank transfers, which have no gateway reference.
+  paymentReference String? @unique
+  /// How the customer paid: "paystack" (card) or "manual" (bank transfer). Lets
+  /// the admin board tell the two apart; null on pre-existing rows.
+  paymentProvider String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([clientId])
   @@index([status])
