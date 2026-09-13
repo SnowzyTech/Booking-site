@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Media } from "@/components/ui/media";
 import { useBooking } from "@/components/booking/booking-context";
 import type { Service } from "@/lib/services";
-import { cn } from "@/lib/utils";
 
 export function ServiceCard({ service }: { service: Service }) {
   const router = useRouter();
@@ -53,15 +52,11 @@ export function ServiceCard({ service }: { service: Service }) {
                   {service.listPrice}
                 </span>
               )}
-              <span
-                className={cn(
-                  "rounded-full px-3 py-1 text-[16px] font-bold",
-                  service.slug === "one-on-one-premium" ||
-                    service.slug === "events-training"
-                    ? "bg-brand text-white"
-                    : "text-[#111]"
-                )}
-              >
+              {/* Every price chip follows the first card's pattern now — was
+                  solid brand for Premium/Events, per the owner's ask to keep
+                  the price treatment consistent across every card; matches
+                  the same chip in the landing page's Services section. */}
+              <span className="rounded-full bg-[#f7ecff] px-3 py-1 text-[16px] font-bold text-[#111]">
                 {service.price}
               </span>
             </span>
@@ -71,7 +66,7 @@ export function ServiceCard({ service }: { service: Service }) {
 
       <hr className="mt-3 border-[#e6e6e6]" />
 
-      <p className="mt-4 text-justify text-[12.5px] leading-[1.6] text-[#3d3d3d]">
+      <p className="mt-4 text-justify text-[13.5px] leading-[1.6] text-[#3d3d3d]">
         {service.blurb}
       </p>
 
@@ -80,7 +75,7 @@ export function ServiceCard({ service }: { service: Service }) {
           {service.bullets.map((b) => (
             <li
               key={b}
-              className="list-disc text-[12.5px] leading-[1.5] text-[#3d3d3d] marker:text-[#c9a3dd]"
+              className="list-disc text-[13.5px] leading-[1.5] text-[#3d3d3d] marker:text-[#c9a3dd]"
             >
               {b}
             </li>
@@ -89,17 +84,17 @@ export function ServiceCard({ service }: { service: Service }) {
       )}
 
       {service.extra && (
-        <p className="mt-4 text-justify text-[12.5px] leading-[1.6] text-[#3d3d3d]">
+        <p className="mt-4 text-justify text-[13.5px] leading-[1.6] text-[#3d3d3d]">
           {service.extra}
         </p>
       )}
 
       <Button
         variant={service.ctaVariant}
-        size="sm"
+        size="lg"
         onClick={choose}
         disabled={pending}
-        className="mt-7 self-start"
+        className="mt-7 w-full font-bold"
       >
         {service.cta}
       </Button>

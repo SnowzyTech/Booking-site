@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 
 import { useBooking } from "@/components/booking/booking-context";
+import { ServiceFromQuery } from "@/components/booking/service-from-query";
 import { TimeSlots } from "@/components/booking/time-slots";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -18,7 +19,9 @@ import {
 import { getFullyBookedDays, getTakenSlots } from "@/lib/booking-actions";
 import { cn } from "@/lib/utils";
 
-/* Step 2 — date & time (MacBook Pro 14_ - 4.png). */
+/* Step 2 — date & time (MacBook Pro 14_ - 4.png). Reachable straight from the
+   landing page's Services section too, via ?service=<slug> — see
+   <ServiceFromQuery>. */
 export default function SchedulePage() {
   const router = useRouter();
   const { service, date, setDate, time, setTime } = useBooking();
@@ -81,6 +84,10 @@ export default function SchedulePage() {
 
   return (
     <div className="px-6 pb-32 pt-12 lg:pt-[74px]">
+      <React.Suspense fallback={null}>
+        <ServiceFromQuery />
+      </React.Suspense>
+
       <p className="text-center text-[13.5px] text-[#111]">
         {AVAILABILITY_NOTE}
       </p>

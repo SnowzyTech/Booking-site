@@ -22,6 +22,9 @@ export type Service = {
   bullets: string[];
   extra?: string;
   cta: string;
+  /** Every entry is "pill" — the mockups varied this per card (dark/soft), but
+   *  the owner asked for every Services-section CTA in the same brand purple.
+   *  The wider type is kept in case a future card needs to break the pattern. */
   ctaVariant: "pill" | "dark" | "soft";
   /** Undefined until a real photograph is supplied; renders the
    *  #D9D9D9 placeholder block the mockups show. */
@@ -71,7 +74,7 @@ export const services: Service[] = [
       "Ongoing support throughout the program",
     ],
     cta: "Start Your Journey",
-    ctaVariant: "dark",
+    ctaVariant: "pill",
     flow: "scheduled",
     kind: "programme",
     deliverables: ["Personalized Meal Plan", "Daily Blood Sugar Tracking Sheet"],
@@ -89,7 +92,7 @@ export const services: Service[] = [
       "Practical nutrition and wellness training designed to help employees build healthier habits, improve their understanding of health, and create a healthier workplace culture.",
     bullets: [],
     cta: "Start Your Journey",
-    ctaVariant: "soft",
+    ctaVariant: "pill",
     flow: "assisted",
     kind: "corporate",
     sessions: [
@@ -112,7 +115,7 @@ export const services: Service[] = [
       "Interactive and engaging health education sessions for conferences, workshops, organizations, communities, and special events.",
     bullets: [],
     cta: "Book Training",
-    ctaVariant: "soft",
+    ctaVariant: "pill",
     image: "/images/service-events.jpg",
     flow: "assisted",
     kind: "corporate",
@@ -129,7 +132,7 @@ export const services: Service[] = [
     extra:
       "Includes Comprehensive Health & Nutrition Assessment, Personalized Health Strategy, Personalized Meal Plan, Direct One-on-One Sessions with Linda, Ongoing Accountability, Progress Monitoring, Adjustments and Priority Communication",
     cta: "Start Your Journey",
-    ctaVariant: "soft",
+    ctaVariant: "pill",
     image: "/images/service-premium.jpg",
     // WhatsApp hand-off like Corporate/Events; managed from the Clients page
     // rather than the appointments dashboard.

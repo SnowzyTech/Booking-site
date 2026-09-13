@@ -21,7 +21,7 @@ export function HowItWorks() {
               <h3 className="mt-4 max-w-[190px] text-[17px] font-bold leading-tight text-[#1d1620]">
                 {s.title}
               </h3>
-              <div className="mt-3 max-w-[200px] space-y-1 text-[12.5px] leading-[1.55] text-[#4a4a4a]">
+              <div className="mt-3 max-w-[200px] space-y-1 text-[13.5px] leading-[1.55] text-[#4a4a4a]">
                 {s.lines.map((l) => (
                   <p key={l}>{l}</p>
                 ))}
@@ -30,7 +30,7 @@ export function HowItWorks() {
           ))}
         </Reveal>
 
-        <p className="mt-14 text-center text-[13px] text-[#3d3d3d]">
+        <p className="mt-14 text-center text-[13.5px] text-[#3d3d3d]">
           <span className="font-medium text-note-red">Note:</span> Your
           experience and process may vary depending on the service you choose.
         </p>

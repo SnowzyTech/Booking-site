@@ -1,34 +1,14 @@
 import Image from "next/image";
-import {
-  Facebook,
-  Instagram,
-  LinkedIn,
-  TikTok,
-  WhatsApp,
-  XMark,
-} from "@/components/icons/social";
 
+import { socialAccounts } from "@/components/icons/social";
 import { Reveal } from "@/components/motion/reveal";
-import { businessHours, contact, footerColumns, socialLinks } from "@/lib/site";
+import { businessHours, contact, footerColumns } from "@/lib/site";
 
-/* WhatsApp has no profile URL of its own — it reuses the wa.me deep link the
-   booking flow already builds from `contact.whatsapp`. */
-const socials = [
-  { Icon: Instagram, label: "Instagram", href: socialLinks.instagram },
-  { Icon: Facebook, label: "Facebook", href: socialLinks.facebook },
-  { Icon: TikTok, label: "TikTok", href: socialLinks.tiktok },
-  { Icon: LinkedIn, label: "LinkedIn", href: socialLinks.linkedin },
-  { Icon: XMark, label: "X", href: socialLinks.x },
-  {
-    Icon: WhatsApp,
-    label: "WhatsApp",
-    href: `https://wa.me/234${contact.whatsapp.replace(/^0/, "")}`,
-  },
-];
-
+/* The #contacts anchor now lands on <Contact>, the band above this one; this
+   column stays as the at-a-glance copy of the same details. */
 export function SiteFooter() {
   return (
-    <footer id="contacts" className="bg-footer text-white">
+    <footer className="bg-footer text-white">
       <div className="mx-auto max-w-[1400px] px-6 pb-6 pt-11 md:px-10 xl:px-[100px]">
         <Reveal className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-[1.5fr_1fr_1.3fr_1.6fr_1fr]">
           <div className="flex items-start gap-3">
@@ -82,7 +62,7 @@ export function SiteFooter() {
             {/* -m-1/p-1 grows the tap target to 23px without moving the
                 icons apart — the row keeps the mockup's 10px spacing. */}
             <div className="mt-4 flex items-center gap-2.5">
-              {socials.map(({ Icon, label, href }) => (
+              {socialAccounts.map(({ Icon, label, href }) => (
                 <a
                   key={label}
                   href={href}

@@ -38,15 +38,20 @@ export function SiteHeader() {
         </Link>
 
         <div className="ml-auto flex h-[52px] items-center gap-1 rounded-full bg-white/60 px-[7px] shadow-[0_1px_3px_rgba(80,40,100,0.05)] backdrop-blur-sm xl:h-[56px] xl:gap-0 xl:pl-[45px] xl:pr-[7px]">
+          {/* Plain anchors, not <Link>: these are hashes on the landing page,
+              and a soft navigation from /contact lands at the top of "/" with
+              the hash dropped. A document navigation honours it. On the landing
+              page itself the browser still treats them as same-document and
+              smooth-scrolls without a reload. */}
           <nav className="hidden items-center gap-8 xl:flex min-[1400px]:gap-[85px]">
             {nav.map((item) => (
-              <Link
+              <a
                 key={item.label}
                 href={item.href}
                 className="whitespace-nowrap text-[13px] text-[#4a4a4a] transition-colors hover:text-brand"
               >
                 {item.label}
-              </Link>
+              </a>
             ))}
           </nav>
           <Button

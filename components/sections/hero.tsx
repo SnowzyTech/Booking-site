@@ -28,13 +28,25 @@ export function Hero() {
         className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 w-full select-none"
       />
 
-      <div className="mx-auto max-w-[1180px] px-6 pb-[380px] pt-[150px] text-center">
-        <h1 className="mx-auto max-w-[1000px] animate-in text-[54px] font-medium leading-[1.12] tracking-[-0.03em] text-[#1d1620] duration-700 ease-quart fade-in-0 fill-mode-both slide-in-from-bottom-3">
-          Transforming Health Through Nutrition,
-          <br />
+      {/* Padding and heading size both scale down below lg: at the 54px design
+          size, the heading alone ran 400px+ tall on a phone and, combined with
+          the desktop-tuned 150/380px padding (sized to clear the floating
+          cards baked into hero-bg.webp at its full-width desktop render),
+          pushed the hero past two phone screens before the CTA appeared. */}
+      <div className="mx-auto max-w-[1180px] px-6 pb-[140px] pt-[100px] text-center sm:pb-[220px] sm:pt-[120px] lg:pb-[380px] lg:pt-[150px]">
+        <h1 className="mx-auto max-w-[1000px] animate-in text-[32px] font-medium leading-[1.15] tracking-[-0.02em] text-[#1d1620] duration-700 ease-quart fade-in-0 fill-mode-both slide-in-from-bottom-3 sm:text-[40px] md:text-[46px] lg:text-[54px] lg:leading-[1.12] lg:tracking-[-0.03em]">
+          {/* The manual break matches the design's two-line layout from sm up;
+              below that it would just cut a word short mid-wrap, so the line
+              flows on its own and the trailing space keeps the words apart
+              when the <br> is hidden. */}
+          Transforming Health Through Nutrition,{" "}
+          <br className="hidden sm:block" />
           Education &amp; Expert Guidance
         </h1>
-        <p className="mx-auto mt-6 max-w-[720px] animate-in text-[15px] leading-[1.6] text-[#8a8a8a] delay-100 duration-700 ease-quart fade-in-0 fill-mode-both slide-in-from-bottom-3">
+        {/* #8a8a8a measured at 3:1 against the hero wash — under the 4.5:1
+            minimum for body text — so this uses the site's standard body-copy
+            gray instead, same as every other section's supporting line. */}
+        <p className="mx-auto mt-6 max-w-[720px] animate-in text-[16px] leading-[1.65] text-[#4a4a4a] delay-100 duration-700 ease-quart fade-in-0 fill-mode-both slide-in-from-bottom-3">
           From personalized consultations and meal plans to corporate wellness
           training and health education, Linda Chikaodi Austin helps people
           understand their health and turn knowledge into practical, sustainable

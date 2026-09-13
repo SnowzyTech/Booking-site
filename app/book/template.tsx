@@ -3,8 +3,10 @@
  *
  * A template remounts whenever its segment changes, so this replays on every
  * move between /book, /book/schedule, /book/details, /book/payment and
- * /book/assisted. Search params do not remount it, so switching ?service= on
- * step 1 correctly stays put.
+ * /book/assisted. Search params do not remount it — the landing page's
+ * Services section relies on that, deep-linking straight into /book/schedule
+ * or /book/assisted with ?service=<slug> (see <ServiceFromQuery>) without
+ * disturbing this transition.
  *
  * It lives here rather than in layout.tsx on purpose: BookingProvider is in the
  * layout, so the wizard's in-memory booking survives every step. Only the

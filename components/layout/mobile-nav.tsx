@@ -66,14 +66,16 @@ export function MobileNav() {
               than the scroll-reveal system. */}
           <nav className="mt-8 flex flex-col">
             {nav.map((item, i) => (
+              /* Plain anchor for the same reason as the pill nav — see
+                 site-header.tsx. */
               <DialogPrimitive.Close asChild key={item.label}>
-                <Link
+                <a
                   href={item.href}
                   style={{ animationDelay: `${80 + i * 40}ms` }}
                   className="animate-in border-b border-border/70 py-4 text-[15px] text-[#4a4a4a] transition-colors duration-300 ease-quart fade-in-0 fill-mode-both slide-in-from-right-3 hover:text-brand"
                 >
                   {item.label}
-                </Link>
+                </a>
               </DialogPrimitive.Close>
             ))}
           </nav>

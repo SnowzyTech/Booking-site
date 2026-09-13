@@ -1,13 +1,15 @@
 /* Site chrome: nav, footer, contact and payment details.
    Transcribed from _mockups/2x/navbar.png, footer.png and payment-bank.png. */
 
+/* Root-relative anchors, not bare hashes: this list also renders on /contact,
+   where "#about" would resolve against that page instead of the landing one. */
 export const nav = [
-  { label: "Home", href: "#home" },
-  { label: "About Linda", href: "#about" },
-  { label: "Services & Pricing", href: "#services" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Contacts", href: "#contacts" },
+  { label: "Home", href: "/#home" },
+  { label: "About Linda", href: "/#about" },
+  { label: "Services & Pricing", href: "/#services" },
+  { label: "How It Works", href: "/#how-it-works" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "Contacts", href: "/#contacts" },
 ];
 
 export const contact = {
@@ -16,6 +18,14 @@ export const contact = {
   whatsapp: "07079438493",
   address: "16, 21 Road, by Faith Academy, Gowon Estate,Egbeda, Lagos, Nigeria.",
 };
+
+/* wa.me deep link for `contact.whatsapp`. The number is stored in local format
+   ("070…"), so the leading 0 is swapped for the +234 country code. Pass a
+   message to open the chat with it pre-filled. */
+export function whatsappLink(message?: string) {
+  const base = `https://wa.me/234${contact.whatsapp.replace(/^0/, "")}`;
+  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
+}
 
 export const socialLinks = {
   instagram: "https://www.instagram.com/lindachikaodi?igsi=NmJ5Ym0yMXJ0Y3g=",
@@ -59,6 +69,39 @@ export const footerColumns: { title: string; links: FooterLink[] }[] = [
       { label: "Founder Parley Podcast" },
     ],
   },
+];
+
+/* Contact section copy. The Figma export has no contact frame — the nav's
+   "Contacts" link pointed straight at the footer — so this band follows the
+   house layout of the other sections. Topics mirror `lib/services.ts` plus a
+   general option; they only label the composed message. */
+export const contactCopy = {
+  headingLead: "Still Have Questions? ",
+  headingAccent: "Let's Talk",
+  intro:
+    "Ask about a consultation, a personalized meal plan, corporate wellness training or an upcoming event. WhatsApp is the fastest way to reach us — messages are answered within business hours.",
+  /* The landing band only teases the form; it lives on /contact. */
+  teaserTitle: "Send a message",
+  teaserBody:
+    "Tell us what you need help with and we will come back to you with the right next step — a consultation, a meal plan or a training date.",
+  teaserCta: "Go to the contact form",
+  /* /contact */
+  pageEyebrow: "Contact Us",
+  pageTitle: "Send a message",
+  pageIntro:
+    "Fill in the form and we will get back to you within business hours. For anything urgent, the WhatsApp number is the fastest way to reach the team.",
+  formTitle: "Send a message",
+  formNote:
+    "This form opens WhatsApp or your mail app with the message filled in — nothing is stored on this site.",
+};
+
+export const contactTopics = [
+  "General enquiry",
+  "Individual consultation",
+  "Personalized meal plan",
+  "One on One Premium",
+  "Corporate wellness",
+  "Events & training",
 ];
 
 export const howItWorks = [

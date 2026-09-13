@@ -7,10 +7,12 @@ import { cn } from "@/lib/utils";
 /*
  * Variants map 1:1 onto the button treatments in the mockups:
  *
- *   pill      "Explore Services", "Book a Consultation"      solid brand, fully round
+ *   pill      "Explore Services", every Services-section CTA solid brand, fully round
  *   solid     "Confirm", "Complete & Continue"               solid brand, 8px radius
- *   dark      "Start Your Journey" on the meal-plan card      near-black, fully round
- *   soft      "Start Your Journey" (Corporate / Events)       #FFF4F4 pink, fully round
+ *   dark      unused — was the meal-plan card's CTA until     near-black, fully round
+ *             the owner asked for every service CTA in brand
+ *   soft      "Send as email", "Chat on WhatsApp"; was also   #FFF4F4 pink, fully round
+ *             Corporate/Events/Premium's CTA for the same reason
  *   softViolet "Decline" in the admin card                    #F7E6FF, 8px radius
  *   outline   "Re-Schedule"                                   brand border, transparent
  *   fab       the admin "+" button                            40px brand circle

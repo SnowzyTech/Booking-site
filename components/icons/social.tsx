@@ -5,6 +5,10 @@
  * LinkedIn / X / WhatsApp export remains), so these are hand-authored to match
  * the six glyphs in the footer of _mockups/2x/footer.png.
  */
+import type * as React from "react";
+
+import { socialLinks, whatsappLink } from "@/lib/site";
+
 type P = { className?: string };
 
 export function Instagram({ className }: P) {
@@ -54,3 +58,18 @@ export function WhatsApp({ className }: P) {
     </svg>
   );
 }
+
+/*
+ * The six accounts in the order the footer of _mockups/2x/footer.png lists
+ * them. Shared with the landing page's contact section so both rows stay in
+ * step. WhatsApp has no profile URL of its own — it reuses the wa.me deep link
+ * the booking flow already builds from `contact.whatsapp`.
+ */
+export const socialAccounts: { Icon: (p: P) => React.ReactElement; label: string; href: string }[] = [
+  { Icon: Instagram, label: "Instagram", href: socialLinks.instagram },
+  { Icon: Facebook, label: "Facebook", href: socialLinks.facebook },
+  { Icon: TikTok, label: "TikTok", href: socialLinks.tiktok },
+  { Icon: LinkedIn, label: "LinkedIn", href: socialLinks.linkedin },
+  { Icon: XMark, label: "X", href: socialLinks.x },
+  { Icon: WhatsApp, label: "WhatsApp", href: whatsappLink() },
+];

@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+
+import { ServiceFromQuery } from "@/components/booking/service-from-query";
 import { WhatsAppChip } from "@/components/booking/whatsapp-block";
 
 /*
@@ -6,10 +9,19 @@ import { WhatsAppChip } from "@/components/booking/whatsapp-block";
  * Corporate Wellness and Events Training do not go through the calendar or the
  * bank-transfer step — they hand off to the Executive Assistant on WhatsApp.
  * The stepper still renders four dots; only 1 and 2 are ever reached.
+ *
+ * Also reachable straight from the landing page's Services section, via
+ * ?service=<slug> — see <ServiceFromQuery>. This page doesn't read `service`
+ * itself (the WhatsApp hand-off is generic), but populating it keeps the
+ * booking context correct for whatever reads it next.
  */
 export default function AssistedPage() {
   return (
     <div className="px-6 pb-32 pt-20 md:px-12 lg:pt-[155px] xl:px-[220px]">
+      <Suspense fallback={null}>
+        <ServiceFromQuery />
+      </Suspense>
+
       <h1 className="text-[26px] font-bold leading-[1.05] tracking-[-0.01em] text-brand sm:text-[30px] lg:text-[36px]">
         Payment &amp;
         <br />

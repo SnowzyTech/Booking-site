@@ -28,12 +28,12 @@ export function About() {
           {aboutParagraphs.map((p) => (
             <p
               key={p.slice(0, 40)}
-              className="text-justify text-[12.5px] leading-[1.65] text-[#2e2e2e]"
+              className="text-justify text-[13.5px] leading-[1.7] text-[#2e2e2e]"
             >
               {p}
             </p>
           ))}
-          <p className="pt-2 text-justify text-[12.5px] font-bold leading-[1.65] text-[#111]">
+          <p className="pt-2 text-justify text-[13.5px] font-bold leading-[1.7] text-[#111]">
             {aboutClosing}
           </p>
         </Reveal>

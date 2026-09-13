@@ -29,12 +29,19 @@ Marketing + booking site for **Linda Chikaodi Austin**, a clinical nutritionist
 
 ## App areas (routes)
 
-- **`app/(public)`** — landing page (`/`): hero, how-it-works, services, about, FAQ.
+- **`app/(public)`** — landing page (`/`): hero, how-it-works, services, about,
+  FAQ, contact band. Plus `/contact`, the dedicated contact page that holds the
+  message form; the landing band carries the same details and links to it.
 - **`app/book`** — booking wizard with a 4-dot stepper. Two branches keyed off each
   service's `flow`:
   - `scheduled`: `/book` → `/book/schedule` (date/time) → `/book/details` (contact) →
     `/book/payment` (bank transfer + WhatsApp receipt).
   - `assisted` (Corporate, Events): `/book` → `/book/assisted` (WhatsApp hand-off).
+  - `/book` (the picker, step 1) is reached only from the hero's "Explore
+    Services" — a specific service's own CTA (landing page Services section,
+    or the booking-flow service cards) skips it and deep-links straight into
+    step 2 with `?service=<slug>`, read by `<ServiceFromQuery>` since
+    `BookingProvider` only mounts under `/book/*`.
 - **`app/admin`** — dashboard under `/admin/*`: `/admin/appointments` and
   `/admin/clients` (real screens), `/admin/settings` (placeholder),
   `/admin/login`. The guarded pages live in the `(dashboard)` route group;
@@ -97,6 +104,11 @@ testing (`node --env-file=.env scripts/seed-admin.mjs`, `--clean` to remove).
 
 ## Known content gaps (flagged in code)
 
+- Contact has no Figma frame (the export ends at the footer, and the nav's
+  "Contacts" link used to land there). `components/sections/contact.tsx` (band)
+  and `contact-page.tsx` (`/contact`) reuse the geometry of the other bands and
+  share `contact-channels.tsx`; `contact-form.tsx` composes enquiries into a
+  WhatsApp or `mailto:` hand-off — there is no mail transport in the project.
 - Availability weekday conflict in the mockups — Tue/Thu implemented, caption kept
   verbatim (`lib/availability.ts`).
 - Settings still has no design — `_mockups/2x/update/` covers Clients only, so
