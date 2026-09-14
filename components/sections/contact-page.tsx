@@ -17,13 +17,13 @@ export function ContactIntro() {
   return (
     <section className="bg-wash-hero pb-[70px] pt-[132px]">
       <Reveal className="mx-auto max-w-[1100px] px-6 text-center">
-        <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-brand-ink">
+        <p className="text-[13px] font-extrabold uppercase tracking-[0.14em] text-brand-ink">
           {contactCopy.pageEyebrow}
         </p>
-        <h1 className="mx-auto mt-4 max-w-[760px] text-[33px] font-medium leading-[1.12] tracking-[-0.02em] text-[#1d1620] sm:text-[41px]">
+        <h1 className="mx-auto mt-4 max-w-[760px] text-[36px] font-bold leading-[1.12] tracking-[-0.02em] text-[#1d1620] sm:text-[46px]">
           {contactCopy.pageTitle}
         </h1>
-        <p className="mx-auto mt-5 max-w-[620px] text-[14.5px] leading-[1.7] text-[#3d3d3d]">
+        <p className="mx-auto mt-5 max-w-[620px] text-[16.5px] leading-[1.7] text-[#1d1620]">
           {contactCopy.pageIntro}
         </p>
       </Reveal>
@@ -47,7 +47,7 @@ export function ContactBody() {
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/#contacts"
-          className="inline-flex items-center gap-2 text-[12.5px] text-[#4a4a4a] transition-colors hover:text-brand"
+          className="inline-flex items-center gap-2 text-[14px] font-medium text-[#2e2e2e] transition-colors hover:text-brand"
         >
           <ArrowLeft className="size-4" strokeWidth={1.75} />
           Back to the home page
