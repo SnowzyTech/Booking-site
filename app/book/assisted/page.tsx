@@ -7,7 +7,7 @@ import { WhatsAppChip } from "@/components/booking/whatsapp-block";
  * Assisted flow, step 2 (MacBook Pro 14_ - 8.png).
  *
  * Corporate Wellness and Events Training do not go through the calendar or the
- * bank-transfer step — they hand off to the Executive Assistant on WhatsApp.
+ * bank-transfer step — they hand off to the Team on WhatsApp.
  * The stepper still renders four dots; only 1 and 2 are ever reached.
  *
  * Also reachable straight from the landing page's Services section, via
@@ -29,8 +29,8 @@ export default function AssistedPage() {
       </h1>
 
       <p className="mt-6 max-w-[480px] text-[14px] leading-[1.5] text-[#111]">
-        Contact the Executive Assistant via the WhatsApp number below to arrange
-        your appointment date and other necessary details.
+        Contact the Team via the WhatsApp number below to arrange your
+        appointment date and other necessary details.
       </p>
 
       <div className="mt-8">

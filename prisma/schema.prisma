@@ -158,7 +158,7 @@ model Booking {
 
 /// A single meeting. A one-off booking has exactly one; a programme/corporate
 /// booking has several (WEEK 1/2/4/6, Day 1-5). scheduledAt is null for the
-/// assisted flow until the EA arranges it over WhatsApp.
+/// assisted flow until the Team arranges it over WhatsApp.
 model Appointment {
   id        String  @id @default(cuid())
   bookingId String

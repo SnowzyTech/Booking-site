@@ -4,7 +4,7 @@
  *
  * `flow` drives which booking journey a service enters — see lib/booking-flow.ts:
  *   "scheduled" -> 4 steps, ending at bank transfer  (MacBook Pro 14_ - 2/3/4/5)
- *   "assisted"  -> 2 steps, ending at a WhatsApp hand-off to the EA (MacBook 8)
+ *   "assisted"  -> 2 steps, ending at a WhatsApp hand-off to the Team (MacBook 8)
  */
 export type ServiceFlow = "scheduled" | "assisted";
 /** Booking shape: a single appointment, a multi-week programme, or a
