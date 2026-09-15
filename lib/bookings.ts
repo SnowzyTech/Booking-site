@@ -55,6 +55,15 @@ export type Booking = {
   deliverables?: string[];
   /** One-off bookings carry a single appointment slot (Frame 134 / 204). */
   slot?: { appointmentId: string; date: string; time: string; short: string };
+  /** The event brief, on the two services that collect one (Corporate Wellness,
+   *  Events Training). The date of the event is the booking's own appointment. */
+  enquiry?: {
+    organization: string;
+    location: string;
+    audienceSize: string;
+    topic: string;
+    duration: string;
+  };
 };
 
 /*

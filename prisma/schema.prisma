@@ -118,17 +118,23 @@ model Booking {
   status        BookingStatus @default(PENDING)
   paymentStatus PaymentStatus @default(AWAITING)
 
-  /// Virtual (video call) or physical (at the Egbeda office). Only the
-  /// scheduled flow sets it; assisted bookings are arranged over WhatsApp.
+  /// Virtual (video call) or physical (at the Egbeda office). Set by every flow
+  /// that passes the calendar step; Premium is arranged over WhatsApp and keeps
+  /// the default.
   mode BookingMode @default(VIRTUAL)
 
-  /// Optional health-concern note from the booking form.
+  /// Optional free-text note from the booking form: a health concern on the
+  /// scheduled flow, anything else worth knowing on an enquiry.
   note String?
   /// Programme deliverables (e.g. "Personalized Meal Plan"). Templated from the
   /// service but stored per-booking so they can be checked off later.
   deliverables String[] @default([])
 
   appointments Appointment[]
+
+  /// The event brief, for the two services that collect one (Corporate Wellness,
+  /// Events Training). Null everywhere else.
+  enquiry Enquiry?
 
   /// First month a One-on-One Premium engagement is no longer listed. Set by
   /// "Opt out" to unsubscribe a client from the viewed month onward, keeping
@@ -175,4 +181,28 @@ model Appointment {
 
   @@index([bookingId])
   @@index([scheduledAt])
+}
+
+/// The event brief behind a Corporate Wellness or Events Training booking,
+/// collected on /book/enquiry. Its own table rather than columns on Booking:
+/// the answers are all-or-nothing and only two of the five services ask for them.
+///
+/// The date of the event is deliberately NOT here — it is the booking's
+/// Appointment.scheduledAt, picked on the normal calendar step, so an event
+/// holds its slot and lands on the admin board like any other appointment.
+model Enquiry {
+  id        String  @id @default(cuid())
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  organization String
+  location     String
+  /// Free text, not a number: enquiries say "about 200" or "50-100".
+  audienceSize String
+  topic        String
+  /// Free text for the same reason: "1hr 30min", "2 days".
+  duration     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

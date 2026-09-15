@@ -32,16 +32,29 @@ Marketing + booking site for **Linda Chikaodi Austin**, a clinical nutritionist
 - **`app/(public)`** — landing page (`/`): hero, how-it-works, services, about,
   FAQ, contact band. Plus `/contact`, the dedicated contact page that holds the
   message form; the landing band carries the same details and links to it.
-- **`app/book`** — booking wizard with a 4-dot stepper. Two branches keyed off each
-  service's `flow`:
-  - `scheduled`: `/book` → `/book/schedule` (date/time + virtual/in-person) →
-    `/book/details` (contact) → `/book/payment` (bank transfer + WhatsApp receipt).
-  - `assisted` (Corporate, Events): `/book` → `/book/assisted` (WhatsApp hand-off).
+- **`app/book`** — booking wizard. Three branches, selected by each service's
+  `flow` plus the `needsEnquiry()` predicate in `lib/services.ts`:
+  - `scheduled` (Consultation, Meal Plans) — 4 dots: `/book` → `/book/schedule`
+    (date/time + virtual/in-person) → `/book/details` (contact) →
+    `/book/payment` (bank transfer + WhatsApp receipt).
+  - **enquiry** (Corporate, Events) — 5 dots: `/book` → `/book/schedule` →
+    `/book/enquiry` (organization, location, audience size, topic, duration) →
+    `/book/details` (contact) → `/book/assisted` (Send Enquiry, then a
+    prefilled WhatsApp hand-off). Nothing is charged: it lands `PENDING` /
+    `AWAITING` via `createEnquiryBooking`, and the chosen slot is held exactly
+    like a paid one so nobody is booked on top of a training.
+  - `assisted` (Premium only) — `/book` → `/book/assisted` (WhatsApp hand-off,
+    nothing written; it is managed from `/admin/clients`). Still 4 dots, only 1
+    and 2 reachable.
+  - `/book/assisted` is therefore the last step of one branch and the second of
+    another, which is why `<Stepper>` reads the booking context rather than the
+    pathname alone.
   - `/book` (the picker, step 1) is reached only from the hero's "Explore
     Services" — a specific service's own CTA (landing page Services section,
     or the booking-flow service cards) skips it and deep-links straight into
     step 2 with `?service=<slug>`, read by `<ServiceFromQuery>` since
-    `BookingProvider` only mounts under `/book/*`.
+    `BookingProvider` only mounts under `/book/*`. `bookingEntryPath()` in
+    `lib/services.ts` is the single place that decides which step that is.
 - **`app/admin`** — dashboard under `/admin/*`: `/admin/appointments` and
   `/admin/clients` (real screens), `/admin/settings` (placeholder),
   `/admin/login`. The guarded pages live in the `(dashboard)` route group;
@@ -60,8 +73,11 @@ rather than referencing a Service table.
 ## Backend
 
 - Schema: `prisma/schema.prisma`. Models: `User` (admin/staff), `Client`,
-  `Booking`, `Appointment` + enums (`Role`, `ServiceFlow`, `BookingKind`,
-  `BookingStatus`, `PaymentStatus`, `AppointmentState`, `BookingMode`).
+  `Booking`, `Appointment`, `Enquiry` + enums (`Role`, `ServiceFlow`,
+  `BookingKind`, `BookingStatus`, `PaymentStatus`, `AppointmentState`,
+  `BookingMode`). `Enquiry` is the 1:1 event brief behind a Corporate / Events
+  booking; the date of the event is not on it — that is the booking's own
+  `Appointment.scheduledAt`.
 - Prisma client singleton: `lib/prisma.ts` (import `prisma` from `@/lib/prisma`).
 - Connection: `DATABASE_URL` (pooled) + `DIRECT_URL` (migrations) in `.env`
   (gitignored). For reliable migrations, point `DIRECT_URL` at Neon's **non-pooled**
@@ -79,10 +95,11 @@ rather than referencing a Service table.
   virtual by inaction is recoverable, whereas defaulting to physical would send
   someone across Lagos for a meeting nobody prepared for.
 - E-mail: `lib/email.ts`, posted straight to **Resend**'s REST API (no SDK —
-  one `fetch`, so no extra dependency). `createScheduledBooking` calls
+  one `fetch`, so no extra dependency). Every public booking path ends in
   `notifyNewBooking` *after* the transaction commits, which sends two messages:
-  the "new booking" alert to `BOOKING_NOTIFICATION_EMAIL` and a receipt to the
-  customer. Sending is best-effort and never fails a committed booking. Env:
+  the alert to `BOOKING_NOTIFICATION_EMAIL` and a receipt to the customer. Pass
+  it an `enquiry` and both switch from payment copy to "we'll follow up" copy.
+  Sending is best-effort and never fails a committed booking. Env:
   `RESEND_API_KEY`, `EMAIL_FROM` (a Resend-verified sender),
   `BOOKING_NOTIFICATION_EMAIL` — leave them blank and sends are skipped with a
   console warning, which is how local dev runs. Confirm / Decline in the admin

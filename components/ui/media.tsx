@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ export function Media({
   imageClassName,
   sizes = "(max-width: 1024px) 100vw, 50vw",
   priority,
+  style,
 }: {
   src?: string;
   alt: string;
@@ -24,6 +26,9 @@ export function Media({
   imageClassName?: string;
   sizes?: string;
   priority?: boolean;
+  /** e.g. `{ aspectRatio: "6000 / 3368" }` to match a specific photo's own
+   *  dimensions — Tailwind's `aspect-[…]` can't take a per-item runtime value. */
+  style?: CSSProperties;
 }) {
   if (!src) {
     return (
@@ -31,11 +36,12 @@ export function Media({
         aria-label={`${alt} (image pending)`}
         role="img"
         className={cn("bg-placeholder", className)}
+        style={style}
       />
     );
   }
   return (
-    <div className={cn("relative overflow-hidden", className)}>
+    <div className={cn("relative overflow-hidden", className)} style={style}>
       <Image
         src={src}
         alt={alt}

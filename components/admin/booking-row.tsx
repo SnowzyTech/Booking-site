@@ -136,10 +136,38 @@ export function BookingRow({ booking }: { booking: Booking }) {
         <>
           {hasTimeline && <Timeline booking={booking} actions={actions} />}
 
+          {booking.enquiry && (
+            <dl
+              className={cn(
+                "grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2",
+                hasTimeline ? "mt-8" : "mt-6 border-t border-[#ececec] pt-6"
+              )}
+            >
+              {(
+                [
+                  ["Organization", booking.enquiry.organization],
+                  ["Location", booking.enquiry.location],
+                  ["Audience size", booking.enquiry.audienceSize],
+                  ["Topic", booking.enquiry.topic],
+                  ["Duration", booking.enquiry.duration],
+                ] as const
+              ).map(([label, value]) => (
+                <div key={label} className="min-w-0">
+                  <dt className="text-[12px] text-[#8a8a8a]">{label}</dt>
+                  <dd className="mt-0.5 break-words text-[15px] text-[#111]">
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+
           <div
             className={cn(
               "flex items-center justify-between",
-              hasTimeline ? "mt-8" : "mt-6 border-t border-[#ececec] pt-6"
+              hasTimeline || booking.enquiry
+                ? "mt-8"
+                : "mt-6 border-t border-[#ececec] pt-6"
             )}
           >
             {/* A one-off shows its single slot here; a programme shows dots.

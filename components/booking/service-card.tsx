@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Media } from "@/components/ui/media";
 import { useBooking } from "@/components/booking/booking-context";
-import type { Service } from "@/lib/services";
+import { bookingEntryPath, type Service } from "@/lib/services";
 
 export function ServiceCard({ service }: { service: Service }) {
   const router = useRouter();
@@ -17,9 +17,7 @@ export function ServiceCard({ service }: { service: Service }) {
     setService(service);
     // Without the transition the button sits inert until the next route paints.
     startTransition(() => {
-      router.push(
-        service.flow === "scheduled" ? "/book/schedule" : "/book/assisted"
-      );
+      router.push(bookingEntryPath(service));
     });
   }
 

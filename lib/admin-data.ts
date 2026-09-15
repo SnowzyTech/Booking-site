@@ -66,7 +66,11 @@ export async function getAdminBookings(): Promise<AdminData> {
       status: { in: ["PENDING", "CONFIRMED"] },
       serviceSlug: { not: PREMIUM_SLUG },
     },
-    include: { client: true, appointments: { orderBy: { position: "asc" } } },
+    include: {
+      client: true,
+      appointments: { orderBy: { position: "asc" } },
+      enquiry: true,
+    },
   });
 
   const now = new Date();
@@ -119,10 +123,13 @@ export async function getAdminBookings(): Promise<AdminData> {
       nextLabel = "Appointment";
       const first = appts[0]?.scheduledAt;
       const last = appts[appts.length - 1]?.scheduledAt;
-      nextValue =
-        first && last
-          ? `${format(wall(first), "d EEE")} - ${format(wall(last), "d EEE")}`
-          : "";
+      // An enquiry books a single day, so a first-to-last range would just
+      // repeat itself ("5 Mon - 5 Mon").
+      nextValue = !first
+        ? ""
+        : !last || first.getTime() === last.getTime()
+          ? format(wall(first), "d EEE")
+          : `${format(wall(first), "d EEE")} - ${format(wall(last), "d EEE")}`;
     } else {
       nextLabel = "Next Appointment";
       const next = appts[activeIndex >= 0 ? activeIndex : 0]?.scheduledAt;
@@ -156,6 +163,15 @@ export async function getAdminBookings(): Promise<AdminData> {
       },
       sessions,
       deliverables: row.deliverables.length ? row.deliverables : undefined,
+      enquiry: row.enquiry
+        ? {
+            organization: row.enquiry.organization,
+            location: row.enquiry.location,
+            audienceSize: row.enquiry.audienceSize,
+            topic: row.enquiry.topic,
+            duration: row.enquiry.duration,
+          }
+        : undefined,
       slot:
         kind === "one-off"
           ? {

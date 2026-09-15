@@ -7,6 +7,7 @@ import { useBooking } from "@/components/booking/booking-context";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/field";
 import { Media } from "@/components/ui/media";
+import { needsEnquiry } from "@/lib/services";
 
 const FIELDS = [
   {
@@ -21,11 +22,14 @@ const FIELDS = [
   { key: "email", label: "E-Mail", type: "email", required: true },
 ] as const;
 
-/* Step 3 — contact details (MacBook Pro 14_ - 3.png). */
+/* Contact details (MacBook Pro 14_ - 3.png) — step 3 of the scheduled flow,
+   step 4 of the enquiry flow, which reaches it after the event brief. */
 export default function DetailsPage() {
   const router = useRouter();
   const { service, details, setDetails } = useBooking();
   const [navigating, startNavigation] = React.useTransition();
+
+  const enquiry = Boolean(service && needsEnquiry(service));
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email.trim());
   // Every field is compulsory except the note; Confirm stays disabled until all
@@ -44,7 +48,9 @@ export default function DetailsPage() {
           className="w-full max-w-[441px] shrink-0"
           onSubmit={(e) => {
             e.preventDefault();
-            startNavigation(() => router.push("/book/payment"));
+            startNavigation(() =>
+              router.push(enquiry ? "/book/assisted" : "/book/payment")
+            );
           }}
         >
           {FIELDS.map((f) => (
@@ -66,7 +72,9 @@ export default function DetailsPage() {
 
           <div className="mt-8">
             <Label htmlFor="note" className="pl-2">
-              Brief note on your health concern (optional)
+              {enquiry
+                ? "Anything else we should know? (optional)"
+                : "Brief note on your health concern (optional)"}
             </Label>
             <Textarea
               id="note"

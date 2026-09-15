@@ -2,16 +2,21 @@
 
 import { usePathname } from "next/navigation";
 
+import { useBooking } from "@/components/booking/booking-context";
+import { needsEnquiry } from "@/lib/services";
 import { cn } from "@/lib/utils";
 
 /*
- * Four-dot stepper. Dot states are taken from the mockups:
+ * Progress stepper. Dot states are taken from the mockups:
  *   complete -> #6BDD00 green      (MacBook Pro 14_ - 3/5)
  *   current  -> #6F7F60 olive      (MacBook Pro 14_ - 2/3/4/5/8)
  *   upcoming -> #DFDFDF grey
  *
- * The assisted flow (Corporate / Events) still renders four dots but only ever
- * reaches step 2 — see MacBook Pro 14_ - 8.png.
+ * Four dots for the scheduled flow and for Premium, which still only ever
+ * reaches step 2 (MacBook Pro 14_ - 8.png). The enquiry flow (Corporate /
+ * Events) inserts the event brief between the calendar and the contact step, so
+ * it runs to five — which is why this reads the service rather than the path
+ * alone: /book/assisted is the last step of one flow and the second of another.
  *
  * The 46px dots are the measured desktop size; below sm they drop to 36px with
  * shorter connectors so the row never sets a floor wider than the viewport.
@@ -25,13 +30,26 @@ const STEP_BY_PATH: Record<string, number> = {
   "/book/assisted": 2,
 };
 
+const ENQUIRY_STEP_BY_PATH: Record<string, number> = {
+  "/book": 1,
+  "/book/schedule": 2,
+  "/book/enquiry": 3,
+  "/book/details": 4,
+  "/book/assisted": 5,
+};
+
 export function Stepper() {
   const pathname = usePathname();
-  const current = STEP_BY_PATH[pathname] ?? 1;
+  const { service } = useBooking();
+
+  const enquiry = Boolean(service && needsEnquiry(service));
+  const steps = enquiry ? [1, 2, 3, 4, 5] : [1, 2, 3, 4];
+  const current =
+    (enquiry ? ENQUIRY_STEP_BY_PATH[pathname] : STEP_BY_PATH[pathname]) ?? 1;
 
   return (
     <div className="mx-auto flex w-full max-w-[1058px] items-center px-4 pt-7 sm:px-6 sm:pt-9">
-      {[1, 2, 3, 4].map((n, i) => (
+      {steps.map((n, i) => (
         <div
           key={n}
           className={cn("flex items-center", i > 0 && "min-w-0 flex-1")}

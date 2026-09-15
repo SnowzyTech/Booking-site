@@ -60,14 +60,12 @@ export function Contact() {
             </div>
 
             <p className="mt-5 text-[13.5px] leading-[1.6] text-[#4a4a4a]">
-              Prefer to get straight to a date?{" "}
               <Link
                 href="/book"
                 className="font-semibold text-brand-ink underline"
               >
                 Book a service
-              </Link>{" "}
-              and pick your slot in the booking wizard.
+              </Link>
             </p>
           </Reveal>
         </div>

@@ -17,6 +17,17 @@ export type Details = {
    BookingMode enum in prisma/schema.prisma. */
 export type BookingMode = "virtual" | "physical";
 
+/* The event brief, collected on /book/enquiry by the two services that need one
+   (see needsEnquiry in lib/services.ts). The date of the event is not here — it
+   is the slot picked on the calendar step, like every other booking. */
+export type Enquiry = {
+  organization: string;
+  location: string;
+  audienceSize: string;
+  topic: string;
+  duration: string;
+};
+
 type Ctx = {
   service?: Service;
   setService: (s: Service) => void;
@@ -28,6 +39,8 @@ type Ctx = {
   setMode: (m: BookingMode) => void;
   details: Details;
   setDetails: React.Dispatch<React.SetStateAction<Details>>;
+  enquiry: Enquiry;
+  setEnquiry: React.Dispatch<React.SetStateAction<Enquiry>>;
 };
 
 const emptyDetails: Details = {
@@ -39,6 +52,14 @@ const emptyDetails: Details = {
   note: "",
 };
 
+const emptyEnquiry: Enquiry = {
+  organization: "",
+  location: "",
+  audienceSize: "",
+  topic: "",
+  duration: "",
+};
+
 const BookingContext = React.createContext<Ctx | null>(null);
 
 export function BookingProvider({ children }: { children: React.ReactNode }) {
@@ -48,6 +69,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   // Virtual by default — see the BookingMode comment in schema.prisma.
   const [mode, setMode] = React.useState<BookingMode>("virtual");
   const [details, setDetails] = React.useState<Details>(emptyDetails);
+  const [enquiry, setEnquiry] = React.useState<Enquiry>(emptyEnquiry);
 
   const value = React.useMemo(
     () => ({
@@ -61,8 +83,10 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
       setMode,
       details,
       setDetails,
+      enquiry,
+      setEnquiry,
     }),
-    [service, date, time, mode, details]
+    [service, date, time, mode, details, enquiry]
   );
 
   return (

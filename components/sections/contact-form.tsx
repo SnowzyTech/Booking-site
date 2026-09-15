@@ -157,7 +157,7 @@ export function ContactForm() {
       <p className="mt-4 text-[12px] leading-[1.6] text-[#6b6b6b]">
         {handed === "whatsapp" ? (
           <>
-            Your message is waiting in WhatsApp — tap send there to deliver it.
+            Your message is waiting in WhatsApp. Tap send there to deliver it.
             If nothing opened, message{" "}
             <a
               href={whatsappLink(body)}

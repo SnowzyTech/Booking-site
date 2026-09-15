@@ -29,6 +29,10 @@ export type Service = {
   /** Undefined until a real photograph is supplied; renders the
    *  #D9D9D9 placeholder block the mockups show. */
   image?: string;
+  /** CSS aspect-ratio ("width / height") matching the photo's own dimensions,
+   *  so the frame never crops it — falls back to the mockup's 537:249 box
+   *  when unset (the placeholder, and any photo before this is measured). */
+  imageAspect?: string;
   flow: ServiceFlow;
   kind: ServiceKind;
   /** Programme deliverables, shown in the admin timeline (Frame 207). */
@@ -55,6 +59,7 @@ export const services: Service[] = [
     cta: "Book a Consultation",
     ctaVariant: "pill",
     image: "/images/service-consultation.jpg",
+    imageAspect: "6000 / 3368",
     flow: "scheduled",
     kind: "one-off",
   },
@@ -77,6 +82,7 @@ export const services: Service[] = [
     cta: "Start Your Journey",
     ctaVariant: "pill",
     image: "/images/service-meal-plan.jpg",
+    imageAspect: "2160 / 1440",
     flow: "scheduled",
     kind: "programme",
     deliverables: ["Personalized Meal Plan", "Daily Blood Sugar Tracking Sheet"],
@@ -119,6 +125,7 @@ export const services: Service[] = [
     cta: "Book Training",
     ctaVariant: "pill",
     image: "/images/service-events.jpg",
+    imageAspect: "1102 / 506",
     flow: "assisted",
     kind: "corporate",
   },
@@ -136,6 +143,7 @@ export const services: Service[] = [
     cta: "Start Your Journey",
     ctaVariant: "pill",
     image: "/images/service-premium.jpg",
+    imageAspect: "1100 / 520",
     // WhatsApp hand-off like Corporate/Events; managed from the Clients page
     // rather than the appointments dashboard.
     flow: "assisted",
@@ -149,6 +157,18 @@ export const getService = (slug: string) =>
 /** The one service that is managed from /admin/clients rather than the
  *  appointments board: it is billed monthly and arranged over WhatsApp. */
 export const PREMIUM_SLUG = "one-on-one-premium";
+
+/** Corporate Wellness and Events Training: arranged over WhatsApp like Premium,
+ *  but the wizard collects the event brief first (/book/enquiry) so the Team
+ *  isn't starting from a cold message. Premium is `kind: "programme"`, which is
+ *  what keeps it out. */
+export const needsEnquiry = (s: Service) =>
+  s.flow === "assisted" && s.kind === "corporate";
+
+/** Which wizard step a service's CTA drops the visitor into. Everything but
+ *  Premium now starts at the calendar — the flows only diverge after it. */
+export const bookingEntryPath = (s: Service) =>
+  s.flow === "scheduled" || needsEnquiry(s) ? "/book/schedule" : "/book/assisted";
 
 /**
  * A catalogue `price` string (e.g. "N65,000", "#265,500/month") as an integer

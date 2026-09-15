@@ -18,6 +18,7 @@ import {
   toSlotInstant,
 } from "@/lib/availability";
 import { getFullyBookedDays, getTakenSlots } from "@/lib/booking-actions";
+import { needsEnquiry } from "@/lib/services";
 import { cn } from "@/lib/utils";
 
 /* Step 2 — date & time (MacBook Pro 14_ - 4.png). Reachable straight from the
@@ -172,7 +173,15 @@ export default function SchedulePage() {
             variant="solid"
             size="lg"
             disabled={!date || !time || navigating}
-            onClick={() => startNavigation(() => router.push("/book/details"))}
+            onClick={() =>
+              startNavigation(() =>
+                router.push(
+                  service && needsEnquiry(service)
+                    ? "/book/enquiry"
+                    : "/book/details"
+                )
+              )
+            }
             className="mt-6 px-12"
           >
             Confirm

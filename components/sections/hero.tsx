@@ -28,6 +28,15 @@ export function Hero() {
         className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 w-full select-none"
       />
 
+      {/* hero-bg.webp's own radial glow lives low in the image, mostly under
+          the floating cards, so above the fold reads as a near-flat wash.
+          This screen-blends a second, brighter glow behind the headline so
+          the same gradient the mockup implies is actually visible on load. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-[5] mix-blend-screen bg-[radial-gradient(ellipse_75%_65%_at_50%_38%,rgba(255,255,255,1),rgba(255,255,255,0.6)_40%,rgba(255,255,255,0)_80%)]"
+      />
+
       {/* Padding and heading size both scale down below lg. At one flat size
           the heading alone ran 400px+ tall on a phone and, with the
           desktop-tuned 150/380px padding (sized to clear the floating cards

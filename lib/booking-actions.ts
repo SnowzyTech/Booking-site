@@ -12,6 +12,7 @@ import {
 } from "@/lib/paystack";
 import {
   getService,
+  needsEnquiry,
   priceToKobo,
   type Service,
   type ServiceKind,
@@ -21,7 +22,7 @@ import {
  * Public booking server actions.
  *
  * A scheduled booking is written to the DB once its payment is settled. Two ways
- * in, both funnelling through the private finalizeScheduledBooking():
+ * in, both funnelling through the private finalizeBooking():
  *   - Manual bank transfer: the customer taps "I've Made the Payment" on
  *     /book/payment → createScheduledBooking() writes it as PENDING / NOTIFIED
  *     (awaiting an admin's bank check).
@@ -29,8 +30,12 @@ import {
  *     hosted page; when the payment succeeds, finalizePaystackPayment() (called
  *     by the webhook and the return page) writes it as PENDING / VERIFIED.
  *
- * The assisted flow (Corporate / Events / Premium) writes nothing here — those
- * are pure WhatsApp hand-offs, added later by an admin.
+ * Corporate Wellness and Events Training take the same calendar step but pay
+ * nothing up front: createEnquiryBooking() writes them as PENDING / AWAITING
+ * with the event brief attached, and the Team takes it from there over WhatsApp.
+ *
+ * Premium still writes nothing here — it is a pure WhatsApp hand-off, added
+ * later by an admin from /admin/clients.
  */
 
 export type BookingDetails = {
@@ -46,9 +51,20 @@ export type CreateBookingResult =
   | { ok: true; bookingId: string }
   | { ok: false; error: string };
 
-/** The data a scheduled booking is built from — shared by the manual action, the
- *  Paystack checkout, and (via metadata) the Paystack finalize step. */
-type ScheduledInput = {
+/** The event brief behind a Corporate Wellness / Events Training booking,
+ *  collected on /book/enquiry. The date of the event is not here — it is the
+ *  slot picked on the calendar step, like every other booking. */
+export type EnquiryInput = {
+  organization: string;
+  location: string;
+  audienceSize: string;
+  topic: string;
+  duration: string;
+};
+
+/** The data a booking is built from — shared by the manual action, the Paystack
+ *  checkout, (via metadata) the Paystack finalize step, and the enquiry action. */
+type BookingInput = {
   serviceSlug: string;
   /** The chosen slot as an ISO instant (see toSlotInstant in lib/availability). */
   startISO: string;
@@ -56,6 +72,8 @@ type ScheduledInput = {
    *  than "physical" is treated as virtual — the safe default. */
   mode: "virtual" | "physical";
   details: BookingDetails;
+  /** Only the two enquiry services carry this — see needsEnquiry. */
+  enquiry?: EnquiryInput;
 };
 
 const KIND_MAP: Record<ServiceKind, "ONE_OFF" | "PROGRAMME" | "CORPORATE"> = {
@@ -66,13 +84,29 @@ const KIND_MAP: Record<ServiceKind, "ONE_OFF" | "PROGRAMME" | "CORPORATE"> = {
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
-/** Shared validation for the scheduled flow: the service must be calendar-booked
- *  and the slot, name and e-mail must be usable. */
-function validateScheduled(
-  input: ScheduledInput
+const enquiryComplete = (e?: EnquiryInput): e is EnquiryInput =>
+  Boolean(
+    e &&
+      e.organization.trim() &&
+      e.location.trim() &&
+      e.audienceSize.trim() &&
+      e.topic.trim() &&
+      e.duration.trim()
+  );
+
+/** Shared validation: the service must be the kind `expect` says it is, and the
+ *  slot, name and e-mail must be usable. `expect` is what keeps an enquiry out
+ *  of the card-payment path and a paid service out of the enquiry action — the
+ *  two differ only in which services they accept and whether a brief is required. */
+function validateBooking(
+  input: BookingInput,
+  expect: "scheduled" | "enquiry"
 ): { ok: true; service: Service; start: Date } | { ok: false; error: string } {
   const service = getService(input.serviceSlug);
-  if (!service || service.flow !== "scheduled") {
+  const allowed =
+    service &&
+    (expect === "enquiry" ? needsEnquiry(service) : service.flow === "scheduled");
+  if (!service || !allowed) {
     return { ok: false, error: "This service isn't booked through the calendar." };
   }
   const start = new Date(input.startISO);
@@ -84,6 +118,9 @@ function validateScheduled(
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.details.email.trim())) {
     return { ok: false, error: "Please enter a valid e-mail address." };
+  }
+  if (expect === "enquiry" && !enquiryComplete(input.enquiry)) {
+    return { ok: false, error: "Please complete the event details." };
   }
   return { ok: true, service, start };
 }
@@ -116,8 +153,9 @@ type PaymentInfo = {
 };
 
 /**
- * Persist a scheduled booking + its appointment(s), then fire the notification
- * e-mails. The single place that writes a scheduled booking.
+ * Persist a booking + its appointment(s) + any event brief, then fire the
+ * notification e-mails. The single place that writes a public booking, whether
+ * it was paid for or sent in as an enquiry.
  *
  * `onClash` decides what happens if the slot was taken while the customer was
  * elsewhere: "reject" (manual — nothing was charged, so bounce it back) or
@@ -127,12 +165,13 @@ type PaymentInfo = {
  * Returns a friendly result for SLOT_TAKEN; re-throws anything else (e.g. a
  * duplicate paymentReference P2002) so specific callers can handle it.
  */
-async function finalizeScheduledBooking(
-  input: ScheduledInput,
+async function finalizeBooking(
+  input: BookingInput,
   payment: PaymentInfo,
-  opts: { onClash: "reject" | "keep" } = { onClash: "reject" }
+  opts: { expect?: "scheduled" | "enquiry"; onClash?: "reject" | "keep" } = {}
 ): Promise<CreateBookingResult> {
-  const v = validateScheduled(input);
+  const { expect = "scheduled", onClash = "reject" } = opts;
+  const v = validateBooking(input, expect);
   if (!v.ok) return v;
   const { service, start } = v;
 
@@ -151,7 +190,7 @@ async function finalizeScheduledBooking(
         select: { id: true },
       });
       if (clash) {
-        if (opts.onClash === "reject") throw new Error("SLOT_TAKEN");
+        if (onClash === "reject") throw new Error("SLOT_TAKEN");
         // "keep": the customer has already paid, so dropping the booking would
         // lose their money. Persist it and log loudly — the two bookings share
         // the instant on the admin board, where Linda reschedules one.
@@ -185,7 +224,7 @@ async function finalizeScheduledBooking(
           serviceSlug: service.slug,
           serviceName: service.name,
           kind: KIND_MAP[service.kind],
-          flow: "SCHEDULED",
+          flow: service.flow === "assisted" ? "ASSISTED" : "SCHEDULED",
           status: payment.status,
           paymentStatus: payment.paymentStatus,
           mode: input.mode === "physical" ? "PHYSICAL" : "VIRTUAL",
@@ -203,6 +242,17 @@ async function finalizeScheduledBooking(
               scheduledAt: p.scheduledAt,
             })),
           },
+          ...(enquiryComplete(input.enquiry) && {
+            enquiry: {
+              create: {
+                organization: input.enquiry.organization.trim(),
+                location: input.enquiry.location.trim(),
+                audienceSize: input.enquiry.audienceSize.trim(),
+                topic: input.enquiry.topic.trim(),
+                duration: input.enquiry.duration.trim(),
+              },
+            },
+          }),
         },
         select: { id: true },
       });
@@ -239,6 +289,7 @@ async function finalizeScheduledBooking(
     whatsapp: input.details.whatsapp.trim() || null,
     address: input.details.address.trim() || null,
     note: input.details.note.trim() || null,
+    enquiry: enquiryComplete(input.enquiry) ? input.enquiry : null,
   }).catch((e) => console.error("notifyNewBooking failed", e));
 
   return { ok: true, bookingId };
@@ -249,10 +300,10 @@ async function finalizeScheduledBooking(
  * (awaiting an admin's bank check), exactly as before.
  */
 export async function createScheduledBooking(
-  input: ScheduledInput
+  input: BookingInput
 ): Promise<CreateBookingResult> {
   try {
-    return await finalizeScheduledBooking(input, {
+    return await finalizeBooking(input, {
       status: "PENDING",
       paymentStatus: "NOTIFIED",
       paymentNotifiedAt: new Date(),
@@ -263,6 +314,29 @@ export async function createScheduledBooking(
     return {
       ok: false,
       error: "Something went wrong creating your booking. Please try again.",
+    };
+  }
+}
+
+/**
+ * Corporate Wellness / Events Training. Nothing is charged up front, so the
+ * booking lands PENDING / AWAITING with its event brief attached; the slot is
+ * held exactly like a paid one so nobody gets booked on top of a training.
+ */
+export async function createEnquiryBooking(
+  input: BookingInput
+): Promise<CreateBookingResult> {
+  try {
+    return await finalizeBooking(
+      input,
+      { status: "PENDING", paymentStatus: "AWAITING" },
+      { expect: "enquiry" }
+    );
+  } catch (e) {
+    console.error("createEnquiryBooking failed", e);
+    return {
+      ok: false,
+      error: "Something went wrong sending your enquiry. Please try again.",
     };
   }
 }
@@ -292,9 +366,10 @@ async function paystackCallbackUrl(): Promise<string> {
  * payment is confirmed. Returns the hosted-checkout URL to redirect to.
  */
 export async function startPaystackCheckout(
-  input: ScheduledInput
+  input: BookingInput
 ): Promise<{ ok: true; authorizationUrl: string } | { ok: false; error: string }> {
-  const v = validateScheduled(input);
+  // "scheduled" here is load-bearing: an enquiry service has no price to charge.
+  const v = validateBooking(input, "scheduled");
   if (!v.ok) return v;
   const { service, start } = v;
 
@@ -346,7 +421,7 @@ export async function startPaystackCheckout(
 /** Pull the booking payload back out of a transaction's metadata (Paystack may
  *  hand it back as an object or a JSON string). Returns null if it isn't there
  *  or is malformed. */
-function readBookingMetadata(metadata: unknown): ScheduledInput | null {
+function readBookingMetadata(metadata: unknown): BookingInput | null {
   let meta = metadata;
   if (typeof meta === "string") {
     try {
@@ -392,7 +467,7 @@ export type FinalizePaymentResult =
  *   2. If a booking already carries this reference, return it — no double write.
  *   3. Only "success" transactions proceed.
  *   4. Assert the paid amount matches this service's catalogue price.
- *   5. Write the booking as PENDING / VERIFIED (see finalizeScheduledBooking).
+ *   5. Write the booking as PENDING / VERIFIED (see finalizeBooking).
  */
 export async function finalizePaystackPayment(
   reference: string
@@ -442,7 +517,7 @@ export async function finalizePaystackPayment(
   }
 
   try {
-    return await finalizeScheduledBooking(
+    return await finalizeBooking(
       payload,
       {
         status: "PENDING",

@@ -9,7 +9,7 @@ export const nav = [
   { label: "Services & Pricing", href: "/#services" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "FAQ", href: "/#faq" },
-  { label: "Contacts", href: "/#contacts" },
+  { label: "Contacts", href: "/contact" },
 ];
 
 export const contact = {
@@ -56,8 +56,12 @@ export const footerColumns: { title: string; links: FooterLink[] }[] = [
     title: "Products",
     links: [
       { label: "Fonio Mill" },
-      { label: "El-Mana Spice", href: "https://globeherb.com/c/elmana-spice/" },
+      {
+        label: "El-Mana Mixd Spice",
+        href: "https://globeherb.com/c/elmana-spice/",
+      },
       { label: "Neuro-Vive Balm", href: "https://vitaafri.com/c/neuro-balm-1/" },
+      { label: "Niver Mor" },
     ],
   },
   {
@@ -78,11 +82,11 @@ export const contactCopy = {
   headingLead: "Still Have Questions? ",
   headingAccent: "Let's Talk",
   intro:
-    "Ask about a consultation, a personalized meal plan, corporate wellness training or an upcoming event. WhatsApp is the fastest way to reach us — messages are answered within business hours.",
+    "Ask about a consultation, a personalized meal plan, corporate wellness training or an upcoming event. WhatsApp is the fastest way to reach us, and messages are answered within business hours.",
   /* The landing band only teases the form; it lives on /contact. */
   teaserTitle: "Send a message",
   teaserBody:
-    "Tell us what you need help with and we will come back to you with the right next step — a consultation, a meal plan or a training date.",
+    "Tell us what you need help with and we will come back to you with the right next step, whether that's a consultation, a meal plan or a training date.",
   teaserCta: "Go to the contact form",
   /* /contact */
   pageEyebrow: "Contact Us",
@@ -91,7 +95,7 @@ export const contactCopy = {
     "Fill in the form and we will get back to you within business hours. For anything urgent, the WhatsApp number is the fastest way to reach the team.",
   formTitle: "Send a message",
   formNote:
-    "This form opens WhatsApp or your mail app with the message filled in — nothing is stored on this site.",
+    "This form opens WhatsApp or your mail app with the message filled in. Nothing is stored on this site.",
 };
 
 export const contactTopics = [
