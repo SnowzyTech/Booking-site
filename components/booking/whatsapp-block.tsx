@@ -2,18 +2,10 @@ import { WhatsApp } from "@/components/icons/social";
 import { contact, whatsappLink } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-export function WhatsAppChip({
-  className,
-  message,
-}: {
-  className?: string;
-  /** Pre-fills the chat — used by the enquiry hand-off so the Team opens the
-   *  thread with the event brief already in it. */
-  message?: string;
-}) {
+export function WhatsAppChip({ className }: { className?: string }) {
   return (
     <a
-      href={whatsappLink(message)}
+      href={whatsappLink()}
       target="_blank"
       rel="noreferrer"
       className={cn(

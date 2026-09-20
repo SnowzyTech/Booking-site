@@ -23,7 +23,8 @@ const FIELDS = [
 ] as const;
 
 /* Contact details (MacBook Pro 14_ - 3.png) — step 3 of the scheduled flow,
-   step 4 of the enquiry flow, which reaches it after the event brief. */
+   step 4 of the enquiry flow, which reaches it after the event brief. Both
+   continue to payment from here. */
 export default function DetailsPage() {
   const router = useRouter();
   const { service, details, setDetails } = useBooking();
@@ -48,9 +49,7 @@ export default function DetailsPage() {
           className="w-full max-w-[441px] shrink-0"
           onSubmit={(e) => {
             e.preventDefault();
-            startNavigation(() =>
-              router.push(enquiry ? "/book/assisted" : "/book/payment")
-            );
+            startNavigation(() => router.push("/book/payment"));
           }}
         >
           {FIELDS.map((f) => (

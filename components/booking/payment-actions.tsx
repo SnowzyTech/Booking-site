@@ -9,6 +9,7 @@ import { useBooking } from "@/components/booking/booking-context";
 import { Button } from "@/components/ui/button";
 import { createScheduledBooking, startPaystackCheckout } from "@/lib/booking-actions";
 import { toSlotInstant } from "@/lib/availability";
+import { needsEnquiry } from "@/lib/services";
 import { bank } from "@/lib/site";
 
 /*
@@ -23,7 +24,7 @@ import { bank } from "@/lib/site";
  * button did. Paystack is a separate flow and is not wired up yet.
  */
 export function PaymentActions() {
-  const { service, date, time, mode, details } = useBooking();
+  const { service, date, time, mode, details, enquiry } = useBooking();
   const [open, setOpen] = React.useState(false);
   const [pending, setPending] = React.useState(false);
   const [done, setDone] = React.useState(false);
@@ -31,8 +32,14 @@ export function PaymentActions() {
   const [cardPending, setCardPending] = React.useState(false);
   const [cardError, setCardError] = React.useState<string | null>(null);
 
+  // Corporate / Events also have to have filled in the event brief by now.
+  const briefDone =
+    !service ||
+    !needsEnquiry(service) ||
+    Object.values(enquiry).every((v) => v.trim());
+
   const ready = Boolean(
-    service && date && time && details.fullName && details.email
+    service && date && time && details.fullName && details.email && briefDone
   );
 
   async function submit() {
@@ -44,6 +51,7 @@ export function PaymentActions() {
       startISO: toSlotInstant(date, time).toISOString(),
       mode,
       details,
+      enquiry,
     });
     setPending(false);
     if (res.ok) {
@@ -67,6 +75,7 @@ export function PaymentActions() {
       startISO: toSlotInstant(date, time).toISOString(),
       mode,
       details,
+      enquiry,
     });
     if (res.ok) {
       window.location.href = res.authorizationUrl;

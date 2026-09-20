@@ -31,10 +31,18 @@ export function Hero() {
       {/* hero-bg.webp's own radial glow lives low in the image, mostly under
           the floating cards, so above the fold reads as a near-flat wash.
           This screen-blends a second, brighter glow behind the headline so
-          the same gradient the mockup implies is actually visible on load. */}
+          the same gradient the mockup implies is actually visible on load.
+
+          It sits *below* the image (-z-20 against the image's -z-10). The WebP
+          is opaque (lossy VP8, no alpha channel), so this only paints the strip
+          of section above the bottom-anchored image's top edge: the copy stack
+          on narrow viewports, and nothing at all once the viewport is wide
+          enough for the image to cover the whole section. That is the point —
+          layered over the image it screen-blended up to ~65% white onto the
+          floating cards baked into the lower third, bleaching them. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-[5] mix-blend-screen bg-[radial-gradient(ellipse_75%_65%_at_50%_38%,rgba(255,255,255,1),rgba(255,255,255,0.6)_40%,rgba(255,255,255,0)_80%)]"
+        className="pointer-events-none absolute inset-0 -z-20 mix-blend-screen bg-[radial-gradient(ellipse_75%_65%_at_50%_38%,rgba(255,255,255,1),rgba(255,255,255,0.6)_40%,rgba(255,255,255,0)_80%)]"
       />
 
       {/* Padding and heading size both scale down below lg. At one flat size

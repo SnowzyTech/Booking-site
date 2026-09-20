@@ -96,8 +96,8 @@ export type BookingEmailInput = {
   whatsapp?: string | null;
   address?: string | null;
   note?: string | null;
-  /** The event brief, when the booking came in as a Corporate / Events enquiry
-   *  rather than a paid appointment. Switches the copy from payment to follow-up. */
+  /** The event brief, on the Corporate / Events bookings that collect one. Adds
+   *  rows to both messages; the payment copy is unchanged. */
   enquiry?: {
     organization: string;
     location: string;
@@ -159,13 +159,11 @@ function layout(heading: string, rows: [string, string][], footer: string) {
 }
 
 /*
- * Fired when a customer taps "I've Made the Payment" on /book/payment, or sends
- * in a Corporate / Events enquiry from /book/assisted.
+ * Fired when a customer taps "I've Made the Payment" on /book/payment.
  *
- * Two messages: the alert to the business (a payment still has to be checked
- * against the bank by hand; an enquiry just needs following up) and the receipt
- * the booking page promises the customer. Neither is awaited for correctness —
- * see the note at the top.
+ * Two messages: the alert to the business (the payment still has to be checked
+ * against the bank by hand) and the receipt the booking page promises the
+ * customer. Neither is awaited for correctness — see the note at the top.
  */
 export async function notifyNewBooking(input: BookingEmailInput) {
   const { owner } = config();
@@ -185,7 +183,7 @@ export async function notifyNewBooking(input: BookingEmailInput) {
       "Format",
       physical
         ? enquiry
-          ? "In person"
+          ? "In person (at your venue)"
           : "In person (at the office)"
         : "Virtual (video call)",
     ],
@@ -208,14 +206,12 @@ export async function notifyNewBooking(input: BookingEmailInput) {
         to: owner,
         replyTo: input.email,
         subject: enquiry
-          ? `New enquiry — ${input.serviceName} (${enquiry.organization})`
+          ? `New booking — ${input.serviceName} (${enquiry.organization})`
           : `New booking — ${input.serviceName} (${input.fullName})`,
         html: layout(
-          enquiry
-            ? "A new training enquiry has come in"
-            : paid
-              ? "A new paid booking is awaiting confirmation"
-              : "A new booking is awaiting payment verification",
+          paid
+            ? "A new paid booking is awaiting confirmation"
+            : "A new booking is awaiting payment verification",
           [
             ...shared,
             ["Name", input.fullName],
@@ -226,15 +222,13 @@ export async function notifyNewBooking(input: BookingEmailInput) {
             ["Note", input.note || "—"],
             ["Booking ID", input.bookingId],
           ],
-          enquiry
-            ? "Nothing has been charged — this is an enquiry. The date is already held on the appointments board, so confirm it there and follow up with the organization to agree the details and the fee."
-            : paid
-              ? physical
-                ? "The customer has paid by card (verified by Paystack) and is coming to the office in person. Confirm the booking in the admin dashboard."
-                : "The customer has paid by card (verified by Paystack). Confirm the booking in the admin dashboard — and send them the meeting link."
-              : physical
-                ? "The customer says the transfer has been sent, and is coming to the office in person. Confirm it against the bank, then Confirm the booking in the admin dashboard."
-                : "The customer says the transfer has been sent. Confirm it against the bank, then Confirm the booking in the admin dashboard — and send them the meeting link."
+          paid
+            ? physical
+              ? "The customer has paid by card (verified by Paystack) and is coming to the office in person. Confirm the booking in the admin dashboard."
+              : "The customer has paid by card (verified by Paystack). Confirm the booking in the admin dashboard — and send them the meeting link."
+            : physical
+              ? "The customer says the transfer has been sent, and is coming to the office in person. Confirm it against the bank, then Confirm the booking in the admin dashboard."
+              : "The customer says the transfer has been sent. Confirm it against the bank, then Confirm the booking in the admin dashboard — and send them the meeting link."
         ),
       })
     );
@@ -247,23 +241,23 @@ export async function notifyNewBooking(input: BookingEmailInput) {
   tasks.push(
     send({
       to: input.email,
-      subject: enquiry
-        ? `We've received your enquiry — ${input.serviceName}`
-        : `We've received your booking — ${input.serviceName}`,
+      subject: `We've received your booking — ${input.serviceName}`,
       html: layout(
         `Thank you, ${input.fullName.split(" ")[0]}`,
         shared,
-        enquiry
-          ? "We have your event details and the date is provisionally held. The team will be in touch shortly to confirm everything and agree the fee. If anything looks wrong, just reply to this message."
-          : `${
-              paid
-                ? "Your payment has been received."
-                : "We are verifying your payment now."
-            } You will get another e-mail as soon as your appointment is confirmed${
-              physical
-                ? `, with directions to the office at ${escape(OFFICE)}`
-                : ", along with your meeting link"
-            }. If anything looks wrong, just reply to this message.`
+        `${
+          paid
+            ? "Your payment has been received."
+            : "We are verifying your payment now."
+        } You will get another e-mail as soon as your ${
+          enquiry ? "training" : "appointment"
+        } is confirmed${
+          physical && !enquiry
+            ? `, with directions to the office at ${escape(OFFICE)}`
+            : enquiry
+              ? ""
+              : ", along with your meeting link"
+        }. If anything looks wrong, just reply to this message.`
       ),
     })
   );

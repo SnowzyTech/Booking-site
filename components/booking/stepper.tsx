@@ -14,9 +14,9 @@ import { cn } from "@/lib/utils";
  *
  * Four dots for the scheduled flow and for Premium, which still only ever
  * reaches step 2 (MacBook Pro 14_ - 8.png). The enquiry flow (Corporate /
- * Events) inserts the event brief between the calendar and the contact step, so
- * it runs to five — which is why this reads the service rather than the path
- * alone: /book/assisted is the last step of one flow and the second of another.
+ * Events) is the scheduled flow with the event brief inserted between the
+ * calendar and the contact step, so it runs to five and every later step shifts
+ * up one — which is why this reads the service rather than the path alone.
  *
  * The 46px dots are the measured desktop size; below sm they drop to 36px with
  * shorter connectors so the row never sets a floor wider than the viewport.
@@ -35,7 +35,8 @@ const ENQUIRY_STEP_BY_PATH: Record<string, number> = {
   "/book/schedule": 2,
   "/book/enquiry": 3,
   "/book/details": 4,
-  "/book/assisted": 5,
+  "/book/payment": 5,
+  "/book/payment/callback": 5,
 };
 
 export function Stepper() {

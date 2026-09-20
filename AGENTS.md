@@ -37,18 +37,19 @@ Marketing + booking site for **Linda Chikaodi Austin**, a clinical nutritionist
   - `scheduled` (Consultation, Meal Plans) — 4 dots: `/book` → `/book/schedule`
     (date/time + virtual/in-person) → `/book/details` (contact) →
     `/book/payment` (bank transfer + WhatsApp receipt).
-  - **enquiry** (Corporate, Events) — 5 dots: `/book` → `/book/schedule` →
-    `/book/enquiry` (organization, location, audience size, topic, duration) →
-    `/book/details` (contact) → `/book/assisted` (Send Enquiry, then a
-    prefilled WhatsApp hand-off). Nothing is charged: it lands `PENDING` /
-    `AWAITING` via `createEnquiryBooking`, and the chosen slot is held exactly
-    like a paid one so nobody is booked on top of a training.
+  - **enquiry** (Corporate, Events) — 5 dots: the scheduled flow with the event
+    brief inserted at step 3, so every later step shifts up one: `/book` →
+    `/book/schedule` → `/book/enquiry` (organization, location, audience size,
+    topic, duration) → `/book/details` → `/book/payment`. It pays and is
+    written exactly like a scheduled booking; the brief rides along on the
+    `Enquiry` row, and the chosen slot is held so nobody is booked on top of a
+    training. Card checkout needs a catalogue `price` — Corporate Wellness has
+    none, so only bank transfer works for it.
   - `assisted` (Premium only) — `/book` → `/book/assisted` (WhatsApp hand-off,
     nothing written; it is managed from `/admin/clients`). Still 4 dots, only 1
     and 2 reachable.
-  - `/book/assisted` is therefore the last step of one branch and the second of
-    another, which is why `<Stepper>` reads the booking context rather than the
-    pathname alone.
+  - Because the same path means different step numbers in different branches,
+    `<Stepper>` reads the booking context rather than the pathname alone.
   - `/book` (the picker, step 1) is reached only from the hero's "Explore
     Services" — a specific service's own CTA (landing page Services section,
     or the booking-flow service cards) skips it and deep-links straight into
@@ -98,7 +99,7 @@ rather than referencing a Service table.
   one `fetch`, so no extra dependency). Every public booking path ends in
   `notifyNewBooking` *after* the transaction commits, which sends two messages:
   the alert to `BOOKING_NOTIFICATION_EMAIL` and a receipt to the customer. Pass
-  it an `enquiry` and both switch from payment copy to "we'll follow up" copy.
+  it an `enquiry` and the event brief is added as extra rows.
   Sending is best-effort and never fails a committed booking. Env:
   `RESEND_API_KEY`, `EMAIL_FROM` (a Resend-verified sender),
   `BOOKING_NOTIFICATION_EMAIL` — leave them blank and sends are skipped with a

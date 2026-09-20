@@ -30,12 +30,12 @@ import {
  *     hosted page; when the payment succeeds, finalizePaystackPayment() (called
  *     by the webhook and the return page) writes it as PENDING / VERIFIED.
  *
- * Corporate Wellness and Events Training take the same calendar step but pay
- * nothing up front: createEnquiryBooking() writes them as PENDING / AWAITING
- * with the event brief attached, and the Team takes it from there over WhatsApp.
+ * Corporate Wellness and Events Training run the same two paths; they just
+ * collect an event brief on the way (see needsEnquiry) which is stored on the
+ * booking. Card checkout only works for those with a catalogue price.
  *
- * Premium still writes nothing here — it is a pure WhatsApp hand-off, added
- * later by an admin from /admin/clients.
+ * Premium writes nothing here — it is a pure WhatsApp hand-off, added later by
+ * an admin from /admin/clients.
  */
 
 export type BookingDetails = {
@@ -94,19 +94,14 @@ const enquiryComplete = (e?: EnquiryInput): e is EnquiryInput =>
       e.duration.trim()
   );
 
-/** Shared validation: the service must be the kind `expect` says it is, and the
- *  slot, name and e-mail must be usable. `expect` is what keeps an enquiry out
- *  of the card-payment path and a paid service out of the enquiry action — the
- *  two differ only in which services they accept and whether a brief is required. */
+/** Shared validation: the service must be calendar-booked, the slot, name and
+ *  e-mail must be usable, and a service that asks for an event brief must carry
+ *  a complete one. */
 function validateBooking(
-  input: BookingInput,
-  expect: "scheduled" | "enquiry"
+  input: BookingInput
 ): { ok: true; service: Service; start: Date } | { ok: false; error: string } {
   const service = getService(input.serviceSlug);
-  const allowed =
-    service &&
-    (expect === "enquiry" ? needsEnquiry(service) : service.flow === "scheduled");
-  if (!service || !allowed) {
+  if (!service || (service.flow !== "scheduled" && !needsEnquiry(service))) {
     return { ok: false, error: "This service isn't booked through the calendar." };
   }
   const start = new Date(input.startISO);
@@ -119,7 +114,7 @@ function validateBooking(
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.details.email.trim())) {
     return { ok: false, error: "Please enter a valid e-mail address." };
   }
-  if (expect === "enquiry" && !enquiryComplete(input.enquiry)) {
+  if (needsEnquiry(service) && !enquiryComplete(input.enquiry)) {
     return { ok: false, error: "Please complete the event details." };
   }
   return { ok: true, service, start };
@@ -168,10 +163,10 @@ type PaymentInfo = {
 async function finalizeBooking(
   input: BookingInput,
   payment: PaymentInfo,
-  opts: { expect?: "scheduled" | "enquiry"; onClash?: "reject" | "keep" } = {}
+  opts: { onClash?: "reject" | "keep" } = {}
 ): Promise<CreateBookingResult> {
-  const { expect = "scheduled", onClash = "reject" } = opts;
-  const v = validateBooking(input, expect);
+  const { onClash = "reject" } = opts;
+  const v = validateBooking(input);
   if (!v.ok) return v;
   const { service, start } = v;
 
@@ -318,29 +313,6 @@ export async function createScheduledBooking(
   }
 }
 
-/**
- * Corporate Wellness / Events Training. Nothing is charged up front, so the
- * booking lands PENDING / AWAITING with its event brief attached; the slot is
- * held exactly like a paid one so nobody gets booked on top of a training.
- */
-export async function createEnquiryBooking(
-  input: BookingInput
-): Promise<CreateBookingResult> {
-  try {
-    return await finalizeBooking(
-      input,
-      { status: "PENDING", paymentStatus: "AWAITING" },
-      { expect: "enquiry" }
-    );
-  } catch (e) {
-    console.error("createEnquiryBooking failed", e);
-    return {
-      ok: false,
-      error: "Something went wrong sending your enquiry. Please try again.",
-    };
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Paystack card flow
 // ---------------------------------------------------------------------------
@@ -368,8 +340,7 @@ async function paystackCallbackUrl(): Promise<string> {
 export async function startPaystackCheckout(
   input: BookingInput
 ): Promise<{ ok: true; authorizationUrl: string } | { ok: false; error: string }> {
-  // "scheduled" here is load-bearing: an enquiry service has no price to charge.
-  const v = validateBooking(input, "scheduled");
+  const v = validateBooking(input);
   if (!v.ok) return v;
   const { service, start } = v;
 
@@ -410,6 +381,9 @@ export async function startPaystackCheckout(
           email: input.details.email.trim(),
           note: input.details.note.trim(),
         },
+        // Carried through Paystack and back: the booking is only written on the
+        // return leg, and validation rejects an enquiry service without a brief.
+        ...(enquiryComplete(input.enquiry) && { enquiry: input.enquiry }),
       },
     },
   });
@@ -439,6 +413,8 @@ function readBookingMetadata(metadata: unknown): BookingInput | null {
     return null;
   }
 
+  const brief = b.enquiry as Record<string, unknown> | undefined;
+
   return {
     serviceSlug: b.serviceSlug,
     startISO: b.startISO,
@@ -451,6 +427,15 @@ function readBookingMetadata(metadata: unknown): BookingInput | null {
       email: String(details.email ?? ""),
       note: String(details.note ?? ""),
     },
+    enquiry: brief
+      ? {
+          organization: String(brief.organization ?? ""),
+          location: String(brief.location ?? ""),
+          audienceSize: String(brief.audienceSize ?? ""),
+          topic: String(brief.topic ?? ""),
+          duration: String(brief.duration ?? ""),
+        }
+      : undefined,
   };
 }
 
