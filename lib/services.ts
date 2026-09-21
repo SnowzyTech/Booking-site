@@ -142,8 +142,8 @@ export const services: Service[] = [
       "Includes Comprehensive Health & Nutrition Assessment, Personalized Health Strategy, Personalized Meal Plan, Direct One-on-One Sessions with Linda, Ongoing Accountability, Progress Monitoring, Adjustments and Priority Communication",
     cta: "Start Your Journey",
     ctaVariant: "pill",
-    image: "/images/service-premium.jpg",
-    imageAspect: "1100 / 520",
+    image: "/images/one-on-one.jpg",
+    imageAspect: "2757 / 2426",
     // WhatsApp hand-off like Corporate/Events; managed from the Clients page
     // rather than the appointments dashboard.
     flow: "assisted",
