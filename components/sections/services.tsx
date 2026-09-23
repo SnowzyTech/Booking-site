@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { Media } from "@/components/ui/media";
+import { MediaSlideshow } from "@/components/ui/media-slideshow";
 import { bookingEntryPath, services } from "@/lib/services";
 import { cn } from "@/lib/utils";
 
@@ -22,12 +23,23 @@ export function Services() {
             return (
               <Reveal key={s.slug} className="space-y-8">
                 <div className="grid grid-cols-1 items-start gap-x-[72px] gap-y-8 lg:grid-cols-2">
-                  <Media
-                    src={s.image}
-                    alt={s.name}
-                    className={cn("w-full rounded-lg", imageRight && "lg:order-2")}
-                    style={{ aspectRatio: s.imageAspect ?? "537 / 249" }}
-                  />
+                  {/* Shot more than once (Corporate Wellness) -> the frame
+                      cross-fades through the set; everything else is a still. */}
+                  {s.images && s.images.length > 1 ? (
+                    <MediaSlideshow
+                      images={s.images}
+                      alt={s.name}
+                      className={cn("w-full rounded-lg", imageRight && "lg:order-2")}
+                      style={{ aspectRatio: s.imageAspect ?? "537 / 249" }}
+                    />
+                  ) : (
+                    <Media
+                      src={s.image}
+                      alt={s.name}
+                      className={cn("w-full rounded-lg", imageRight && "lg:order-2")}
+                      style={{ aspectRatio: s.imageAspect ?? "537 / 249" }}
+                    />
+                  )}
 
                   <div className={cn(imageRight && "lg:order-1")}>
                     <h3 className="text-[28px] font-extrabold leading-[1.15] tracking-[-0.01em] text-[#111]">

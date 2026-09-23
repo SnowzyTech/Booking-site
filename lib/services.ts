@@ -29,6 +29,12 @@ export type Service = {
   /** Undefined until a real photograph is supplied; renders the
    *  #D9D9D9 placeholder block the mockups show. */
   image?: string;
+  /** Extra frames of the same subject. When a service has more than one, the
+   *  Services section cross-fades through them instead of showing a still;
+   *  every other surface (booking cards, admin dialogs) keeps `image`, so the
+   *  first entry should be the same photo. They share one frame, so they must
+   *  share `imageAspect` too. */
+  images?: string[];
   /** CSS aspect-ratio ("width / height") matching the photo's own dimensions,
    *  so the frame never crops it — falls back to the mockup's 537:249 box
    *  when unset (the placeholder, and any photo before this is measured). */
@@ -101,6 +107,9 @@ export const services: Service[] = [
     bullets: [],
     cta: "Start Your Journey",
     ctaVariant: "pill",
+    image: "/images/corp1.jpeg",
+    images: ["/images/corp1.jpeg", "/images/corp2.jpeg"],
+    imageAspect: "2400 / 1792",
     flow: "assisted",
     kind: "corporate",
     sessions: [
