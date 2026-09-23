@@ -23,10 +23,17 @@ export function ServiceCard({ service }: { service: Service }) {
 
   return (
     <div className="group flex flex-col">
+      {/* The photo's own frame, as on the landing page and the wizard steps —
+          not the mockup's 474x213 letterbox, which cropped most of every
+          photograph away. Cards in a row therefore no longer share an image
+          height, so their headings sit at different heights; showing the whole
+          photograph is worth more here than that alignment. The Figma geometry
+          stays as the fallback for a service with no photo yet. */}
       <Media
         src={service.image}
         alt={service.name}
-        className="aspect-[474/213] w-full rounded-xl"
+        className="w-full rounded-xl"
+        style={{ aspectRatio: service.imageAspect ?? "474 / 213" }}
         imageClassName="transition-transform duration-500 ease-soft group-hover:scale-[1.03]"
       />
 
