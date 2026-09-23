@@ -9,7 +9,7 @@ import { useBooking } from "@/components/booking/booking-context";
 import { Button } from "@/components/ui/button";
 import { createScheduledBooking, startPaystackCheckout } from "@/lib/booking-actions";
 import { toSlotInstant } from "@/lib/availability";
-import { needsEnquiry } from "@/lib/services";
+import { needsEnquiry, needsSchedule } from "@/lib/services";
 import { bank } from "@/lib/site";
 
 /*
@@ -22,6 +22,9 @@ import { bank } from "@/lib/site";
  * Confirming inside that modal is what persists the booking: it lands in the
  * admin list as PENDING with its payment NOTIFIED, exactly as the old single
  * button did. Paystack is a separate flow and is not wired up yet.
+ *
+ * Premium reaches this step without a date or time — it has no calendar (see
+ * needsSchedule) — so the slot is only required of the services that pick one.
  */
 export function PaymentActions() {
   const { service, date, time, mode, details, enquiry } = useBooking();
@@ -38,17 +41,24 @@ export function PaymentActions() {
     !needsEnquiry(service) ||
     Object.values(enquiry).every((v) => v.trim());
 
+  // Premium has no calendar step, so it arrives with no slot and that is fine.
+  const slotDone = !service || !needsSchedule(service) || Boolean(date && time);
+  /* Only the services that picked a slot send one. toSlotInstant is called
+     here rather than inside each handler so both payment paths agree on it. */
+  const startISO =
+    date && time ? toSlotInstant(date, time).toISOString() : undefined;
+
   const ready = Boolean(
-    service && date && time && details.fullName && details.email && briefDone
+    service && slotDone && details.fullName && details.email && briefDone
   );
 
   async function submit() {
-    if (!service || !date || !time) return;
+    if (!service || !ready) return;
     setPending(true);
     setError(null);
     const res = await createScheduledBooking({
       serviceSlug: service.slug,
-      startISO: toSlotInstant(date, time).toISOString(),
+      startISO,
       mode,
       details,
       enquiry,
@@ -67,12 +77,12 @@ export function PaymentActions() {
      is confirmed (webhook + the /book/payment/callback return page), so nothing
      is persisted here. We keep the button pending through the navigation. */
   async function payWithCard() {
-    if (!service || !date || !time) return;
+    if (!service || !ready) return;
     setCardPending(true);
     setCardError(null);
     const res = await startPaystackCheckout({
       serviceSlug: service.slug,
-      startISO: toSlotInstant(date, time).toISOString(),
+      startISO,
       mode,
       details,
       enquiry,

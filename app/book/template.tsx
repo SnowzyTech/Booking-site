@@ -2,10 +2,10 @@
  * Wizard step transition.
  *
  * A template remounts whenever its segment changes, so this replays on every
- * move between /book, /book/schedule, /book/details, /book/payment and
- * /book/assisted. Search params do not remount it — the landing page's
- * Services section relies on that, deep-linking straight into /book/schedule
- * or /book/assisted with ?service=<slug> (see <ServiceFromQuery>) without
+ * move between /book, /book/schedule, /book/enquiry, /book/details and
+ * /book/payment. Search params do not remount it — the landing page's Services
+ * section relies on that, deep-linking straight into /book/schedule or
+ * /book/details with ?service=<slug> (see <ServiceFromQuery>) without
  * disturbing this transition.
  *
  * It lives here rather than in layout.tsx on purpose: BookingProvider is in the

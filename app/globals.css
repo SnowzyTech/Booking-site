@@ -76,6 +76,7 @@
   --dur-base: 260ms;    /* selected / disabled / open        */
   --dur-reveal: 520ms;  /* scroll entrance                   */
   --dur-slow: 700ms;    /* hero load sequence                */
+  --dur-dissolve: 1400ms; /* photo cross-fade                */
   --rise: 12px;         /* the one entrance travel distance  */
 }
 
@@ -254,4 +255,9 @@ html {
      generates the `ease-quart` / `ease-soft` utilities. */
   --ease-quart: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  /* The other two decelerate: they start fast and settle, which is right for
+     something arriving. A cross-fade has no arrival — it is a dissolve, and a
+     decelerating curve makes it lurch at the start. This one is symmetric
+     (ease-in-out sine), so the photo leaves and enters at the same gentle rate. */
+  --ease-dissolve: cubic-bezier(0.37, 0, 0.63, 1);
 }

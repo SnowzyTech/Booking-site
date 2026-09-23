@@ -45,9 +45,16 @@ Marketing + booking site for **Linda Chikaodi Austin**, a clinical nutritionist
     `Enquiry` row, and the chosen slot is held so nobody is booked on top of a
     training. Card checkout needs a catalogue `price` — Corporate Wellness has
     none, so only bank transfer works for it.
-  - `assisted` (Premium only) — `/book` → `/book/assisted` (WhatsApp hand-off,
-    nothing written; it is managed from `/admin/clients`). Still 4 dots, only 1
-    and 2 reachable.
+  - **unscheduled** (Premium only) — 3 dots: the scheduled flow minus the
+    calendar, because a monthly engagement has no slot to pick: `/book` →
+    `/book/details` → `/book/payment`. It pays and is written exactly like a
+    scheduled booking, with a single `Appointment` whose `scheduledAt` is null;
+    the Team arranges the sessions inside the month afterwards. That null date
+    is what keeps it on `/admin/clients` (whose roster falls back to
+    `createdAt`) rather than the appointments board. `needsSchedule()` in
+    `lib/services.ts` is the predicate. `/book/assisted` was this branch's old
+    step 2 — a WhatsApp hand-off that collected nothing — and now just redirects
+    to `/book/details`.
   - Because the same path means different step numbers in different branches,
     `<Stepper>` reads the booking context rather than the pathname alone.
   - `/book` (the picker, step 1) is reached only from the hero's "Explore
@@ -60,8 +67,8 @@ Marketing + booking site for **Linda Chikaodi Austin**, a clinical nutritionist
   `/admin/clients` (real screens), `/admin/settings` (placeholder),
   `/admin/login`. The guarded pages live in the `(dashboard)` route group;
   login sits outside it. `/admin/clients` is the One-on-One Premium roster —
-  premium is billed monthly and arranged over WhatsApp, so it never appears on
-  the appointments board.
+  premium is billed monthly and its sessions are arranged afterwards, so it
+  never appears on the appointments board.
 
 ## Content vs. data (important boundary)
 
@@ -122,7 +129,8 @@ rather than referencing a Service table.
 ## Status
 
 Backend build in progress:
-- **Done:** data model + migrations; public scheduled-booking flow writes to the
+- **Done:** data model + migrations; every public booking flow — scheduled,
+  enquiry and Premium — writes to the
   DB on "Sent Notification of Payment" (`lib/booking-actions.ts`); real slot
   availability; admin `/admin/appointments` reads live data via `lib/admin-data.ts`
   with the derived New badge (red pending / yellow confirmed-not-started / none);

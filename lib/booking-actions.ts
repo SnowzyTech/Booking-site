@@ -13,6 +13,7 @@ import {
 import {
   getService,
   needsEnquiry,
+  needsSchedule,
   priceToKobo,
   type Service,
   type ServiceKind,
@@ -34,8 +35,11 @@ import {
  * collect an event brief on the way (see needsEnquiry) which is stored on the
  * booking. Card checkout only works for those with a catalogue price.
  *
- * Premium writes nothing here — it is a pure WhatsApp hand-off, added later by
- * an admin from /admin/clients.
+ * One-on-One Premium runs the same two paths as well, minus the calendar: it is
+ * a monthly engagement rather than a meeting, so it has no slot to pick (see
+ * needsSchedule). Its booking is written with a single Appointment whose
+ * scheduledAt is null, which is what keeps it off the appointments board and on
+ * /admin/clients, where the roster already falls back to createdAt.
  */
 
 export type BookingDetails = {
@@ -66,8 +70,9 @@ export type EnquiryInput = {
  *  checkout, (via metadata) the Paystack finalize step, and the enquiry action. */
 type BookingInput = {
   serviceSlug: string;
-  /** The chosen slot as an ISO instant (see toSlotInstant in lib/availability). */
-  startISO: string;
+  /** The chosen slot as an ISO instant (see toSlotInstant in lib/availability).
+   *  Absent for a service with no calendar step — currently only Premium. */
+  startISO?: string;
   /** Virtual call or in-person, picked on the schedule step. Anything other
    *  than "physical" is treated as virtual — the safe default. */
   mode: "virtual" | "physical";
@@ -94,19 +99,23 @@ const enquiryComplete = (e?: EnquiryInput): e is EnquiryInput =>
       e.duration.trim()
   );
 
-/** Shared validation: the service must be calendar-booked, the slot, name and
- *  e-mail must be usable, and a service that asks for an event brief must carry
- *  a complete one. */
+/** Shared validation: the service must exist, the name and e-mail must be
+ *  usable, a service that asks for an event brief must carry a complete one,
+ *  and a calendar-booked service must carry a usable slot. `start` comes back
+ *  null for a service with no calendar step (Premium). */
 function validateBooking(
   input: BookingInput
-): { ok: true; service: Service; start: Date } | { ok: false; error: string } {
+): { ok: true; service: Service; start: Date | null } | { ok: false; error: string } {
   const service = getService(input.serviceSlug);
-  if (!service || (service.flow !== "scheduled" && !needsEnquiry(service))) {
-    return { ok: false, error: "This service isn't booked through the calendar." };
+  if (!service) {
+    return { ok: false, error: "That service doesn't exist." };
   }
-  const start = new Date(input.startISO);
-  if (Number.isNaN(start.getTime())) {
-    return { ok: false, error: "Please choose an appointment date and time." };
+  let start: Date | null = null;
+  if (needsSchedule(service)) {
+    start = input.startISO ? new Date(input.startISO) : null;
+    if (!start || Number.isNaN(start.getTime())) {
+      return { ok: false, error: "Please choose an appointment date and time." };
+    }
   }
   if (!input.details.fullName?.trim() || !input.details.email?.trim()) {
     return { ok: false, error: "Your name and e-mail are required." };
@@ -121,9 +130,12 @@ function validateBooking(
 }
 
 /** A meal-plan programme fans out to WEEK 1/2/4/6 (same weekday & time); a
- *  one-off is a single appointment at the chosen slot. */
-function buildPlan(service: Service, start: Date) {
-  return service.kind === "programme" && service.sessions?.length
+ *  one-off is a single appointment at the chosen slot. A service with no
+ *  calendar step (start === null) gets one appointment with no date — the row
+ *  exists so the booking has something to hang its sessions on once the Team
+ *  arranges them. */
+function buildPlan(service: Service, start: Date | null) {
+  return start && service.kind === "programme" && service.sessions?.length
     ? service.sessions.map((s, i) => {
         const week = Number(String(s.label).replace(/\D+/g, "")) || 1;
         return {
@@ -171,19 +183,24 @@ async function finalizeBooking(
   const { service, start } = v;
 
   const plan = buildPlan(service, start);
-  const slots = plan.map((p) => p.scheduledAt);
+  // Dateless appointments (Premium) hold no slot, so there is nothing to lock.
+  const slots = plan
+    .map((p) => p.scheduledAt)
+    .filter((d): d is Date => d instanceof Date);
 
   let bookingId: string;
   try {
     const booking = await prisma.$transaction(async (tx) => {
       // Slot locking: no two live bookings may share an instant.
-      const clash = await tx.appointment.findFirst({
-        where: {
-          scheduledAt: { in: slots },
-          booking: { status: { notIn: ["DECLINED", "CANCELLED"] } },
-        },
-        select: { id: true },
-      });
+      const clash = slots.length
+        ? await tx.appointment.findFirst({
+            where: {
+              scheduledAt: { in: slots },
+              booking: { status: { notIn: ["DECLINED", "CANCELLED"] } },
+            },
+            select: { id: true },
+          })
+        : null;
       if (clash) {
         if (onClash === "reject") throw new Error("SLOT_TAKEN");
         // "keep": the customer has already paid, so dropping the booking would
@@ -275,7 +292,7 @@ async function finalizeBooking(
     bookingId,
     serviceName: service.name,
     price: service.price,
-    appointments: plan.map((p) => p.scheduledAt),
+    appointments: slots,
     mode: input.mode === "physical" ? "physical" : "virtual",
     paid: payment.paymentStatus === "VERIFIED",
     fullName: input.details.fullName.trim(),
@@ -350,16 +367,22 @@ export async function startPaystackCheckout(
   }
 
   // Fail fast if the slot is already gone, before sending anyone off to pay.
+  // A service with no calendar step holds no slot, so there is nothing to check.
   const plan = buildPlan(service, start);
-  const clash = await prisma.appointment.findFirst({
-    where: {
-      scheduledAt: { in: plan.map((p) => p.scheduledAt) },
-      booking: { status: { notIn: ["DECLINED", "CANCELLED"] } },
-    },
-    select: { id: true },
-  });
-  if (clash) {
-    return { ok: false, error: "That time was just taken. Please pick another slot." };
+  const slots = plan
+    .map((p) => p.scheduledAt)
+    .filter((d): d is Date => d instanceof Date);
+  if (slots.length) {
+    const clash = await prisma.appointment.findFirst({
+      where: {
+        scheduledAt: { in: slots },
+        booking: { status: { notIn: ["DECLINED", "CANCELLED"] } },
+      },
+      select: { id: true },
+    });
+    if (clash) {
+      return { ok: false, error: "That time was just taken. Please pick another slot." };
+    }
   }
 
   const reference = newReference();
@@ -371,7 +394,7 @@ export async function startPaystackCheckout(
     metadata: {
       booking: {
         serviceSlug: service.slug,
-        startISO: input.startISO,
+        ...(start && { startISO: start.toISOString() }),
         mode: input.mode === "physical" ? "physical" : "virtual",
         details: {
           fullName: input.details.fullName.trim(),
@@ -409,7 +432,10 @@ function readBookingMetadata(metadata: unknown): BookingInput | null {
 
   const b = booking as Record<string, unknown>;
   const details = b.details as Record<string, unknown> | undefined;
-  if (typeof b.serviceSlug !== "string" || typeof b.startISO !== "string" || !details) {
+  if (typeof b.serviceSlug !== "string" || !details) return null;
+  // startISO is absent for a service with no calendar step (Premium); anything
+  // else present must still be a string.
+  if ("startISO" in b && b.startISO !== undefined && typeof b.startISO !== "string") {
     return null;
   }
 
@@ -417,7 +443,7 @@ function readBookingMetadata(metadata: unknown): BookingInput | null {
 
   return {
     serviceSlug: b.serviceSlug,
-    startISO: b.startISO,
+    startISO: typeof b.startISO === "string" ? b.startISO : undefined,
     mode: b.mode === "physical" ? "physical" : "virtual",
     details: {
       fullName: String(details.fullName ?? ""),

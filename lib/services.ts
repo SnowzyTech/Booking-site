@@ -2,9 +2,14 @@
  * Service catalogue. Copy, pricing and CTA labels transcribed verbatim from
  * _mockups/2x/services.png and the per-service cards (card-*.png).
  *
- * `flow` drives which booking journey a service enters — see lib/booking-flow.ts:
- *   "scheduled" -> 4 steps, ending at bank transfer  (MacBook Pro 14_ - 2/3/4/5)
- *   "assisted"  -> 2 steps, ending at a WhatsApp hand-off to the Team (MacBook 8)
+ * `flow` and `kind` together decide which booking journey a service enters.
+ * Every service now ends at the payment step; what differs is what is collected
+ * on the way (see needsSchedule / needsEnquiry below):
+ *   "scheduled"            -> 4 steps: calendar, contact, payment
+ *                             (MacBook Pro 14_ - 2/3/4/5)
+ *   "assisted" + corporate -> 5 steps: the above with the event brief after the
+ *                             calendar
+ *   "assisted" + programme -> 3 steps: no calendar at all (Premium)
  */
 export type ServiceFlow = "scheduled" | "assisted";
 /** Booking shape: a single appointment, a multi-week programme, or a
@@ -64,8 +69,8 @@ export const services: Service[] = [
     ],
     cta: "Book a Consultation",
     ctaVariant: "pill",
-    image: "/images/service-consultation.jpg",
-    imageAspect: "6000 / 3368",
+    image: "/images/individual-heal.jpeg",
+    imageAspect: "2752 / 1536",
     flow: "scheduled",
     kind: "one-off",
   },
@@ -134,14 +139,26 @@ export const services: Service[] = [
     cta: "Book Training",
     ctaVariant: "pill",
     image: "/images/service-events.jpg",
-    imageAspect: "1102 / 506",
+    /* The banner crop the site launched with, plus three frames from the same
+       room. They share one frame, so it takes the 3:2 the three new photos were
+       shot at and the wider banner centre-crops into it. */
+    images: [
+      "/images/service-events.jpg",
+      "/images/training-1.jpeg",
+      "/images/training-2.jpeg",
+      "/images/training-3.jpeg",
+    ],
+    imageAspect: "3 / 2",
     flow: "assisted",
     kind: "corporate",
   },
   {
     slug: "one-on-one-premium",
     name: "One on One Premium work with me",
-    listPrice: "N150,000",
+    // The mockup struck through N150,000, below the N265,500 being charged —
+    // a crossed-out price has to be the higher one or the card reads as a
+    // price rise. Raised to N300,000 on the owner's instruction.
+    listPrice: "N300,000",
     price: "#265,500/month",
     priceEmphasis: "chip",
     blurb:
@@ -153,7 +170,9 @@ export const services: Service[] = [
     ctaVariant: "pill",
     image: "/images/one-on-one.jpg",
     imageAspect: "2757 / 2426",
-    // WhatsApp hand-off like Corporate/Events; managed from the Clients page
+    // "assisted" + "programme" is what needsSchedule() reads to skip the
+    // calendar: a monthly engagement has no slot to pick. It still pays through
+    // /book/payment like everything else, and is managed from the Clients page
     // rather than the appointments dashboard.
     flow: "assisted",
     kind: "programme",
@@ -174,10 +193,23 @@ export const PREMIUM_SLUG = "one-on-one-premium";
 export const needsEnquiry = (s: Service) =>
   s.flow === "assisted" && s.kind === "corporate";
 
-/** Which wizard step a service's CTA drops the visitor into. Everything but
- *  Premium now starts at the calendar — the flows only diverge after it. */
+/**
+ * Does this service pick a slot on the calendar?
+ *
+ * Everything does except One-on-One Premium: it is a monthly engagement, not a
+ * meeting, so there is nothing to put on a calendar at booking time — the
+ * sessions inside the month are arranged afterwards. It still pays like every
+ * other service, so its booking is written with an Appointment whose
+ * `scheduledAt` is null (the schema already allows that) and it surfaces on
+ * /admin/clients rather than the appointments board.
+ */
+export const needsSchedule = (s: Service) =>
+  s.flow === "scheduled" || needsEnquiry(s);
+
+/** Which wizard step a service's CTA drops the visitor into: the calendar, or
+ *  straight to the contact form for the one service that skips it. */
 export const bookingEntryPath = (s: Service) =>
-  s.flow === "scheduled" || needsEnquiry(s) ? "/book/schedule" : "/book/assisted";
+  needsSchedule(s) ? "/book/schedule" : "/book/details";
 
 /**
  * A catalogue `price` string (e.g. "N65,000", "#265,500/month") as an integer
@@ -188,8 +220,9 @@ export const bookingEntryPath = (s: Service) =>
  * separators stripped. Returns null when there is no usable amount, so a caller
  * can refuse to start a payment rather than charge ₦0.
  *
- * Only the two `flow: "scheduled"` services reach this — Paystack checkout lives
- * on /book/payment; the assisted services are arranged over WhatsApp.
+ * Every service that reaches /book/payment can call this. Corporate Wellness is
+ * the one with no catalogue `price`, so it gets null back and card checkout is
+ * refused for it — bank transfer still works.
  */
 export function priceToKobo(price?: string): number | null {
   if (!price) return null;

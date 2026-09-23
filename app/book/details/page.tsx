@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 
 import { useBooking } from "@/components/booking/booking-context";
+import { ServiceFromQuery } from "@/components/booking/service-from-query";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/field";
 import { Media } from "@/components/ui/media";
@@ -23,8 +24,12 @@ const FIELDS = [
 ] as const;
 
 /* Contact details (MacBook Pro 14_ - 3.png) — step 3 of the scheduled flow,
-   step 4 of the enquiry flow, which reaches it after the event brief. Both
-   continue to payment from here. */
+   step 4 of the enquiry flow (which reaches it after the event brief), and
+   step 2 of Premium, which has no calendar and so enters the wizard here. All
+   three continue to payment from here.
+
+   Because Premium's CTA deep-links straight to this step, it is an entry point
+   and has to read ?service=<slug> itself — see <ServiceFromQuery>. */
 export default function DetailsPage() {
   const router = useRouter();
   const { service, details, setDetails } = useBooking();
@@ -44,6 +49,10 @@ export default function DetailsPage() {
 
   return (
     <div className="px-6 pb-32 pt-[90px] lg:pt-[130px]">
+      <React.Suspense fallback={null}>
+        <ServiceFromQuery />
+      </React.Suspense>
+
       <div className="mx-auto flex max-w-[1000px] flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-center lg:gap-x-[100px]">
         <form
           className="w-full max-w-[441px] shrink-0"
@@ -101,10 +110,15 @@ export default function DetailsPage() {
           <h2 className="text-[17px] font-bold text-[#111]">
             {service?.name ?? "Select a service"}
           </h2>
+          {/* The photo's own frame, as on the landing page — not the mockup's
+              423x152 letterbox, which cropped most of every photograph away.
+              The Figma geometry stays as the fallback, which is what the
+              #D9D9D9 placeholder shows before a service is chosen. */}
           <Media
             src={service?.image}
             alt={service?.name ?? ""}
-            className="mt-4 aspect-[423/152] w-full rounded-lg"
+            className="mt-4 w-full rounded-lg"
+            style={{ aspectRatio: service?.imageAspect ?? "423 / 152" }}
           />
         </div>
       </div>

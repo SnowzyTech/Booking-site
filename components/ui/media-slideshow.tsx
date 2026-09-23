@@ -24,7 +24,7 @@ export function MediaSlideshow({
   imageClassName,
   sizes = "(max-width: 1024px) 100vw, 50vw",
   style,
-  interval = 4500,
+  interval = 4000,
 }: {
   images: string[];
   alt: string;
@@ -32,7 +32,8 @@ export function MediaSlideshow({
   imageClassName?: string;
   sizes?: string;
   style?: CSSProperties;
-  /** Hold time per photo, in ms — the cross-fade runs on top of it. */
+  /** Hold time per photo, in ms — the cross-fade runs on top of it, so a
+   *  photo is fully settled for `interval` minus the fade. */
   interval?: number;
 }) {
   const [index, setIndex] = React.useState(0);
@@ -95,8 +96,8 @@ export function MediaSlideshow({
           fill
           sizes={sizes}
           className={cn(
-            "object-cover transition-[opacity,transform] duration-[var(--dur-slow)] ease-soft",
-            i === index ? "scale-100 opacity-100" : "scale-[1.05] opacity-0",
+            "object-cover transition-[opacity,transform] duration-[var(--dur-dissolve)] ease-dissolve",
+            i === index ? "scale-100 opacity-100" : "scale-[1.04] opacity-0",
             imageClassName
           )}
         />

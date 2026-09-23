@@ -153,10 +153,15 @@ export default function SchedulePage() {
           <h2 className="text-[17px] font-bold text-[#111]">
             {service?.name ?? "Select a service"}
           </h2>
+          {/* The photo's own frame, as on the landing page — not the mockup's
+              423x152 letterbox, which cropped most of every photograph away.
+              The Figma geometry stays as the fallback, which is what the
+              #D9D9D9 placeholder shows before a service is chosen. */}
           <Media
             src={service?.image}
             alt={service?.name ?? ""}
-            className="mt-4 aspect-[423/152] w-full rounded-lg"
+            className="mt-4 w-full rounded-lg"
+            style={{ aspectRatio: service?.imageAspect ?? "423 / 152" }}
           />
 
           <ModePicker className="mt-6" />

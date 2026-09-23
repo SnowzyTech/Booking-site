@@ -1,44 +1,24 @@
-import { Suspense } from "react";
-
-import { ServiceFromQuery } from "@/components/booking/service-from-query";
-import { WhatsAppChip } from "@/components/booking/whatsapp-block";
+import { redirect } from "next/navigation";
 
 /*
- * Assisted flow, step 2 (MacBook Pro 14_ - 8.png).
+ * Retired step.
  *
- * Only One-on-One Premium ends here: it is billed monthly and arranged over
- * WhatsApp, so it skips the calendar and the payment step and is picked up from
- * /admin/clients. Corporate Wellness and Events Training used to land here too;
- * they now run the full wizard through to payment.
+ * This used to be One-on-One Premium's step 2: a "Payment & Appointment
+ * Confirmation" heading over a WhatsApp number, which collected nothing and
+ * charged nothing. Premium now runs the same wizard as everything else —
+ * contact form, then payment — it just skips the calendar (see needsSchedule in
+ * lib/services.ts), so it enters at /book/details.
  *
- * The stepper still renders four dots; only 1 and 2 are ever reached.
- *
- * Also reachable straight from the landing page's Services section, via
- * ?service=<slug> — see <ServiceFromQuery>. This page doesn't read `service`
- * itself (the WhatsApp hand-off is generic), but populating it keeps the
- * booking context correct for whatever reads it next.
+ * The route is kept as a redirect rather than deleted because the old path was
+ * linked from the landing page for months and may be bookmarked or in an
+ * e-mail. The ?service=<slug> param rides along so a stale deep link still
+ * lands on the right service's form.
  */
-export default function AssistedPage() {
-  return (
-    <div className="px-6 pb-32 pt-20 md:px-12 lg:pt-[155px] xl:px-[220px]">
-      <Suspense fallback={null}>
-        <ServiceFromQuery />
-      </Suspense>
-
-      <h1 className="text-[26px] font-bold leading-[1.05] tracking-[-0.01em] text-brand sm:text-[30px] lg:text-[36px]">
-        Payment &amp;
-        <br />
-        Appointment Confirmation
-      </h1>
-
-      <p className="mt-6 max-w-[480px] text-[14px] leading-[1.5] text-[#111]">
-        Contact the Team via the WhatsApp number below to arrange your
-        appointment date and other necessary details.
-      </p>
-
-      <div className="mt-8">
-        <WhatsAppChip className="px-6 py-3.5 text-[19px]" />
-      </div>
-    </div>
-  );
+export default async function AssistedPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ service?: string }>;
+}) {
+  const { service } = await searchParams;
+  redirect(service ? `/book/details?service=${encodeURIComponent(service)}` : "/book");
 }
