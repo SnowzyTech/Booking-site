@@ -7,7 +7,7 @@ import { useBooking } from "@/components/booking/booking-context";
 import { ServiceFromQuery } from "@/components/booking/service-from-query";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/field";
-import { Media } from "@/components/ui/media";
+import { ServiceMedia } from "@/components/ui/service-media";
 import { needsEnquiry } from "@/lib/services";
 
 const FIELDS = [
@@ -114,11 +114,10 @@ export default function DetailsPage() {
               423x152 letterbox, which cropped most of every photograph away.
               The Figma geometry stays as the fallback, which is what the
               #D9D9D9 placeholder shows before a service is chosen. */}
-          <Media
-            src={service?.image}
-            alt={service?.name ?? ""}
+          <ServiceMedia
+            service={service}
+            fallbackAspect="423 / 152"
             className="mt-4 w-full rounded-lg"
-            style={{ aspectRatio: service?.imageAspect ?? "423 / 152" }}
           />
         </div>
       </div>

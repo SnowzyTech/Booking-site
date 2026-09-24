@@ -29,6 +29,8 @@ export function MediaSlideshow({
   images: string[];
   alt: string;
   className?: string;
+  /** Applied to the wrapper holding every frame — for a hover zoom inside the
+   *  clipped box. Not applied per-image; see the note in the markup. */
   imageClassName?: string;
   sizes?: string;
   style?: CSSProperties;
@@ -84,24 +86,32 @@ export function MediaSlideshow({
       className={cn("relative overflow-hidden", className)}
       style={style}
     >
-      {images.map((src, i) => (
-        <Image
-          key={src}
-          src={src}
-          /* Only the first frame is described: the others are the same subject
-             from a second angle, and announcing each one would read as three
-             separate images sitting on top of each other. */
-          alt={i === 0 ? alt : ""}
-          aria-hidden={i === 0 ? undefined : true}
-          fill
-          sizes={sizes}
-          className={cn(
-            "object-cover transition-[opacity,transform] duration-[var(--dur-dissolve)] ease-dissolve",
-            i === index ? "scale-100 opacity-100" : "scale-[1.04] opacity-0",
-            imageClassName
-          )}
-        />
-      ))}
+      {/* `imageClassName` lands on this wrapper rather than on each <Image>.
+          Callers use it for a hover zoom, and its `transition-*` / `scale-*`
+          would otherwise collide with the per-image cross-fade classes below —
+          tailwind-merge keeps the last one, which would silently drop the fade.
+          Scaling the wrapper moves every frame together inside the clipped
+          box, which is the effect those callers want anyway, and it leaves the
+          dots (outside it) alone. */}
+      <div className={cn("absolute inset-0", imageClassName)}>
+        {images.map((src, i) => (
+          <Image
+            key={src}
+            src={src}
+            /* Only the first frame is described: the others are the same
+               subject from another angle, and announcing each one would read as
+               several separate images sitting on top of each other. */
+            alt={i === 0 ? alt : ""}
+            aria-hidden={i === 0 ? undefined : true}
+            fill
+            sizes={sizes}
+            className={cn(
+              "object-cover transition-[opacity,transform] duration-[var(--dur-dissolve)] ease-dissolve",
+              i === index ? "scale-100 opacity-100" : "scale-[1.04] opacity-0"
+            )}
+          />
+        ))}
+      </div>
 
       {images.length > 1 && (
         <div className="absolute bottom-3 right-3 flex gap-1.5">
