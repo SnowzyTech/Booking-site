@@ -17,7 +17,8 @@
  *                               — must be on a domain verified in Resend.
  */
 
-import { contact } from "@/lib/site";
+import { needsIntakeForm } from "@/lib/services";
+import { contact, intakeFormUrl } from "@/lib/site";
 
 const ENDPOINT = "https://api.resend.com/emails";
 
@@ -82,6 +83,9 @@ async function send(mail: Mail): Promise<boolean> {
 
 export type BookingEmailInput = {
   bookingId: string;
+  /** Used to decide whether to send the paying customer the intake form link
+   *  (only the individual plans — see needsIntakeForm). */
+  serviceSlug?: string;
   serviceName: string;
   price?: string;
   /** Appointment instants, earliest first. A programme has several. */
@@ -172,6 +176,10 @@ export async function notifyNewBooking(input: BookingEmailInput) {
   const physical = input.mode === "physical";
   const paid = input.paid === true;
   const enquiry = input.enquiry ?? null;
+  /* The intake form goes only to a customer who has actually paid by card
+     (paid === true, i.e. Paystack VERIFIED) for one of the individual plans —
+     never on the unverified bank-transfer receipt. */
+  const showForm = paid && input.serviceSlug ? needsIntakeForm(input.serviceSlug) : false;
   const shared: [string, string][] = [
     ["Service", input.serviceName],
     ...(input.price ? ([["Amount", input.price]] as [string, string][]) : []),
@@ -257,7 +265,11 @@ export async function notifyNewBooking(input: BookingEmailInput) {
             : enquiry
               ? ""
               : ", along with your meeting link"
-        }. If anything looks wrong, just reply to this message.`
+        }.${
+          showForm
+            ? ` One last step: please complete this short pre-assessment form so Linda&rsquo;s team can create a plan perfectly suited to you: <a href="${intakeFormUrl}">${intakeFormUrl}</a>.`
+            : ""
+        } If anything looks wrong, just reply to this message.`
       ),
     })
   );

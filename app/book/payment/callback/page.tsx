@@ -3,6 +3,8 @@ import Link from "next/link";
 import { WhatsAppChip } from "@/components/booking/whatsapp-block";
 import { Button } from "@/components/ui/button";
 import { finalizePaystackPayment } from "@/lib/booking-actions";
+import { needsIntakeForm } from "@/lib/services";
+import { intakeFormUrl } from "@/lib/site";
 
 /*
  * Where Paystack redirects the customer after the hosted checkout. Paystack
@@ -43,6 +45,20 @@ export default async function PaymentCallbackPage({
               Linda&rsquo;s team will confirm your appointment shortly and reach
               out to you. A confirmation e-mail is on its way to your inbox.
             </p>
+            {needsIntakeForm(result.serviceSlug) && (
+              <div className="mt-4">
+                <p className="text-[14px] leading-[1.5] text-[#111]">
+                  One last step: please complete this short pre-assessment form.
+                  Your answers let Linda&rsquo;s team create a plan perfectly
+                  suited to you.
+                </p>
+                <Button asChild variant="solid" size="lg" className="mt-3 font-bold">
+                  <a href={intakeFormUrl} target="_blank" rel="noopener noreferrer">
+                    Complete the pre-assessment
+                  </a>
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="max-w-[460px] rounded-lg bg-white/70 px-6 py-5">

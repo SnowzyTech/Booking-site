@@ -42,6 +42,11 @@ export const bank = {
   bank: "Zenith bank",
 };
 
+/* Health & nutrition intake Google Form. Shown to a paying individual client on
+   the Paystack success page and in their receipt e-mail, so the Team can build
+   the best plan — it replaces the old "we WhatsApp you the link" step. */
+export const intakeFormUrl = "https://forms.gle/84NgCzu6th2uVnvF6";
+
 export const businessHours = {
   hours: "9am-5pm",
   note: "Please note: Our business hours are Monday to Friday, but appointments can only be booked for Tuesdays and Fridays.",

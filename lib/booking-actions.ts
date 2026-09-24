@@ -290,6 +290,7 @@ async function finalizeBooking(
      with the request still in flight. */
   await notifyNewBooking({
     bookingId,
+    serviceSlug: service.slug,
     serviceName: service.name,
     price: service.price,
     appointments: slots,
@@ -466,7 +467,7 @@ function readBookingMetadata(metadata: unknown): BookingInput | null {
 }
 
 export type FinalizePaymentResult =
-  | { ok: true; bookingId: string; alreadyProcessed?: boolean }
+  | { ok: true; bookingId: string; serviceSlug: string; alreadyProcessed?: boolean }
   | { ok: false; error: string };
 
 /**
@@ -497,9 +498,15 @@ export async function finalizePaystackPayment(
   // Idempotency guard: the webhook and the return page can both land here.
   const existing = await prisma.booking.findUnique({
     where: { paymentReference: reference },
-    select: { id: true },
+    select: { id: true, serviceSlug: true },
   });
-  if (existing) return { ok: true, bookingId: existing.id, alreadyProcessed: true };
+  if (existing)
+    return {
+      ok: true,
+      bookingId: existing.id,
+      serviceSlug: existing.serviceSlug,
+      alreadyProcessed: true,
+    };
 
   if (txn.status !== "success") {
     return { ok: false, error: "This payment didn't go through." };
@@ -528,7 +535,7 @@ export async function finalizePaystackPayment(
   }
 
   try {
-    return await finalizeBooking(
+    const res = await finalizeBooking(
       payload,
       {
         status: "PENDING",
@@ -539,6 +546,7 @@ export async function finalizePaystackPayment(
       },
       { onClash: "keep" }
     );
+    return res.ok ? { ...res, serviceSlug: payload.serviceSlug } : res;
   } catch (e) {
     // A webhook/return-page race can both pass the guard above and race to
     // insert; the unique paymentReference makes the loser throw P2002. Treat
@@ -546,9 +554,15 @@ export async function finalizePaystackPayment(
     if ((e as { code?: string })?.code === "P2002") {
       const row = await prisma.booking.findUnique({
         where: { paymentReference: reference },
-        select: { id: true },
+        select: { id: true, serviceSlug: true },
       });
-      if (row) return { ok: true, bookingId: row.id, alreadyProcessed: true };
+      if (row)
+        return {
+          ok: true,
+          bookingId: row.id,
+          serviceSlug: row.serviceSlug,
+          alreadyProcessed: true,
+        };
     }
     console.error("finalizePaystackPayment failed", e);
     return {

@@ -186,6 +186,17 @@ export const getService = (slug: string) =>
  *  appointments board: it is billed monthly and arranged over WhatsApp. */
 export const PREMIUM_SLUG = "one-on-one-premium";
 
+/** The individual plans whose paying customer fills the health & nutrition
+ *  intake form after paying (the two individual plans plus Premium). Corporate
+ *  Wellness / Events Training are excluded — that intake is for one person. */
+const INTAKE_FORM_SLUGS: string[] = [
+  "individual-consultation",
+  "personalized-meal-plans",
+  PREMIUM_SLUG,
+];
+
+export const needsIntakeForm = (slug: string) => INTAKE_FORM_SLUGS.includes(slug);
+
 /** Corporate Wellness and Events Training: arranged over WhatsApp like Premium,
  *  but the wizard collects the event brief first (/book/enquiry) so the Team
  *  isn't starting from a cold message. Premium is `kind: "programme"`, which is
