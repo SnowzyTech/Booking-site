@@ -90,7 +90,7 @@ export default function SchedulePage() {
         <ServiceFromQuery />
       </React.Suspense>
 
-      <p className="text-center text-[13.5px] text-[#111]">
+      <p className="text-center text-[19px] text-[#111]">
         {AVAILABILITY_NOTE}
       </p>
 
@@ -103,6 +103,7 @@ export default function SchedulePage() {
           isDayAvailable={(d) =>
             isDayAvailable(d) && !fullyBooked.has(format(d, "yyyy-MM-dd"))
           }
+          large
           className="w-full max-w-[520px] shrink-0"
         />
 
@@ -119,7 +120,7 @@ export default function SchedulePage() {
             ref={timeRef}
             className="w-full max-w-[520px] animate-in duration-[var(--dur-base)] ease-quart fade-in-0 slide-in-from-bottom-2 xl:hidden"
           >
-            <h2 className="mb-3 text-[15px] font-semibold text-[#111]">
+            <h2 className="mb-3 text-[21px] font-semibold text-[#111]">
               Choose a time
             </h2>
             <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
@@ -133,7 +134,7 @@ export default function SchedulePage() {
                     disabled={booked}
                     onClick={() => setTime(s.value)}
                     className={cn(
-                      "h-[46px] rounded-lg text-[14px] transition-[background-color,color] duration-[var(--dur-fast)] ease-quart",
+                      "h-[52px] rounded-lg text-[18px] transition-[background-color,color] duration-[var(--dur-fast)] ease-quart",
                       active
                         ? "bg-brand-deep font-medium text-white"
                         : booked
@@ -150,7 +151,7 @@ export default function SchedulePage() {
         )}
 
         <div className="w-full max-w-[423px] shrink-0 xl:ml-[73px]">
-          <h2 className="text-[17px] font-bold text-[#111]">
+          <h2 className="text-[23px] font-bold text-[#111]">
             {service?.name ?? "Select a service"}
           </h2>
           {/* The photo's own frame, as on the landing page — not the mockup's
@@ -166,7 +167,7 @@ export default function SchedulePage() {
           <ModePicker className="mt-6" />
 
           {date && time && (
-            <p className="mt-6 animate-in text-[18px] leading-[1.35] text-[#111] duration-[var(--dur-base)] ease-quart fade-in-0 fill-mode-both slide-in-from-bottom-1">
+            <p className="mt-6 animate-in text-[22px] leading-[1.35] text-[#111] duration-[var(--dur-base)] ease-quart fade-in-0 fill-mode-both slide-in-from-bottom-1">
               You&rsquo;ve booked your {mode === "physical" ? "in-person" : "virtual"}{" "}
               appointment for {ordinal(date.getDate())} of{" "}
               {format(date, "MMMM, yyyy")}, {time}
@@ -186,7 +187,7 @@ export default function SchedulePage() {
                 )
               )
             }
-            className="mt-6 px-12"
+            className="mt-6 h-[60px] px-12 text-[20px]"
           >
             Confirm
           </Button>

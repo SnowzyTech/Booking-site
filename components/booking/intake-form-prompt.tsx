@@ -16,11 +16,17 @@ export function IntakeFormPrompt({ serviceSlug }: { serviceSlug: string }) {
 
   return (
     <div className="mt-4">
-      <p className="text-[14px] leading-[1.5] text-[#111]">
+      <p className="text-[20px] leading-[1.5] text-[#111]">
         One last step: please complete this short pre-assessment form. Your
         answers let Linda&rsquo;s team create a plan perfectly suited to you.
       </p>
-      <Button asChild variant="solid" size="lg" className="mt-3 font-bold">
+      {/* The label is long; at this size it has to be free to wrap on a phone. */}
+      <Button
+        asChild
+        variant="solid"
+        size="lg"
+        className="mt-3 h-auto min-h-[60px] whitespace-normal py-3 text-center text-[20px] font-bold"
+      >
         <a href={intakeFormUrl} target="_blank" rel="noopener noreferrer">
           Complete the pre-assessment
         </a>

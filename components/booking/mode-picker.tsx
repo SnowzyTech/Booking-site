@@ -46,7 +46,7 @@ export function ModePicker({ className }: { className?: string }) {
 
   return (
     <div className={className}>
-      <h2 className="text-[15px] font-semibold text-[#111]">
+      <h2 className="text-[21px] font-semibold text-[#111]">
         How would you like to meet?
       </h2>
 
@@ -67,15 +67,15 @@ export function ModePicker({ className }: { className?: string }) {
               )}
             >
               <Icon
-                className={cn("size-[18px]", active ? "text-white" : "text-brand")}
+                className={cn("size-6", active ? "text-white" : "text-brand")}
                 strokeWidth={1.75}
               />
-              <span className="mt-2 block text-[14px] font-semibold">
+              <span className="mt-2 block text-[20px] font-semibold">
                 {label}
               </span>
               <span
                 className={cn(
-                  "mt-0.5 block text-[11.5px] leading-[1.4]",
+                  "mt-0.5 block text-[16px] leading-[1.4]",
                   active ? "text-white/80" : "text-[#6b6b6b]"
                 )}
               >
@@ -87,7 +87,7 @@ export function ModePicker({ className }: { className?: string }) {
       </div>
 
       {/* Only the in-person choice needs follow-up detail — where to go. */}
-      <p className="mt-3 min-h-[32px] text-[12px] leading-[1.5] text-[#6b6b6b]">
+      <p className="mt-3 min-h-[52px] text-[17px] leading-[1.5] text-[#6b6b6b]">
         {mode === "physical" ? (
           <>
             <span className="font-semibold text-[#111]">Address:</span>{" "}

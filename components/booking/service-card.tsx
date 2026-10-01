@@ -35,14 +35,14 @@ export function ServiceCard({ service }: { service: Service }) {
         imageClassName="transition-transform duration-500 ease-soft group-hover:scale-[1.03]"
       />
 
-      <h2 className="mt-8 text-[25px] font-extrabold leading-[1.15] tracking-[-0.01em] text-[#111] sm:text-[29px] xl:mt-[70px]">
+      <h2 className="mt-8 text-[32px] font-extrabold leading-[1.15] tracking-[-0.01em] text-[#111] sm:text-[36px] xl:mt-[70px]">
         {service.name}
       </h2>
 
       {(service.tag || service.price) && (
         <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           {service.tag ? (
-            <span className="rounded-full bg-[#efefef] px-3 py-1 text-[12.5px] font-medium text-[#3d3d3d]">
+            <span className="rounded-full bg-[#efefef] px-3 py-1 text-[18px] font-medium text-[#3d3d3d]">
               {service.tag}
             </span>
           ) : (
@@ -51,7 +51,7 @@ export function ServiceCard({ service }: { service: Service }) {
           {service.price && (
             <span className="flex min-w-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
               {service.listPrice && (
-                <span className="rounded-full bg-[#efefef] px-2.5 py-1 text-[12.5px] text-[#8a8a8a] line-through">
+                <span className="rounded-full bg-[#efefef] px-2.5 py-1 text-[18px] text-[#8a8a8a] line-through">
                   {service.listPrice}
                 </span>
               )}
@@ -59,7 +59,7 @@ export function ServiceCard({ service }: { service: Service }) {
                   solid brand for Premium/Events, per the owner's ask to keep
                   the price treatment consistent across every card; matches
                   the same chip in the landing page's Services section. */}
-              <span className="rounded-full bg-[#f7ecff] px-3 py-1 text-[18px] font-extrabold text-[#111]">
+              <span className="rounded-full bg-[#f7ecff] px-3 py-1 text-[23px] font-extrabold text-[#111]">
                 {service.price}
               </span>
             </span>
@@ -69,7 +69,7 @@ export function ServiceCard({ service }: { service: Service }) {
 
       <hr className="mt-3 border-[#e6e6e6]" />
 
-      <p className="mt-4 text-justify text-[15.5px] leading-[1.65] text-[#1d1620]">
+      <p className="mt-4 text-justify text-[21px] leading-[1.65] text-[#1d1620]">
         {service.blurb}
       </p>
 
@@ -78,7 +78,7 @@ export function ServiceCard({ service }: { service: Service }) {
           {service.bullets.map((b) => (
             <li
               key={b}
-              className="list-disc text-[15.5px] leading-[1.55] text-[#1d1620] marker:text-[#c9a3dd]"
+              className="list-disc text-[21px] leading-[1.55] text-[#1d1620] marker:text-[#c9a3dd]"
             >
               {b}
             </li>
@@ -87,7 +87,7 @@ export function ServiceCard({ service }: { service: Service }) {
       )}
 
       {service.extra && (
-        <p className="mt-4 text-justify text-[15.5px] leading-[1.65] text-[#1d1620]">
+        <p className="mt-4 text-justify text-[21px] leading-[1.65] text-[#1d1620]">
           {service.extra}
         </p>
       )}
@@ -97,7 +97,7 @@ export function ServiceCard({ service }: { service: Service }) {
         size="lg"
         onClick={choose}
         disabled={pending}
-        className="mt-7 w-full font-bold"
+        className="mt-7 h-[60px] w-full text-[20px] font-bold"
       >
         {service.cta}
       </Button>

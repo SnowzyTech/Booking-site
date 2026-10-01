@@ -18,7 +18,7 @@ export function BookingHeader() {
               className="object-cover"
             />
           </span>
-          <span className="text-[14px] font-medium leading-[1.3] text-foreground">
+          <span className="text-[17px] font-medium leading-[1.3] text-foreground">
             Linda Chikaodi
             <br />
             Austin

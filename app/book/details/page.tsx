@@ -55,7 +55,7 @@ export default function DetailsPage() {
 
       <div className="mx-auto flex max-w-[1000px] flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-center lg:gap-x-[100px]">
         <form
-          className="w-full max-w-[441px] shrink-0"
+          className="w-full max-w-[480px] shrink-0"
           onSubmit={(e) => {
             e.preventDefault();
             startNavigation(() => router.push("/book/payment"));
@@ -63,7 +63,7 @@ export default function DetailsPage() {
         >
           {FIELDS.map((f) => (
             <div key={f.key} className="mb-[18px]">
-              <Label htmlFor={f.key}>{f.label}</Label>
+              <Label htmlFor={f.key} className="text-[18px]">{f.label}</Label>
               <Input
                 id={f.key}
                 type={"type" in f ? f.type : "text"}
@@ -73,13 +73,13 @@ export default function DetailsPage() {
                 onChange={(e) =>
                   setDetails((d) => ({ ...d, [f.key]: e.target.value }))
                 }
-                className="mt-1.5"
+                className="mt-1.5 h-14 text-[19px]"
               />
             </div>
           ))}
 
           <div className="mt-8">
-            <Label htmlFor="note" className="pl-2">
+            <Label htmlFor="note" className="pl-2 text-[18px]">
               {enquiry
                 ? "Anything else we should know? (optional)"
                 : "Brief note on your health concern (optional)"}
@@ -91,7 +91,7 @@ export default function DetailsPage() {
               onChange={(e) =>
                 setDetails((d) => ({ ...d, note: e.target.value }))
               }
-              className="mt-1.5"
+              className="mt-1.5 text-[19px]"
             />
           </div>
 
@@ -100,14 +100,14 @@ export default function DetailsPage() {
             variant="solid"
             size="lg"
             disabled={!allRequiredFilled || navigating}
-            className="mt-7 px-14"
+            className="mt-7 h-[60px] px-14 text-[20px]"
           >
             Confirm
           </Button>
         </form>
 
         <div className="w-full max-w-[422px] shrink-0">
-          <h2 className="text-[17px] font-bold text-[#111]">
+          <h2 className="text-[23px] font-bold text-[#111]">
             {service?.name ?? "Select a service"}
           </h2>
           {/* The photo's own frame, as on the landing page — not the mockup's

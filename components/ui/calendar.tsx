@@ -45,6 +45,7 @@ export function Calendar({
   isDayAvailable,
   bookedDays,
   yearRange = 3,
+  large = false,
   className,
 }: {
   month: Date;
@@ -55,6 +56,9 @@ export function Calendar({
   /** Day keys (yyyy-MM-dd) that already have a booking; flagged with a dot. */
   bookedDays?: Set<string>;
   yearRange?: number;
+  /** Bigger day numbers and weekday labels — the public booking step, whose
+   *  type runs larger than the admin dialogs that share this grid. */
+  large?: boolean;
   className?: string;
 }) {
   const days = eachDayOfInterval({
@@ -137,7 +141,10 @@ export function Calendar({
         {WEEKDAYS.map((d) => (
           <div
             key={d}
-            className="grid h-9 place-items-center text-xs text-muted-foreground sm:h-10 sm:text-sm"
+            className={cn(
+              "grid h-9 place-items-center text-muted-foreground sm:h-10",
+              large ? "text-base sm:text-lg" : "text-xs sm:text-sm"
+            )}
           >
             {d}
           </div>
@@ -159,7 +166,10 @@ export function Calendar({
                 onClick={() => enabled && onSelect?.(day)}
                 title={isBooked ? "Has a booking on this day" : undefined}
                 className={cn(
-                  "relative grid aspect-square w-full max-w-11 place-items-center rounded-lg text-base transition-[background-color,color,scale] duration-[var(--dur-fast)] ease-quart sm:text-lg",
+                  "relative grid aspect-square w-full place-items-center rounded-lg transition-[background-color,color,scale] duration-[var(--dur-fast)] ease-quart",
+                  large
+                    ? "max-w-[52px] text-[19px] sm:text-[22px]"
+                    : "max-w-11 text-base sm:text-lg",
                   isSelected
                     ? "scale-105 bg-day-selected font-medium text-white"
                     : enabled

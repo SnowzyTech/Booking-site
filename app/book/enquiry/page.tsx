@@ -41,19 +41,19 @@ export default function EnquiryPage() {
     <div className="px-6 pb-32 pt-[90px] lg:pt-[130px]">
       <div className="mx-auto flex max-w-[1000px] flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-center lg:gap-x-[100px]">
         <form
-          className="w-full max-w-[441px] shrink-0"
+          className="w-full max-w-[480px] shrink-0"
           onSubmit={(e) => {
             e.preventDefault();
             startNavigation(() => router.push("/book/details"));
           }}
         >
-          <h1 className="mb-6 text-[22px] font-bold leading-[1.2] text-[#1d1620]">
+          <h1 className="mb-6 text-[28px] font-bold leading-[1.2] text-[#1d1620]">
             Tell us about the event
           </h1>
 
           {FIELDS.map((f) => (
             <div key={f.key} className="mb-[18px]">
-              <Label htmlFor={f.key}>{f.label}</Label>
+              <Label htmlFor={f.key} className="text-[18px]">{f.label}</Label>
               <Input
                 id={f.key}
                 required
@@ -62,7 +62,7 @@ export default function EnquiryPage() {
                 onChange={(e) =>
                   setEnquiry((v) => ({ ...v, [f.key]: e.target.value }))
                 }
-                className="mt-1.5"
+                className="mt-1.5 h-14 text-[19px]"
               />
             </div>
           ))}
@@ -72,14 +72,14 @@ export default function EnquiryPage() {
             variant="solid"
             size="lg"
             disabled={!allRequiredFilled || navigating}
-            className="mt-7 px-14"
+            className="mt-7 h-[60px] px-14 text-[20px]"
           >
             Continue
           </Button>
         </form>
 
         <div className="w-full max-w-[422px] shrink-0">
-          <h2 className="text-[17px] font-bold text-[#111]">
+          <h2 className="text-[23px] font-bold text-[#111]">
             {service?.name ?? "Select a service"}
           </h2>
           {/* The photo's own frame, as on the landing page — not the mockup's

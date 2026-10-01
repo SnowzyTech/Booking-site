@@ -4,6 +4,7 @@ import Link from "next/link";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { Button } from "@/components/ui/button";
 import { nav } from "@/lib/site";
+import { cn } from "@/lib/utils";
 
 /*
  * Floating pill nav. Geometry measured off the 1512px-wide export
@@ -16,12 +17,32 @@ import { nav } from "@/lib/site";
  * 85px across xl / 1400 / 1460 rather than jumping straight to the export
  * value. Below xl the gutters shrink, the links collapse into <MobileNav> and
  * the pill keeps just the CTA (sm+) and the hamburger.
+ *
+ * `fixed` (the landing page) pins the bar to the viewport instead of leaving it
+ * at the top of the document. The bar itself stays transparent, so once it
+ * rides over the sections the logo gets its own chip and the pill turns nearly
+ * opaque — otherwise both would be dark text on whatever scrolls underneath.
+ * Anchor targets already clear it: see `scroll-margin-top` in globals.css.
+ * The bar ignores the pointer except on the logo and the pill, so the empty
+ * strip between them doesn't swallow clicks meant for the page beneath.
  */
-export function SiteHeader() {
+export function SiteHeader({ fixed = false }: { fixed?: boolean }) {
   return (
-    <header className="absolute inset-x-0 top-0 z-50 pt-[18px]">
+    <header
+      className={cn(
+        "pointer-events-none inset-x-0 top-0 z-40 pt-[18px]",
+        fixed ? "fixed" : "absolute"
+      )}
+    >
       <div className="mx-auto flex max-w-[1512px] items-center gap-4 px-5 sm:px-8 xl:gap-6 xl:px-[105px]">
-        <Link href="/" className="flex shrink-0 items-center gap-2 xl:gap-3">
+        <Link
+          href="/"
+          className={cn(
+            "pointer-events-auto flex shrink-0 items-center gap-2 xl:gap-3",
+            fixed &&
+              "rounded-full bg-white/85 py-1 pl-1 pr-4 shadow-[0_1px_6px_rgba(80,40,100,0.1)] backdrop-blur-sm"
+          )}
+        >
           <span className="relative size-10 overflow-hidden rounded-full bg-[#e8d5f0] xl:size-11">
             <Image
               src="/images/linda-avatar.jpg"
@@ -38,7 +59,14 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <div className="ml-auto flex h-[52px] items-center gap-1 rounded-full bg-white/60 px-[7px] shadow-[0_1px_3px_rgba(80,40,100,0.05)] backdrop-blur-sm xl:h-[56px] xl:gap-0 xl:pl-[45px] xl:pr-[7px]">
+        <div
+          className={cn(
+            "pointer-events-auto ml-auto flex h-[52px] items-center gap-1 rounded-full px-[7px] backdrop-blur-sm xl:h-[56px] xl:gap-0 xl:pl-[45px] xl:pr-[7px]",
+            fixed
+              ? "bg-white/85 shadow-[0_1px_6px_rgba(80,40,100,0.1)]"
+              : "bg-white/60 shadow-[0_1px_3px_rgba(80,40,100,0.05)]"
+          )}
+        >
           {/* Plain anchors, not <Link>: these are hashes on the landing page,
               and a soft navigation from /contact lands at the top of "/" with
               the hash dropped. A document navigation honours it. On the landing

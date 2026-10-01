@@ -12,7 +12,7 @@ export default function LandingPage() {
   return (
     <>
       <HashScroll />
-      <SiteHeader />
+      <SiteHeader fixed />
       <main>
         <Hero />
         <BetterHealth />

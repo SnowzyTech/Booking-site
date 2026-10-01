@@ -19,7 +19,7 @@ export function TimeSlots({
   const slots = timeSlots();
 
   return (
-    <div className="flex h-[570px] w-[176px] shrink-0 flex-col rounded-2xl border border-border bg-white/70 px-6 py-3">
+    <div className="flex h-[570px] w-[200px] shrink-0 flex-col rounded-2xl border border-border bg-white/70 px-6 py-3">
       <ChevronUp className="mx-auto size-5 shrink-0 text-[#111]" />
       <div className="no-scrollbar my-2 flex-1 space-y-2 overflow-y-auto">
         {slots.map((s) => {
@@ -32,7 +32,7 @@ export function TimeSlots({
               disabled={booked}
               onClick={() => onChange(s.value)}
               className={cn(
-                "h-[38px] w-full rounded-md text-[13px] transition-[background-color,color,scale] duration-[var(--dur-fast)] ease-quart",
+                "h-[46px] w-full rounded-md text-[18px] transition-[background-color,color,scale] duration-[var(--dur-fast)] ease-quart",
                 active
                   ? "scale-[1.03] bg-brand-deep font-medium text-white"
                   : booked
