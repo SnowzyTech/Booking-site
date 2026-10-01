@@ -10,7 +10,7 @@ export function Services() {
   return (
     <section id="services" className="bg-white py-[70px]">
       <div className="mx-auto max-w-[1100px] px-6">
-        <h2 className="text-center text-[30px] font-extrabold tracking-[0.06em]">
+        <h2 className="text-center text-[40px] font-extrabold tracking-[0.06em]">
           <span className="text-[#5b0f8b]">SERVIC</span>
           <span className="text-[#b06fd6]">E</span>
           <span className="text-[#5b0f8b]">S</span>
@@ -29,14 +29,14 @@ export function Services() {
                   />
 
                   <div className={cn(imageRight && "lg:order-1")}>
-                    <h3 className="text-[28px] font-extrabold leading-[1.15] tracking-[-0.01em] text-[#111]">
+                    <h3 className="text-[36px] font-extrabold leading-[1.15] tracking-[-0.01em] text-[#111]">
                       {s.name}
                     </h3>
 
                     {(s.tag || s.price) && (
                       <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                         {s.tag ? (
-                          <span className="rounded-full bg-[#efefef] px-3 py-1 text-[12.5px] font-medium text-[#3d3d3d]">
+                          <span className="rounded-full bg-[#efefef] px-3 py-1 text-[18px] font-medium text-[#3d3d3d]">
                             {s.tag}
                           </span>
                         ) : (
@@ -45,7 +45,7 @@ export function Services() {
                         {s.price && (
                           <span className="flex min-w-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
                             {s.listPrice && (
-                              <span className="text-[12.5px] text-[#8a8a8a] line-through">
+                              <span className="text-[18px] text-[#8a8a8a] line-through">
                                 {s.listPrice}
                               </span>
                             )}
@@ -53,7 +53,7 @@ export function Services() {
                                 pattern now — was solid brand for Premium/Events,
                                 per the owner's ask to keep the price treatment
                                 consistent across every card. */}
-                            <span className="rounded-full bg-[#f7ecff] px-3 py-1 text-[17px] font-extrabold text-[#111]">
+                            <span className="rounded-full bg-[#f7ecff] px-3 py-1 text-[23px] font-extrabold text-[#111]">
                               {s.price}
                             </span>
                           </span>
@@ -63,7 +63,7 @@ export function Services() {
 
                     <hr className="mt-3 border-[#e6e6e6]" />
 
-                    <p className="mt-4 text-justify text-[15.5px] leading-[1.65] text-[#1d1620]">
+                    <p className="mt-4 text-justify text-[23px] leading-[1.65] text-[#1d1620]">
                       {s.blurb}
                     </p>
 
@@ -72,7 +72,7 @@ export function Services() {
                         {s.bullets.map((b) => (
                           <li
                             key={b}
-                            className="list-disc text-[15.5px] leading-[1.55] text-[#1d1620] marker:text-[#c9a3dd]"
+                            className="list-disc text-[23px] leading-[1.55] text-[#1d1620] marker:text-[#c9a3dd]"
                           >
                             {b}
                           </li>
@@ -81,7 +81,7 @@ export function Services() {
                     )}
 
                     {s.extra && (
-                      <p className="mt-4 text-justify text-[15.5px] leading-[1.65] text-[#1d1620]">
+                      <p className="mt-4 text-justify text-[23px] leading-[1.65] text-[#1d1620]">
                         {s.extra}
                       </p>
                     )}
@@ -94,7 +94,7 @@ export function Services() {
                   asChild
                   variant={s.ctaVariant}
                   size="lg"
-                  className="w-full font-bold"
+                  className="h-[60px] w-full text-[20px] font-bold hover:bg-brand"
                 >
                   {/* Straight to this service's next step, not the /book
                       picker — only the hero's "Explore Services" browses

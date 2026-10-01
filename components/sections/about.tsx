@@ -1,7 +1,10 @@
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 import { Reveal } from "@/components/motion/reveal";
-import { aboutClosing, aboutParagraphs } from "@/lib/site";
+import { Button } from "@/components/ui/button";
+import { aboutStoryCta, aboutSummary } from "@/lib/site";
 
 export function About() {
   return (
@@ -24,18 +27,29 @@ export function About() {
           </h2>
         </Reveal>
 
+        {/* Summary only — the full biography is told in chapters on /about. */}
         <Reveal className="mt-9 space-y-5 px-2">
-          {aboutParagraphs.map((p) => (
+          {aboutSummary.map((p) => (
             <p
               key={p.slice(0, 40)}
-              className="text-justify text-[15.5px] leading-[1.75] text-[#1d1620]"
+              className="text-[23px] leading-[1.75] text-[#1d1620]"
             >
               {p}
             </p>
           ))}
-          <p className="pt-2 text-justify text-[15.5px] font-extrabold leading-[1.75] text-[#111]">
-            {aboutClosing}
-          </p>
+          <div className="pt-3">
+            <Button
+              asChild
+              variant="pill"
+              size="lg"
+              className="h-[60px] px-9 text-[20px] hover:bg-brand"
+            >
+              <Link href="/about">
+                {aboutStoryCta}
+                <ArrowRight className="ml-2.5 size-5" strokeWidth={2} />
+              </Link>
+            </Button>
+          </div>
         </Reveal>
       </div>
     </section>

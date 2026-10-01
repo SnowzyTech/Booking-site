@@ -106,7 +106,7 @@ export function MobileNav() {
           </nav>
 
           <DialogPrimitive.Close asChild>
-            <Button asChild variant="pill" size="lg" className="mt-8 w-full">
+            <Button asChild variant="pill" size="lg" className="mt-8 w-full hover:bg-brand">
               <Link href="/book">Explore Services</Link>
             </Button>
           </DialogPrimitive.Close>

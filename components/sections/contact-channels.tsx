@@ -66,10 +66,10 @@ export function ContactChannels({ className }: { className?: string }) {
                 <Icon className="size-4" />
               </span>
               <span className="min-w-0">
-                <span className="block text-[13px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
+                <span className="block text-[18px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
                   {label}
                 </span>
-                <span className="mt-1 block break-words text-[15px] leading-[1.55] text-[#1d1620]">
+                <span className="mt-1 block break-words text-[22px] leading-[1.55] text-[#1d1620]">
                   {value}
                 </span>
               </span>
@@ -83,20 +83,20 @@ export function ContactChannels({ className }: { className?: string }) {
           <Clock className="size-4" />
         </span>
         <div className="min-w-0">
-          <p className="text-[13px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
+          <p className="text-[18px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
             Business Hours
           </p>
-          <p className="mt-1 text-[15px] leading-[1.55] text-[#1d1620]">
+          <p className="mt-1 text-[22px] leading-[1.55] text-[#1d1620]">
             {businessHours.hours}
           </p>
-          <p className="mt-1.5 text-[13px] leading-[1.55] text-[#4a4a4a]">
+          <p className="mt-1.5 text-[20px] leading-[1.55] text-[#4a4a4a]">
             {businessHours.note}
           </p>
         </div>
       </Reveal>
 
       <Reveal delay={160} className="mt-6 px-1">
-        <p className="text-[13px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
+        <p className="text-[18px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
           Follow Linda
         </p>
         {/* Same -m-1/p-1 trick as the footer: a 23px tap target without

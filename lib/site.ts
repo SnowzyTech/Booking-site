@@ -16,7 +16,7 @@ export const contact = {
   email: "nucle.ltd@gmail.com",
   phone: "+234 7079438493",
   whatsapp: "07079438493",
-  address: "16, 21 Road, by Faith Academy, Gowon Estate,Egbeda, Lagos, Nigeria.",
+  address: "Gowon Estate, Egbeda, Lagos, Nigeria.",
 };
 
 /* wa.me deep link for `contact.whatsapp`. The number is stored in local format
@@ -42,9 +42,11 @@ export const bank = {
   bank: "Zenith bank",
 };
 
-/* Health & nutrition intake Google Form. Shown to a paying individual client on
-   the Paystack success page and in their receipt e-mail, so the Team can build
-   the best plan — it replaces the old "we WhatsApp you the link" step. */
+/* Health & nutrition intake Google Form. Shown to an individual client on both
+   payment confirmations (the Paystack success page and the bank-transfer one,
+   via <IntakeFormPrompt>) and in the card payer's receipt e-mail, so the Team
+   can build the best plan — it replaces the old "we WhatsApp you the link"
+   step. */
 export const intakeFormUrl = "https://forms.gle/84NgCzu6th2uVnvF6";
 
 export const businessHours = {
@@ -141,19 +143,86 @@ export const howItWorks = [
   },
 ];
 
-export const aboutParagraphs = [
-  "Linda Chikaodi Austin is a Certified Clinical Nutritionist, Health Consultant, and the visionary CEO of Nucle Limited and its subsidiary, Nutriticare. She is also the Lead Consultant behind the Crush Your Sugar Challenge, a practical health education programme focused on helping people better understand and improve their metabolic health through nutrition, lifestyle, and consistent support.",
-  "With experience working across metabolic health, nutrition, weight management, and healthy living, Linda takes a holistic and practical approach to helping individuals make better health decisions.",
-  "Her work extends beyond managing specific health conditions. She supports individuals who want to improve their eating habits, lose weight, manage metabolic health concerns, prevent nutrition-related health challenges, or simply learn how to eat and live healthier.",
-  "Linda understands that healthy living is not about following a generic diet or eliminating everything you enjoy. It is about understanding your body's needs, making informed choices, and developing habits that can realistically become part of your everyday life.",
-  "She combines evidence based nutrition, culturally relevant food guidance, behavioural coaching, and personalized counselling to create practical solutions that work within each individual's lifestyle, preferences, health needs, and goals.",
-  "Through the Crush Your Sugar Challenge, The Recovery Room, and other health initiatives, Linda has reached thousands of people with practical, science driven health education. More than 6,000 people have participated in the Crush Your Sugar Challenge, with participants reporting measurable improvements in their blood sugar management and overall health behaviours.",
-  "Beyond one-on-one consultations, Linda also works with organisations, companies, and event audiences, delivering engaging health and nutrition training designed to make healthy living easier to understand and apply.",
-  "Whether you are looking to manage a health condition, lose weight, improve your metabolic health, eat healthier, or equip your team with practical health knowledge, Linda's approach is centred on giving you clarity, practical direction, and strategies you can actually implement.",
-  "Her work is built on a simple belief:",
-  "People deserve to understand their health and have the knowledge, tools, and support to take ownership of it.",
-  "Your health is personal. Your nutrition should be too.",
+/* The landing page's About band is a short summary that hands off to /about,
+   where the full biography below is told in chapters. The summary is condensed
+   from the same copy — nothing in it is new information. */
+export const aboutSummary = [
+  "Linda Chikaodi Austin is a Certified Clinical Nutritionist, Health Consultant, and the CEO of Nucle Limited and its subsidiary, Nutriticare. She is also the Lead Consultant behind the Crush Your Sugar Challenge, which more than 6,000 people have taken part in.",
+  "Her approach is practical and personal: evidence based nutrition, culturally relevant food guidance, and counselling that fit your lifestyle, your health needs, and your goals.",
 ];
+
+export const aboutStoryCta = "Full Story";
+
+export const aboutPageCopy = {
+  eyebrow: "About Linda",
+  title: "Meet Linda Chikaodi Austin",
+  intro:
+    "Certified Clinical Nutritionist, Health Consultant, and CEO of Nucle Limited and Nutriticare.",
+};
+
+/* /about, one entry per chapter. `image` is optional — a chapter without one
+   runs as a single text column. `stat` renders as a highlighted figure. */
+export type StoryChapter = {
+  title: string;
+  paragraphs: string[];
+  image?: { src: string; alt: string };
+  stat?: { value: string; label: string };
+};
+
+export const aboutStory: StoryChapter[] = [
+  {
+    title: "Who She Is",
+    image: {
+      src: "/images/individual-heal.jpeg",
+      alt: "Linda Chikaodi Austin working at her desk",
+    },
+    paragraphs: [
+      "Linda Chikaodi Austin is a Certified Clinical Nutritionist, Health Consultant, and the visionary CEO of Nucle Limited and its subsidiary, Nutriticare.",
+      "She is also the Lead Consultant behind the Crush Your Sugar Challenge, a practical health education programme focused on helping people better understand and improve their metabolic health through nutrition, lifestyle, and consistent support.",
+    ],
+  },
+  {
+    title: "Her Approach",
+    image: {
+      src: "/images/one-on-one.jpg",
+      alt: "Linda Chikaodi Austin in a consultation with a client",
+    },
+    paragraphs: [
+      "With experience working across metabolic health, nutrition, weight management, and healthy living, Linda takes a holistic and practical approach to helping individuals make better health decisions.",
+      "Linda understands that healthy living is not about following a generic diet or eliminating everything you enjoy. It is about understanding your body's needs, making informed choices, and developing habits that can realistically become part of your everyday life.",
+      "She combines evidence based nutrition, culturally relevant food guidance, behavioural coaching, and personalized counselling to create practical solutions that work within each individual's lifestyle, preferences, health needs, and goals.",
+    ],
+  },
+  {
+    title: "Who She Helps",
+    paragraphs: [
+      "Her work extends beyond managing specific health conditions. She supports individuals who want to improve their eating habits, lose weight, manage metabolic health concerns, prevent nutrition-related health challenges, or simply learn how to eat and live healthier.",
+      "Whether you are looking to manage a health condition, lose weight, improve your metabolic health, eat healthier, or equip your team with practical health knowledge, Linda's approach is centred on giving you clarity, practical direction, and strategies you can actually implement.",
+    ],
+  },
+  {
+    title: "Her Impact",
+    image: {
+      src: "/images/training-1.jpeg",
+      alt: "Linda Chikaodi Austin speaking at The Recovery Room",
+    },
+    stat: {
+      value: "6,000+",
+      label: "people have participated in the Crush Your Sugar Challenge",
+    },
+    paragraphs: [
+      "Through the Crush Your Sugar Challenge, The Recovery Room, and other health initiatives, Linda has reached thousands of people with practical, science driven health education. Participants report measurable improvements in their blood sugar management and overall health behaviours.",
+      "Beyond one-on-one consultations, Linda also works with organisations, companies, and event audiences, delivering engaging health and nutrition training designed to make healthy living easier to understand and apply.",
+    ],
+  },
+];
+
+export const aboutBelief = {
+  lead: "Her work is built on a simple belief:",
+  quote:
+    "People deserve to understand their health and have the knowledge, tools, and support to take ownership of it.",
+  tagline: "Your health is personal. Your nutrition should be too.",
+};
 
 export const aboutClosing =
   "Book a consultation, personalized meal plan, corporate wellness training, or health education session with Linda today.";

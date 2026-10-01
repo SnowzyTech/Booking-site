@@ -6,6 +6,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Building2, CreditCard, Loader2, X } from "lucide-react";
 
 import { useBooking } from "@/components/booking/booking-context";
+import { IntakeFormPrompt } from "@/components/booking/intake-form-prompt";
 import { Button } from "@/components/ui/button";
 import { createScheduledBooking, startPaystackCheckout } from "@/lib/booking-actions";
 import { toSlotInstant } from "@/lib/availability";
@@ -95,9 +96,12 @@ export function PaymentActions() {
     }
   }
 
+  /* Same card as the Paystack return page (/book/payment/callback), intake-form
+     hand-off included. Only the wording differs: a transfer is still to be
+     verified, so this doesn't claim the payment has been received. */
   if (done) {
     return (
-      <div className="max-w-[420px] animate-in rounded-lg bg-white/70 px-6 py-5 duration-500 ease-soft fade-in-0 fill-mode-both slide-in-from-bottom-2">
+      <div className="max-w-[460px] animate-in rounded-lg bg-white/70 px-6 py-5 duration-500 ease-soft fade-in-0 fill-mode-both slide-in-from-bottom-2">
         <p className="text-[15px] font-bold text-[#111]">
           Thank you — we&rsquo;ve received your notification.
         </p>
@@ -105,6 +109,7 @@ export function PaymentActions() {
           Linda&rsquo;s team will verify your payment and confirm your
           appointment and will reach out to you immediately.
         </p>
+        {service && <IntakeFormPrompt serviceSlug={service.slug} />}
       </div>
     );
   }

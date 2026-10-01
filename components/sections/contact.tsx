@@ -22,11 +22,11 @@ export function Contact() {
     <section id="contacts" className="bg-wash-lavender py-[70px]">
       <div className="mx-auto max-w-[1100px] px-6">
         <Reveal className="text-center">
-          <h2 className="text-[30px] font-bold tracking-[-0.01em]">
+          <h2 className="text-[40px] font-bold tracking-[-0.01em]">
             <span className="text-[#4a1063]">{contactCopy.headingLead}</span>
             <span className="text-brand-ink">{contactCopy.headingAccent}</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-[760px] text-[16.5px] leading-[1.7] text-[#1d1620]">
+          <p className="mx-auto mt-4 max-w-[820px] text-[24px] leading-[1.7] text-[#1d1620]">
             {contactCopy.intro}
           </p>
         </Reveal>
@@ -38,28 +38,38 @@ export function Contact() {
             delay={80}
             className="rounded-2xl border border-[#f0e4f7] bg-white p-6 shadow-[0_2px_16px_rgba(80,40,100,0.05)] sm:p-8"
           >
-            <h3 className="text-[21px] font-extrabold text-[#111]">
+            <h3 className="text-[28px] font-extrabold text-[#111]">
               {contactCopy.teaserTitle}
             </h3>
-            <p className="mt-3 text-[15.5px] leading-[1.65] text-[#1d1620]">
+            <p className="mt-3 text-[23px] leading-[1.65] text-[#1d1620]">
               {contactCopy.teaserBody}
             </p>
 
-            <div className="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-              <Button asChild variant="pill" size="lg" className="sm:px-7">
+            <div className="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <Button
+                asChild
+                variant="pill"
+                size="lg"
+                className="h-[60px] text-[20px] hover:bg-brand sm:px-7"
+              >
                 <Link href="/contact">
                   {contactCopy.teaserCta}
-                  <ArrowRight className="ml-2.5 size-4" strokeWidth={2} />
+                  <ArrowRight className="ml-2.5 size-5" strokeWidth={2} />
                 </Link>
               </Button>
-              <Button asChild variant="soft" size="lg">
+              <Button
+                asChild
+                variant="soft"
+                size="lg"
+                className="h-[60px] text-[20px]"
+              >
                 <a href={whatsappLink()} target="_blank" rel="noreferrer">
                   Chat on WhatsApp
                 </a>
               </Button>
             </div>
 
-            <p className="mt-5 text-[13.5px] leading-[1.6] text-[#4a4a4a]">
+            <p className="mt-5 text-[21px] leading-[1.6] text-[#4a4a4a]">
               <Link
                 href="/book"
                 className="font-semibold text-brand-ink underline"

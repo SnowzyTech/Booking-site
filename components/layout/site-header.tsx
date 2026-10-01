@@ -58,7 +58,7 @@ export function SiteHeader() {
           <Button
             asChild
             variant="pill"
-            className="hidden h-[40px] px-5 text-[13px] sm:inline-flex xl:ml-[28px] xl:h-[44px] xl:px-6"
+            className="hidden h-[40px] px-5 text-[13px] hover:bg-brand sm:inline-flex xl:ml-[28px] xl:h-[44px] xl:px-6"
           >
             <Link href="/book">Explore Services</Link>
           </Button>

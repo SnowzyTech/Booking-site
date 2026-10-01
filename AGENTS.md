@@ -31,7 +31,9 @@ Marketing + booking site for **Linda Chikaodi Austin**, a clinical nutritionist
 
 - **`app/(public)`** — landing page (`/`): hero, how-it-works, services, about,
   FAQ, contact band. Plus `/contact`, the dedicated contact page that holds the
-  message form; the landing band carries the same details and links to it.
+  message form; the landing band carries the same details and links to it. And
+  `/about`, Linda's full story in chapters (`aboutStory` in `lib/site.ts`); the
+  landing About band is only a summary with a "Full Story" button to it.
 - **`app/book`** — booking wizard. Three branches, selected by each service's
   `flow` plus the `needsEnquiry()` predicate in `lib/services.ts`:
   - `scheduled` (Consultation, Meal Plans) — 4 dots: `/book` → `/book/schedule`
