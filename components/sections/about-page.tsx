@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
  * and the lavender wash for the closing band. Type runs at the landing page's
  * enlarged sizes — most visitors are older readers.
  *
- * <SiteHeader> is absolutely positioned over the top of the page, so the intro
+ * <SiteHeader> is fixed over the top of the page, so the intro
  * band wears enough top padding to clear it.
  */
 export function StoryIntro() {

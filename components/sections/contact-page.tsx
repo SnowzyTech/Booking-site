@@ -10,7 +10,7 @@ import { contactCopy } from "@/lib/site";
  * the same reason the landing sections do: `app/(public)/*` stays a thin shell
  * that composes sections, and all the styling sits under components/.
  *
- * <SiteHeader> is absolutely positioned over the top of the page, so the intro
+ * <SiteHeader> is fixed over the top of the page, so the intro
  * band wears the hero wash and enough top padding to clear it.
  */
 export function ContactIntro() {

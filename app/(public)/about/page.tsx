@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <SiteHeader />
+      <SiteHeader fixed />
       <main>
         <StoryIntro />
         <StoryChapters />
