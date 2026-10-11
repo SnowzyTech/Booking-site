@@ -69,7 +69,7 @@ export function ContactChannels({ className }: { className?: string }) {
                 <span className="block text-[18px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
                   {label}
                 </span>
-                <span className="mt-1 block break-words text-[22px] leading-[1.55] text-[#1d1620]">
+                <span className="mt-1 block break-words text-[20px] leading-[1.55] text-[#1d1620]">
                   {value}
                 </span>
               </span>
@@ -86,7 +86,7 @@ export function ContactChannels({ className }: { className?: string }) {
           <p className="text-[18px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
             Business Hours
           </p>
-          <p className="mt-1 text-[22px] leading-[1.55] text-[#1d1620]">
+          <p className="mt-1 text-[20px] leading-[1.55] text-[#1d1620]">
             {businessHours.hours}
           </p>
           <p className="mt-1.5 text-[20px] leading-[1.55] text-[#4a4a4a]">
