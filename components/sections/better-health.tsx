@@ -8,7 +8,7 @@ export function BetterHealth() {
           <span className="text-[#4a1063]">Better Health Starts With the </span>
           <span className="text-brand-ink">Right Plan</span>
         </h2>
-        <p className="mx-auto mt-4 max-w-[810px] text-[24px] leading-[1.7] text-[#1d1620]">
+        <p className="mx-auto mt-4 max-w-[810px] text-[21px] leading-[1.7] text-[#1d1620]">
           Your health journey is unique. Whether your goal is to manage a health
           condition, lose weight, improve your nutrition, or simply live
           healthier, the right approach starts with understanding your

@@ -26,7 +26,7 @@ export function Contact() {
             <span className="text-[#4a1063]">{contactCopy.headingLead}</span>
             <span className="text-brand-ink">{contactCopy.headingAccent}</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-[820px] text-[24px] leading-[1.7] text-[#1d1620]">
+          <p className="mx-auto mt-4 max-w-[820px] text-[21px] leading-[1.7] text-[#1d1620]">
             {contactCopy.intro}
           </p>
         </Reveal>
@@ -41,7 +41,7 @@ export function Contact() {
             <h3 className="text-[28px] font-extrabold text-[#111]">
               {contactCopy.teaserTitle}
             </h3>
-            <p className="mt-3 text-[23px] leading-[1.65] text-[#1d1620]">
+            <p className="mt-3 text-[20px] leading-[1.65] text-[#1d1620]">
               {contactCopy.teaserBody}
             </p>
 
@@ -69,7 +69,7 @@ export function Contact() {
               </Button>
             </div>
 
-            <p className="mt-5 text-[21px] leading-[1.6] text-[#4a4a4a]">
+            <p className="mt-5 text-[20px] leading-[1.6] text-[#4a4a4a]">
               <Link
                 href="/book"
                 className="font-semibold text-brand-ink underline"

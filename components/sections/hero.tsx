@@ -65,7 +65,7 @@ export function Hero() {
         {/* #8a8a8a measured at 3:1 against the hero wash — under the 4.5:1
             minimum for body text — so this uses the site's standard body-copy
             gray instead, same as every other section's supporting line. */}
-        <p className="mx-auto mt-6 max-w-[860px] animate-in text-[24px] font-medium leading-[1.6] text-[#2e2e2e] delay-100 duration-700 ease-quart fade-in-0 fill-mode-both slide-in-from-bottom-3">
+        <p className="mx-auto mt-6 max-w-[860px] animate-in text-[21px] font-medium leading-[1.6] text-[#2e2e2e] delay-100 duration-700 ease-quart fade-in-0 fill-mode-both slide-in-from-bottom-3">
           From personalized consultations and meal plans to corporate wellness
           training and health education, Linda Chikaodi Austin helps people
           understand their health and turn knowledge into practical, sustainable

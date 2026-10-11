@@ -47,7 +47,7 @@ export function Faq() {
                 </AccordionTrigger>
                 <AccordionContent className="pb-9">
                   {cat.questions.length === 0 ? (
-                    <p className="text-[22px] italic text-muted-foreground">
+                    <p className="text-[20px] italic text-muted-foreground">
                       Questions for this section were collapsed in the design and
                       have not been supplied yet.
                     </p>
@@ -84,11 +84,11 @@ function QuestionGrid({
           </AccordionTrigger>
           <AccordionContent className="pb-6">
             {item.answer ? (
-              <p className="whitespace-pre-line text-justify text-[23px] leading-[1.7] text-[#1d1620]">
+              <p className="whitespace-pre-line text-justify text-[20px] leading-[1.7] text-[#1d1620]">
                 {item.answer}
               </p>
             ) : (
-              <p className="text-[22px] italic text-muted-foreground">
+              <p className="text-[20px] italic text-muted-foreground">
                 Answer copy pending.
               </p>
             )}
