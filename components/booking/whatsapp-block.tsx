@@ -22,10 +22,10 @@ export function WhatsAppChip({ className }: { className?: string }) {
 export function WhatsAppHelp() {
   return (
     <div className="max-w-[520px]">
-      <p className="text-[20px] font-bold text-[#111]">
+      <p className="text-[19px] font-bold text-[#111]">
         Need help before making payment?
       </p>
-      <p className="mt-1 text-[20px] leading-[1.55] text-[#111]">
+      <p className="mt-1 text-[19px] leading-[1.55] text-[#111]">
         You can message us on WhatsApp for any questions or clarification before
         proceeding with payment.
       </p>

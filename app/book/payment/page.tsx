@@ -19,20 +19,20 @@ export default function PaymentPage() {
       </h1>
 
       <div className="mt-8 max-w-[680px]">
-        <p className="text-[20px] leading-[1.5] text-[#111]">
+        <p className="text-[19px] leading-[1.5] text-[#111]">
           Choose how you would like to pay. If you pay by bank transfer, confirm
           it on the next screen so we can verify your payment.
         </p>
 
-        <p className="mt-6 pl-5 text-[20px] font-bold text-[#111]">
+        <p className="mt-6 pl-5 text-[19px] font-bold text-[#111]">
           Once your payment is verified:
         </p>
         <ul className="mt-2 space-y-4 pl-9">
-          <li className="list-disc text-[20px] leading-[1.5] text-[#111]">
+          <li className="list-disc text-[19px] leading-[1.5] text-[#111]">
             Your appointment will be scheduled and reflected on your account
             page.
           </li>
-          <li className="list-disc text-[20px] leading-[1.5] text-[#111]">
+          <li className="list-disc text-[19px] leading-[1.5] text-[#111]">
             A confirmation email will be sent to your provided email address.
           </li>
         </ul>
@@ -43,10 +43,10 @@ export default function PaymentPage() {
 
         <hr className="mt-10 border-[#e0d3e8]" />
 
-        <p className="mt-8 text-[20px] font-bold text-[#111]">
+        <p className="mt-8 text-[19px] font-bold text-[#111]">
           Need help before making payment?
         </p>
-        <p className="mt-1 text-[20px] leading-[1.55] text-[#111]">
+        <p className="mt-1 text-[19px] leading-[1.55] text-[#111]">
           You can message us on WhatsApp for any questions or clarification
           before proceeding with payment.
         </p>

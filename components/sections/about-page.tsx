@@ -96,7 +96,7 @@ export function StoryChapters() {
                       <p className="text-[52px] font-extrabold leading-none text-[#5b0f8b]">
                         {chapter.stat.value}
                       </p>
-                      <p className="mt-2 text-[20px] leading-[1.5] text-[#1d1620]">
+                      <p className="mt-2 text-[18px] leading-[1.5] text-[#1d1620]">
                         {chapter.stat.label}
                       </p>
                     </div>
@@ -104,7 +104,7 @@ export function StoryChapters() {
                   {chapter.paragraphs.map((p) => (
                     <p
                       key={p.slice(0, 40)}
-                      className="text-[20px] leading-[1.7] text-[#1d1620]"
+                      className="text-[18px] leading-[1.7] text-[#1d1620]"
                     >
                       {p}
                     </p>
@@ -124,7 +124,7 @@ export function StoryClosing() {
     <section className="bg-wash-lavender py-[70px]">
       <div className="mx-auto max-w-[900px] px-6 text-center">
         <Reveal>
-          <p className="text-[20px] leading-[1.6] text-[#1d1620]">
+          <p className="text-[18px] leading-[1.6] text-[#1d1620]">
             {aboutBelief.lead}
           </p>
           <blockquote className="mt-5 text-[30px] font-bold leading-[1.35] tracking-[-0.01em] text-[#4a1063] sm:text-[36px]">

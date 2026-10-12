@@ -69,7 +69,7 @@ export function ServiceCard({ service }: { service: Service }) {
 
       <hr className="mt-3 border-[#e6e6e6]" />
 
-      <p className="mt-4 text-justify text-[20px] leading-[1.65] text-[#1d1620]">
+      <p className="mt-4 text-left text-[18px] leading-[1.65] text-[#1d1620]">
         {service.blurb}
       </p>
 
@@ -78,7 +78,7 @@ export function ServiceCard({ service }: { service: Service }) {
           {service.bullets.map((b) => (
             <li
               key={b}
-              className="list-disc text-[20px] leading-[1.55] text-[#1d1620] marker:text-[#c9a3dd]"
+              className="list-disc text-[18px] leading-[1.55] text-[#1d1620] marker:text-[#c9a3dd]"
             >
               {b}
             </li>
@@ -87,7 +87,7 @@ export function ServiceCard({ service }: { service: Service }) {
       )}
 
       {service.extra && (
-        <p className="mt-4 text-justify text-[20px] leading-[1.65] text-[#1d1620]">
+        <p className="mt-4 text-left text-[18px] leading-[1.65] text-[#1d1620]">
           {service.extra}
         </p>
       )}

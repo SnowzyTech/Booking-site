@@ -1,6 +1,14 @@
+import type { Metadata } from "next";
+
 import { BookingHeader } from "@/components/booking/booking-header";
 import { BookingProvider } from "@/components/booking/booking-context";
 import { Stepper } from "@/components/booking/stepper";
+
+// Transactional flow — keep every /book/* step out of search results.
+export const metadata: Metadata = {
+  title: "Book",
+  robots: { index: false, follow: false },
+};
 
 export default function BookLayout({
   children,

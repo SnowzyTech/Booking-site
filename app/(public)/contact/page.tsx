@@ -5,8 +5,14 @@ import { ContactBody, ContactIntro } from "@/components/sections/contact-page";
 import { contactCopy } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Contact Us — Linda Chikaodi Austin",
+  title: "Contact Us",
   description: contactCopy.pageIntro,
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    url: "/contact",
+    title: "Contact Us — Linda Chikaodi Austin",
+    description: contactCopy.pageIntro,
+  },
 };
 
 /* Dedicated contact page. The landing band (<Contact>) carries the same

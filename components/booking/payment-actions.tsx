@@ -105,7 +105,7 @@ export function PaymentActions() {
         <p className="text-[21px] font-bold text-[#111]">
           Thank you — we&rsquo;ve received your notification.
         </p>
-        <p className="mt-1 text-[20px] leading-[1.5] text-[#111]">
+        <p className="mt-1 text-[19px] leading-[1.5] text-[#111]">
           Linda&rsquo;s team will verify your payment and confirm your
           appointment and will reach out to you immediately.
         </p>
@@ -116,7 +116,7 @@ export function PaymentActions() {
 
   return (
     <div>
-      <p className="text-[20px] font-bold text-[#111]">
+      <p className="text-[19px] font-bold text-[#111]">
         How would you like to pay?
       </p>
 

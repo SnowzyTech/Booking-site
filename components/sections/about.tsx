@@ -32,7 +32,7 @@ export function About() {
           {aboutSummary.map((p) => (
             <p
               key={p.slice(0, 40)}
-              className="text-[20px] leading-[1.75] text-[#1d1620]"
+              className="text-[18px] leading-[1.75] text-[#1d1620]"
             >
               {p}
             </p>

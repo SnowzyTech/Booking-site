@@ -9,8 +9,15 @@ import {
 import { aboutSummary } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "About Linda — Linda Chikaodi Austin",
+  title: "About Linda",
   description: aboutSummary[0],
+  alternates: { canonical: "/about" },
+  openGraph: {
+    type: "profile",
+    url: "/about",
+    title: "About Linda — Linda Chikaodi Austin",
+    description: aboutSummary[0],
+  },
 };
 
 /* Linda's full story, in chapters. The landing band (<About>) carries a short

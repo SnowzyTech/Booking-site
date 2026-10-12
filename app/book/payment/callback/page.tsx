@@ -40,7 +40,7 @@ export default async function PaymentCallbackPage({
             <p className="text-[21px] font-bold text-[#111]">
               Thank you — your payment was received.
             </p>
-            <p className="mt-1 text-[20px] leading-[1.5] text-[#111]">
+            <p className="mt-1 text-[19px] leading-[1.5] text-[#111]">
               Linda&rsquo;s team will confirm your appointment shortly and reach
               out to you. A confirmation e-mail is on its way to your inbox.
             </p>
@@ -51,7 +51,7 @@ export default async function PaymentCallbackPage({
             <p className="text-[21px] font-bold text-[#111]">
               We couldn&rsquo;t confirm your payment.
             </p>
-            <p className="mt-1 text-[20px] leading-[1.5] text-[#111]">
+            <p className="mt-1 text-[19px] leading-[1.5] text-[#111]">
               {result.error}
             </p>
             <div className="mt-5">
@@ -64,8 +64,8 @@ export default async function PaymentCallbackPage({
 
         <hr className="mt-10 border-[#e0d3e8]" />
 
-        <p className="mt-8 text-[20px] font-bold text-[#111]">Need help?</p>
-        <p className="mt-1 text-[20px] leading-[1.55] text-[#111]">
+        <p className="mt-8 text-[19px] font-bold text-[#111]">Need help?</p>
+        <p className="mt-1 text-[19px] leading-[1.55] text-[#111]">
           Message us on WhatsApp if you have any questions about your payment or
           your appointment.
         </p>
