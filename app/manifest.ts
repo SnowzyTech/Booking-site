@@ -13,8 +13,8 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#5b0f8b",
     icons: [
       {
-        // Stand-in icon (the avatar); swap for a square PNG set when branding lands.
-        src: "/images/linda-avatar.jpg",
+        // The site's real icon (app/icon.jpg), served at /icon.jpg.
+        src: "/icon.jpg",
         sizes: "any",
         type: "image/jpeg",
       },
