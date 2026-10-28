@@ -466,6 +466,22 @@ function readBookingMetadata(metadata: unknown): BookingInput | null {
   };
 }
 
+/** Sugar Control Accelerator (/sca) card payments are tagged `metadata.sca =
+ *  true` by lib/sca-actions.ts. They are NOT bookings, so the shared webhook
+ *  must treat them as a no-op rather than a missing-booking error. Handles both
+ *  the object and JSON-string shapes Paystack may hand metadata back as. */
+function isScaTransaction(metadata: unknown): boolean {
+  let meta = metadata;
+  if (typeof meta === "string") {
+    try {
+      meta = JSON.parse(meta);
+    } catch {
+      return false;
+    }
+  }
+  return (meta as { sca?: unknown } | null)?.sca === true;
+}
+
 export type FinalizePaymentResult =
   | { ok: true; bookingId: string; serviceSlug: string; alreadyProcessed?: boolean }
   | { ok: false; error: string };
@@ -493,6 +509,13 @@ export async function finalizePaystackPayment(
       error:
         "We couldn't confirm this payment. If you were charged, please contact us and we'll sort it out.",
     };
+  }
+
+  // SCA (/sca) payments aren't bookings — there's nothing to write here. Ack as
+  // a benign no-op so the shared webhook doesn't log them as failures. The SCA
+  // buyer's own confirmation happens on /sca/thank-you, not this path.
+  if (isScaTransaction(txn.metadata)) {
+    return { ok: true, bookingId: "", serviceSlug: "sca", alreadyProcessed: true };
   }
 
   // Idempotency guard: the webhook and the return page can both land here.
