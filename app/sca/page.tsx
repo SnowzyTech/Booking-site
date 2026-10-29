@@ -252,9 +252,12 @@ export default function ScaPage() {
       {/* What you get */}
       <section className="e1012f03">
         <div className="sca-inner" style={{ maxWidth: 820, gap: 20 }}>
-          <h2 className="ef9ebdac">THAT’S EXACTLY WHAT WE WANT TO DO FOR YOU.</h2>
+          <h2 className="ef9ebdac">
+            THAT’S EXACTLY WHAT WE WANT TO DO FOR YOU INSIDE THE SUGAR CONTROL
+            ACCELERATOR
+          </h2>
 
-          <div className="sca-cta-wrap">
+          <div className="sca-cta-wrap" style={{ margin: "22px 0" }}>
             <a className="eb64ce42" href="#order">
               GRAB THE SUGAR CONTROL ACCELERATOR NOW <span aria-hidden="true">→</span>
             </a>
